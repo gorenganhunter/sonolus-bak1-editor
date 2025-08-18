@@ -1,3 +1,3 @@
-# Sonolus Horizon Editor
+# Sonolus BAK1 Editor
 
-https://horizon-editor.sonolus.com
+https://editor.bak1.gorenganhunter.my.id
