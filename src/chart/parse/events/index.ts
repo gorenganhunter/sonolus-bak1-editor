@@ -1,16 +1,10 @@
 import { Type, type TNumber } from '@sinclair/typebox'
 import { EngineArchetypeDataName, type LevelDataEntity } from '@sonolus/core'
-import { getValue } from '..'
-import type { EventObject } from '../..'
+import { getRef, getValue } from '..'
+import { EaseType, type EventObject } from '../..'
 import { beatSchema } from '../schemas'
 
-const ease = {
-    [-1]: 'out',
-    0: 'linear',
-    1: 'in',
-} as const
-
-const easeSchema = Type.Union([Type.Literal(-1), Type.Literal(0), Type.Literal(1)])
+const easeSchema = Type.Enum(EaseType)
 
 export const parseChartEventObjects = (
     objects: EventObject[],
@@ -24,7 +18,8 @@ export const parseChartEventObjects = (
         objects.push({
             beat: getValue(entity, EngineArchetypeDataName.Beat, beatSchema),
             value: getValue(entity, 'value', schema),
-            ease: ease[getValue(entity, 'ease', easeSchema)],
+            ease: getValue(entity, 'ease', easeSchema),
+            stage: parseInt(getRef(entity, 'stage').replace("stage", ""))
         })
     }
 }

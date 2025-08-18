@@ -13,11 +13,11 @@ export const getTransform = (zoom: number) => {
 }
 
 export const transform = (vec: VecLike, z: number) => {
-    const w = remap(0, 1, 5, 1, z)
+    const w = remap(0, 1, 12, 1, z)
 
     return {
-        x: vec.x / w,
-        y: (vec.y - 0.5) / w,
+        x: vec.x / 1,
+        y: (vec.y - z - 0.5) / 1,
     }
 }
 

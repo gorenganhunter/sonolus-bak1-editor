@@ -25,14 +25,23 @@ const defaultChart: Chart = {
         {
             beat: 0,
             value: 1,
+            stage: 0
         },
     ],
-    rotateEvents: [],
-    shiftEvents: [],
-    zoomEvents: [],
+    rectStages: [
+        {
+            id: 0
+        }
+    ],
     tapNotes: [],
-    singleHoldNotes: [],
-    doubleHoldNotes: [],
+    dragNotes: [],
+    flickNotes: [],
+    holdNotes: [],
+    moveXEvents: [],
+    moveYEvents: [],
+    rotateEvents: [],
+    resizeEvents: [],
+    transparentEvents: []
 }
 
 const index = ref(0)

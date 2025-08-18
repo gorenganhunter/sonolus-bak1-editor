@@ -1,11 +1,12 @@
-import { toValueEntity, type BaseValueEntity } from '.'
-import type { ValueObject } from '../../../chart'
+import { toStageValueEntity, toValueEntity, type BaseValueEntity } from '.'
+import type { StageValueObject } from '../../../chart'
 
 export type TimeScaleEntity = BaseValueEntity & {
     type: 'timeScale'
+    stage: number
 }
 
-export const toTimeScaleEntity = (object: ValueObject): TimeScaleEntity => ({
+export const toTimeScaleEntity = (object: StageValueObject): TimeScaleEntity => ({
     type: 'timeScale',
-    ...toValueEntity(object, 8),
+    ...toStageValueEntity(object, -0.0625),
 })

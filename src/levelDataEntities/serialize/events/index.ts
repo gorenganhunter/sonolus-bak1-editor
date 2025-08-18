@@ -24,12 +24,12 @@ export const serializeLevelDataEventEntities = (
                 },
                 {
                     name: 'ease',
-                    value: {
-                        out: -1,
-                        linear: 0,
-                        in: 1,
-                    }[joint.ease],
+                    value: joint.ease,
                 },
+                {
+                    name: 'stage',
+                    ref: `stage${joint.stage}`
+                }
             ],
         })
     }

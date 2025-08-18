@@ -1,16 +1,21 @@
 import LevelEditorRotateEventConnection from './events/connection/LevelEditorRotateEventConnection.vue'
-import LevelEditorShiftEventConnection from './events/connection/LevelEditorShiftEventConnection.vue'
-import LevelEditorZoomEventConnection from './events/connection/LevelEditorZoomEventConnection.vue'
 import LevelEditorRotateEventJoint from './events/joint/LevelEditorRotateEventJoint.vue'
-import LevelEditorShiftEventJoint from './events/joint/LevelEditorShiftEventJoint.vue'
-import LevelEditorZoomEventJoint from './events/joint/LevelEditorZoomEventJoint.vue'
-import LevelEditorDoubleHoldNoteConnection from './holdNotes/connection/LevelEditorDoubleHoldNoteConnection.vue'
-import LevelEditorSingleHoldNoteConnection from './holdNotes/connection/LevelEditorSingleHoldNoteConnection.vue'
-import LevelEditorDoubleHoldNoteJoint from './holdNotes/joint/LevelEditorDoubleHoldNoteJoint.vue'
-import LevelEditorSingleHoldNoteJoint from './holdNotes/joint/LevelEditorSingleHoldNoteJoint.vue'
-import LevelEditorTapNote from './LevelEditorTapNote.vue'
+import LevelEditorResizeEventConnection from './events/connection/LevelEditorResizeEventConnection.vue'
+import LevelEditorResizeEventJoint from './events/joint/LevelEditorResizeEventJoint.vue'
+import LevelEditorTransparentEventConnection from './events/connection/LevelEditorTransparentEventConnection.vue'
+import LevelEditorTransparentEventJoint from './events/joint/LevelEditorTransparentEventJoint.vue'
+import LevelEditorMoveXEventConnection from './events/connection/LevelEditorMoveXEventConnection.vue'
+import LevelEditorMoveXEventJoint from './events/joint/LevelEditorMoveXEventJoint.vue'
+import LevelEditorMoveYEventConnection from './events/connection/LevelEditorMoveYEventConnection.vue'
+import LevelEditorMoveYEventJoint from './events/joint/LevelEditorMoveYEventJoint.vue'
+import LevelEditorTapNote from './notes/LevelEditorTapNote.vue'
+import LevelEditorDragNote from './notes/LevelEditorDragNote.vue'
+import LevelEditorFlickNote from './notes/LevelEditorFlickNote.vue'
+import LevelEditorHoldNote from './notes/LevelEditorHoldNote.vue'
+import LevelEditorHoldConnector from './notes/LevelEditorHoldConnector.vue'
 import LevelEditorBpm from './values/LevelEditorBpm.vue'
 import LevelEditorTimeScale from './values/LevelEditorTimeScale.vue'
+import { state } from '../../history'
 
 export const components = {
     bpm: LevelEditorBpm,
@@ -18,18 +23,18 @@ export const components = {
 
     rotateEventJoint: LevelEditorRotateEventJoint,
     rotateEventConnection: LevelEditorRotateEventConnection,
-
-    shiftEventJoint: LevelEditorShiftEventJoint,
-    shiftEventConnection: LevelEditorShiftEventConnection,
-
-    zoomEventJoint: LevelEditorZoomEventJoint,
-    zoomEventConnection: LevelEditorZoomEventConnection,
+    resizeEventJoint: LevelEditorResizeEventJoint,
+    resizeEventConnection: LevelEditorResizeEventConnection,
+    transparentEventJoint: LevelEditorTransparentEventJoint,
+    transparentEventConnection: LevelEditorTransparentEventConnection,
+    moveXEventJoint: LevelEditorMoveXEventJoint,
+    moveXEventConnection: LevelEditorMoveXEventConnection,
+    moveYEventJoint: LevelEditorMoveYEventJoint,
+    moveYEventConnection: LevelEditorMoveYEventConnection,
 
     tapNote: LevelEditorTapNote,
-
-    singleHoldNoteJoint: LevelEditorSingleHoldNoteJoint,
-    singleHoldNoteConnection: LevelEditorSingleHoldNoteConnection,
-
-    doubleHoldNoteJoint: LevelEditorDoubleHoldNoteJoint,
-    doubleHoldNoteConnection: LevelEditorDoubleHoldNoteConnection,
+    dragNote: LevelEditorDragNote,
+    flickNote: LevelEditorFlickNote,
+    holdNote: LevelEditorHoldNote,
+    holdConnector: LevelEditorHoldConnector
 }

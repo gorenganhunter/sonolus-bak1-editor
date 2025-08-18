@@ -8,6 +8,7 @@ import { timeToScaledTime } from '../../../../state/integrals/timeScales'
 import { unlerp } from '../../../../utils/math'
 import { bisect } from '../../../../utils/ordered'
 import type { Segment, SegmentJoint } from './segment'
+import { view } from "../../../view"
 
 const props = defineProps<EventConnectionEntity>()
 
@@ -18,8 +19,8 @@ const segments = computed(() => {
     }
 
     const scaledTimes = {
-        min: timeToScaledTime(timeScales.value, times.min),
-        max: timeToScaledTime(timeScales.value, times.max),
+        min: timeToScaledTime(timeScales.value.filter(({ stage }) => stage === view.stage), times.min),
+        max: timeToScaledTime(timeScales.value.filter(({ stage }) => stage === view.stage), times.max),
     }
 
     const scaledTimeToS = (scaledTime: number) =>
@@ -29,36 +30,49 @@ const segments = computed(() => {
 
     let max: SegmentJoint | undefined
 
-    for (let i = bisect(timeScales.value, 'x', times.max) - 1; i >= 0; i--) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const { x, y, s } = timeScales.value[i]!
+    segments.push({
+        min: {
+            time: times.min,
+            s: 0
+        },
+        max: {
+            time: times.max,
+            s: 1
+        }
+    })
 
-        if (!max)
-            max = {
-                time: times.max,
-                s: scaledTimeToS(y + (times.max - x) * s),
-            }
+    // for (let i = bisect(timeScales.value.filter(({ stage }) => stage === view.stage), 'x', times.max) - 1; i >= 0; i--) {
+    //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    //     const { x, y, s } = timeScales.value.filter(({ stage }) => stage === view.stage)[i]!
+    //
+    //     if (!max)
+    //         max = {
+    //             time: times.max,
+    //             s: scaledTimeToS(y + (times.max - x) * s),
+    //         }
+    //
+    //     const min: SegmentJoint =
+    //         times.min > x
+    //             ? {
+    //                 time: times.min,
+    //                 s: scaledTimeToS(y + (times.min - x) * s),
+    //             }
+    //             : {
+    //                 time: x,
+    //                 s: scaledTimeToS(y),
+    //             }
+    //
+    //     segments.push({
+    //         min,
+    //         max,
+    //     })
+    //
+    //     if (times.min >= x) break
+    //
+    //     max = min
+    // }
 
-        const min: SegmentJoint =
-            times.min > x
-                ? {
-                      time: times.min,
-                      s: scaledTimeToS(y + (times.min - x) * s),
-                  }
-                : {
-                      time: x,
-                      s: scaledTimeToS(y),
-                  }
-
-        segments.push({
-            min,
-            max,
-        })
-
-        if (times.min >= x) break
-
-        max = min
-    }
+    // console.log(segments)
 
     return segments.filter(({ min, max }) => !Number.isNaN(min.s) && !Number.isNaN(max.s))
 })

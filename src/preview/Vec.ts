@@ -4,10 +4,18 @@ export type VecLike = {
 }
 
 export class Vec {
-    constructor(
-        public x: number,
-        public y: number,
-    ) {}
+    public x
+    public y
+
+    constructor(x: number | VecLike, y: number = 0) {
+        if (typeof x === "number") {
+            this.x = x
+            this.y = y
+        } else {
+            this.x = x.x
+            this.y = x.y
+        }
+    }
 
     mul(value: number): Vec {
         return new Vec(this.x * value, this.y * value)

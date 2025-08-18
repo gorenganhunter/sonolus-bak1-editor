@@ -29,4 +29,4 @@ export const toSelection = (startLane: number, startTime: number, x: number, y: 
     }
 }
 
-const isVisible = (entity: Entity) => view.visibilities[entity.type]
+const isVisible = (entity: Entity) => view.visibilities[entity.type] && (entity.type === "bpm" || entity.stage === view.stage)

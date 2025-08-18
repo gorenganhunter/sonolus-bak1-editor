@@ -1,5 +1,5 @@
 import type { Tool } from '..'
-import type { EventObject } from '../../../chart'
+import { EaseType, type EventObject } from '../../../chart'
 import { pushState, replaceState, state } from '../../../history'
 import { selectedEntities } from '../../../history/selectedEntities'
 import { store } from '../../../history/store'
@@ -39,11 +39,11 @@ export const createEventTool = <T extends EventJointEntityType>(
     }
 
     const find = (beat: number) =>
-        getInStoreGrid(store.value.grid, type, beat)?.find((entity) => entity.beat === beat)
+        getInStoreGrid(store.value.grid, type, beat)?.find((entity) => entity.beat === beat && entity.stage === view.stage)
 
     const findNearest = (beat: number, x: number) =>
         getInStoreGrid(store.value.grid, type, beat)?.find(
-            (entity) => entity.beat === beat && isMatch(entity.value, x),
+            (entity) => entity.beat === beat && entity.stage === view.stage && isMatch(entity.value, x),
         )
 
     const tryFind = (
@@ -51,7 +51,7 @@ export const createEventTool = <T extends EventJointEntityType>(
         y: number,
     ): [true, EntityOfType<T>] | [false, undefined, number, number] => {
         const [hit] = hitEntitiesAtPoint(x, y)
-            .filter((entity): entity is EntityOfType<T> => entity.type === type)
+            .filter((entity): entity is EntityOfType<T> => entity.type === type && entity.stage === view.stage)
             .sort(
                 (a, b) => +selectedEntities.value.includes(b) - +selectedEntities.value.includes(a),
             )
@@ -65,7 +65,7 @@ export const createEventTool = <T extends EventJointEntityType>(
     }
 
     const editMoveOrReplace = (entity: EntityOfType<T>, object: EventObject) => {
-        if (entity.beat === object.beat) {
+        if (entity.beat === object.beat && entity.stage === object.stage) {
             edit(entity, object)
             return
         }
@@ -138,9 +138,9 @@ export const createEventTool = <T extends EventJointEntityType>(
 
     let active:
         | {
-              entity: EntityOfType<T>
-              x: number
-          }
+            entity: EntityOfType<T>
+            x: number
+        }
         | undefined
 
     return {
@@ -158,7 +158,8 @@ export const createEventTool = <T extends EventJointEntityType>(
                         toEntity({
                             beat,
                             value,
-                            ease: 'linear',
+                            ease: EaseType.LINEAR,
+                            stage: view.stage,
                             ...getPropertiesFromSelection(),
                         }),
                     ],
@@ -168,6 +169,7 @@ export const createEventTool = <T extends EventJointEntityType>(
 
         async tap(x, y) {
             const [result, entity, beat, value] = tryFind(x, y)
+            // console.log(result)
             if (result) {
                 replaceState({
                     ...state.value,
@@ -187,7 +189,8 @@ export const createEventTool = <T extends EventJointEntityType>(
                 const object: EventObject = {
                     beat,
                     value,
-                    ease: 'linear',
+                    ease: EaseType.LINEAR,
+                    stage: view.stage,
                     ...getPropertiesFromSelection(),
                 }
 
@@ -236,6 +239,7 @@ export const createEventTool = <T extends EventJointEntityType>(
                         beat: yToValidBeat(y),
                         value: shiftValue(active.entity.value, active.x, x),
                         ease: active.entity.ease,
+                        stage: active.entity.stage
                     }),
                 ],
             }
@@ -248,6 +252,7 @@ export const createEventTool = <T extends EventJointEntityType>(
                 beat: yToValidBeat(y),
                 value: shiftValue(active.entity.value, active.x, x),
                 ease: active.entity.ease,
+                stage: active.entity.stage
             })
 
             active = undefined

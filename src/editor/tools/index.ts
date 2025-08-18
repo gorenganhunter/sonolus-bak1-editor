@@ -1,17 +1,19 @@
 import { computed, ref } from 'vue'
 import { view } from '../view'
-import { brush } from './brush'
 import { eraser } from './eraser'
 import { rotateEvent } from './events/rotate'
-import { shiftEvent } from './events/shift'
-import { zoomEvent } from './events/zoom'
-import { doubleHoldNote } from './holdNotes/double'
-import { singleHoldNote } from './holdNotes/single'
 import { paste } from './paste'
 import { select } from './select'
 import { tapNote } from './tapNote'
 import { bpm } from './values/bpm'
 import { timeScale } from './values/timeScale'
+import { flickNote } from './flickNote'
+import { dragNote } from './dragNote'
+import { holdNote } from './holdNote'
+import { resizeEvent } from './events/resize'
+import { moveYEvent } from './events/moveY'
+import { moveXEvent } from './events/moveX'
+import { transparentEvent } from './events/transparent'
 
 export type Tool = {
     hover?: (x: number, y: number, isShift: boolean) => void | Promise<void>
@@ -26,16 +28,18 @@ export type Tool = {
 export const tools = {
     select,
     eraser,
-    brush,
     paste,
 
     tapNote,
-    singleHoldNote,
-    doubleHoldNote,
+    dragNote,
+    flickNote,
+    holdNote,
 
     rotateEvent,
-    shiftEvent,
-    zoomEvent,
+    resizeEvent,
+    transparentEvent,
+    moveXEvent,
+    moveYEvent,
 
     bpm,
     timeScale,

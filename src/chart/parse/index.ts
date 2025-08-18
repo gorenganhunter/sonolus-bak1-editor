@@ -3,13 +3,16 @@ import { Value } from '@sinclair/typebox/value'
 import { type LevelDataEntity } from '@sonolus/core'
 import type { Chart } from '..'
 import { parseChartRotateEvents } from './events/rotate'
-import { parseChartShiftEvents } from './events/shift'
-import { parseChartZoomEvents } from './events/zoom'
-import { parseChartDoubleHoldNotes } from './holdNotes/double'
-import { parseChartSingleHoldNotes } from './holdNotes/single'
-import { parseChartTapNotes } from './tapNote'
+import { parseChartTapNotes } from './notes/tapNote'
 import { parseChartBpms } from './values/bpm'
 import { parseChartTimeScales } from './values/timeScale'
+import { parseChartResizeEvents } from './events/resize'
+import { parseChartMoveXEvents } from './events/moveX'
+import { parseChartMoveYEvents } from './events/moveY'
+import { parseChartTransparentEvents } from './events/transparent'
+import { parseChartHoldNotes } from './notes/holdNote'
+import { parseChartFlickNotes } from './notes/flickNote'
+import { parseChartDragNotes } from './notes/dragNote'
 
 export type ParseChart = (chart: Chart, entities: LevelDataEntity[]) => void
 
@@ -17,25 +20,36 @@ export const parseChart = (entities: LevelDataEntity[]): Chart => {
     const chart: Chart = {
         bpms: [],
         timeScales: [],
-        rotateEvents: [],
-        shiftEvents: [],
-        zoomEvents: [],
+
+        rectStages: [],
+
         tapNotes: [],
-        singleHoldNotes: [],
-        doubleHoldNotes: [],
+        holdNotes: [],
+        dragNotes: [],
+        flickNotes: [],
+
+        moveXEvents: [],
+        moveYEvents: [],
+        resizeEvents: [],
+        rotateEvents: [],
+        transparentEvents: []
     }
+
+    chart.rectStages = entities.filter(({ archetype }) => archetype === "RectStage").map(({ name }) => ({ id: parseInt(name!.replace("stage", "")) }))
 
     parseChartBpms(chart, entities)
     parseChartTimeScales(chart, entities)
 
+    parseChartMoveXEvents(chart, entities)
+    parseChartMoveYEvents(chart, entities)
     parseChartRotateEvents(chart, entities)
-    parseChartShiftEvents(chart, entities)
-    parseChartZoomEvents(chart, entities)
+    parseChartResizeEvents(chart, entities)
+    parseChartTransparentEvents(chart, entities)
 
     parseChartTapNotes(chart, entities)
-
-    parseChartSingleHoldNotes(chart, entities)
-    parseChartDoubleHoldNotes(chart, entities)
+    parseChartHoldNotes(chart, entities)
+    parseChartDragNotes(chart, entities)
+    parseChartFlickNotes(chart, entities)
 
     return chart
 }

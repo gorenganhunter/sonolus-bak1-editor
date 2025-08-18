@@ -27,9 +27,11 @@ export const integrate = <T extends Integral>(integrals: T[]) => {
 
 export const findIntegral = <T extends Integral>(integrals: T[], key: 'x' | 'y', value: number) => {
     const index = bisect(integrals, key, value)
-
     const integral = integrals[integrals[index]?.[key] === value ? index : index - 1]
-    if (!integral) throw new Error('Unexpected integral not found')
+    if (!integral) {
+        console.log(integrals, key, value)
+        throw new Error('Unexpected integral not found')
+    }
 
     return integral
 }

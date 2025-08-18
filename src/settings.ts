@@ -25,7 +25,7 @@ const settingsProperties = {
 
     previewConnectionAlpha: number(50, 10, 100),
 
-    width: number(12, 12, 100),
+    width: number(12, 1, 100),
 
     pps: number(1000, 100, 10000),
 
@@ -56,13 +56,39 @@ const settingsProperties = {
                         'copy',
                         'cut',
                         'flip',
-                        'brush',
+                        // 'brush',
                         'eraser',
                         'deselect',
                         'select',
                     ],
-                    ['doubleHoldNote', 'singleHoldNote', 'tapNote'],
-                    ['zoomEvent', 'shiftEvent', 'rotateEvent'],
+                    [
+                        'stage'
+                    ],
+                    [
+                        'side3',
+                        'side2',
+                        'side1',
+                        'side0'
+                    ],
+                    [
+                        'laneCustom',
+                        'lane16',
+                        'lane12',
+                        'lane8',
+                        'lane6',
+                        'lane4',
+                        'lane3',
+                        'lane2',
+                        'lane1',
+                    ],
+                    [
+                        /*'doubleHoldNote', 'singleHoldNote',*/
+                        'holdNote',
+                        'flickNote',
+                        'dragNote',
+                        'tapNote'
+                    ],
+                    ['resizeEvent', 'moveXEvent', 'moveYEvent', 'transparentEvent', 'rotateEvent'],
                     ['timeScale', 'bpm'],
                     [
                         'jumpUp',
@@ -75,11 +101,11 @@ const settingsProperties = {
                     [
                         'timeScaleVisibility',
                         'bpmVisibility',
-                        'zoomEventVisibility',
-                        'shiftEventVisibility',
                         'rotateEventVisibility',
-                        'doubleHoldNoteVisibility',
-                        'singleHoldNoteVisibility',
+                        'resizeEventVisibility',
+                        'transparentEventVisibility',
+                        'moveXEventVisibility',
+                        'moveYEventVisibility',
                         'tapNoteVisibility',
                         'cycleVisibilities',
                     ],
@@ -130,7 +156,7 @@ const settingsProperties = {
                 select: 'f',
                 deselect: 'Escape',
                 eraser: 'g',
-                brush: 'b',
+                // brush: 'b',
                 flip: 'u',
                 cut: 'x',
                 copy: 'c',
@@ -141,8 +167,8 @@ const settingsProperties = {
                 singleHoldNote: 's',
                 doubleHoldNote: 'd',
                 rotateEvent: 'e',
-                shiftEvent: 'r',
-                zoomEvent: 't',
+                // shiftEvent: 'r',
+                // zoomEvent: 't',
                 bpm: 'q',
                 timeScale: 'w',
                 scrollUp: 'ArrowUp',
@@ -208,5 +234,5 @@ export const settings = Object.defineProperties(
         }),
     ),
 ) as {
-    [K in keyof typeof settingsProperties]: StaticDecode<(typeof settingsProperties)[K]>
-}
+        [K in keyof typeof settingsProperties]: StaticDecode<(typeof settingsProperties)[K]>
+    }

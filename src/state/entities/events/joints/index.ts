@@ -1,16 +1,19 @@
 import type { BaseEntity } from '../..'
 import type { Ease, EventObject } from '../../../../chart'
+import type { MoveXEventJointEntity } from './moveX'
+import type { MoveYEventJointEntity } from './moveY'
+import type { ResizeEventJointEntity } from './resize'
 import type { RotateEventJointEntity } from './rotate'
-import type { ShiftEventJointEntity } from './shift'
-import type { ZoomEventJointEntity } from './zoom'
+import type { TransparentEventJointEntity } from './transparent'
 
-export type EventJointEntity = RotateEventJointEntity | ShiftEventJointEntity | ZoomEventJointEntity
+export type EventJointEntity = RotateEventJointEntity | ResizeEventJointEntity | TransparentEventJointEntity | MoveXEventJointEntity | MoveYEventJointEntity
 
 export type EventJointEntityType = EventJointEntity['type']
 
 export type BaseEventJointEntity = BaseEntity & {
     value: number
     ease: Ease
+    stage: number
 }
 
 export const toEventJointEntity = (object: EventObject, hitboxLane: number) => ({
@@ -25,4 +28,5 @@ export const toEventJointEntity = (object: EventObject, hitboxLane: number) => (
     beat: object.beat,
     value: object.value,
     ease: object.ease,
+    stage: object.stage
 })

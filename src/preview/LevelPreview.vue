@@ -2,12 +2,14 @@
 import { computed, ref, useTemplateRef, watch, type Ref } from 'vue'
 import { time } from '../time'
 import { zoom } from './events'
-import LevelPreviewHoldNotes from './holdNotes/LevelPreviewHoldNotes.vue'
 import LevelPreviewStage from './LevelPreviewStage.vue'
 import LevelPreviewTapNotes from './LevelPreviewTapNotes.vue'
+import LevelPreviewHoldNotes from './LevelPreviewHoldNotes.vue'
+import LevelPreviewDragNotes from './LevelPreviewDragNotes.vue'
+import LevelPreviewFlickNotes from './LevelPreviewFlickNotes.vue'
 import { getTransform } from './projection'
 
-const minAspectRatio = 4 / 3
+const minAspectRatio = 16 / 9
 
 const container: Ref<Element | null> = useTemplateRef('container')
 
@@ -20,7 +22,7 @@ watch(time, () => {
     aspectRatio.value = Math.max(minAspectRatio, rect.width / rect.height)
 })
 
-const transform = computed(() => `scale(1, -1) ${getTransform(zoom.value)}`)
+//const transform = computed(() => `scale(1, -1) ${getTransform(zoom.value)}`)
 </script>
 
 <template>
@@ -45,10 +47,12 @@ const transform = computed(() => `scale(1, -1) ${getTransform(zoom.value)}`)
                 />
             </mask>
 
-            <g :transform>
+            <g transform="scale(1, -1)">
                 <LevelPreviewStage />
                 <LevelPreviewTapNotes />
                 <LevelPreviewHoldNotes />
+                <LevelPreviewDragNotes />
+                <LevelPreviewFlickNotes />
             </g>
         </g>
 

@@ -12,7 +12,11 @@ import { align, clamp } from '../../../../utils/math'
 import { xToLane } from '../../../view'
 import RotateEventPropertiesModal from './RotateEventPropertiesModal.vue'
 
-const toValue = (x: number) => -clamp(align(xToLane(x), 2), -0.5, 7.5)
+const toValue = (x: number) => {
+    let a = align(xToLane(x) * 360)
+    // console.log(x, a)
+    return a
+}
 
 const getPrev = (beat: number) => {
     const connection = getInStoreGrid(store.value.grid, 'rotateEventConnection', beat)?.find(
@@ -28,16 +32,16 @@ export const rotateEvent = createEventTool(
     () => i18n.value.tools.events.types.rotateEvent,
     (object) => showModal(RotateEventPropertiesModal, { object }),
 
-    (value, x) => (value - toValue(x)) % 8 === 0,
+    (value, x) => (value - toValue(x)) % 360 === 0,
     (beat, x) => {
         const value = toValue(x)
 
         const prev = getPrev(beat)
         if (!prev) return value
-
-        return value - Math.floor((0.5 - prev.value) / 8) * 8
+        // console.log(prev.value, value)
+        return value + Math.floor(prev.value / 360) * 360
     },
-    (value, sx, x) => value - align(xToLane(x), 2) + align(xToLane(sx), 2),
+    (value, sx, x) => value + align(xToLane(x) * 360) - align(xToLane(sx) * 360),
 
     'rotateEventJoint',
     toRotateEventJointEntity,

@@ -1,6 +1,5 @@
 import type { Component } from 'vue'
 import { bgm } from './bgm'
-import { brush } from './brush'
 import { copy } from './copy'
 import { cut } from './cut'
 import { deselect } from './deselect'
@@ -8,12 +7,8 @@ import { division } from './divisions'
 import { divisionCustom } from './divisions/custom'
 import { eraser } from './eraser'
 import { rotateEvent } from './events/rotate'
-import { shiftEvent } from './events/shift'
-import { zoomEvent } from './events/zoom'
 import { flip } from './flip'
 import { help } from './help'
-import { doubleHoldNote } from './holdNotes/double'
-import { singleHoldNote } from './holdNotes/single'
 import { jumpDown } from './jumpDown'
 import { jumpUp } from './jumpUp'
 import { open } from './open'
@@ -37,17 +32,28 @@ import { bpm } from './values/bpm'
 import { timeScale } from './values/timeScale'
 import { bpmVisibility } from './visibilities/bpm'
 import { cycleVisibilities } from './visibilities/cycle'
-import { doubleHoldNoteVisibility } from './visibilities/doubleHoldNote'
 import { rotateEventVisibility } from './visibilities/rotateEvent'
-import { shiftEventVisibility } from './visibilities/shiftEvent'
-import { singleHoldNoteVisibility } from './visibilities/singleHoldNote'
 import { tapNoteVisibility } from './visibilities/tapNote'
 import { timeScaleVisibility } from './visibilities/timeScale'
-import { zoomEventVisibility } from './visibilities/zoomEvent'
 import { zoomXIn } from './zoom/zoomXIn'
 import { zoomXOut } from './zoom/zoomXOut'
 import { zoomYIn } from './zoom/zoomYIn'
 import { zoomYOut } from './zoom/zoomYOut'
+import { stage } from './stage'
+import { laneCustom } from './lanes/custom'
+import { lane } from './lanes'
+import { side } from './side'
+import { flickNote } from './flickNote'
+import { dragNote } from './dragNote'
+import { holdNote } from './holdNote'
+import { resizeEvent } from './events/resize'
+import { transparentEvent } from './events/transparent'
+import { moveXEvent } from './events/moveX'
+import { moveYEvent } from './events/moveY'
+import { resizeEventVisibility } from './visibilities/resizeEvent'
+import { transparentEventVisibility } from './visibilities/transparentEvent'
+import { moveXEventVisibility } from './visibilities/moveXEvent'
+import { moveYEventVisibility } from './visibilities/moveYEvent'
 
 export type Command = {
     title: () => string
@@ -70,10 +76,11 @@ export const commands = {
     speedDown,
     bgm,
 
+    stage,
+
     select,
     deselect,
     eraser,
-    brush,
     flip,
     cut,
     copy,
@@ -82,12 +89,15 @@ export const commands = {
     redo,
 
     tapNote,
-    singleHoldNote,
-    doubleHoldNote,
+    dragNote,
+    flickNote,
+    holdNote,
 
     rotateEvent,
-    shiftEvent,
-    zoomEvent,
+    resizeEvent,
+    transparentEvent,
+    moveXEvent,
+    moveYEvent,
 
     bpm,
     timeScale,
@@ -100,12 +110,12 @@ export const commands = {
     jumpDown,
 
     cycleVisibilities,
-    doubleHoldNoteVisibility,
-    singleHoldNoteVisibility,
     tapNoteVisibility,
     rotateEventVisibility,
-    shiftEventVisibility,
-    zoomEventVisibility,
+    resizeEventVisibility,
+    transparentEventVisibility,
+    moveXEventVisibility,
+    moveYEventVisibility,
     bpmVisibility,
     timeScaleVisibility,
 
@@ -118,6 +128,21 @@ export const commands = {
     division12: division(12),
     division16: division(16),
     divisionCustom,
+
+    lane1: lane(1),
+    lane2: lane(2),
+    lane3: lane(3),
+    lane4: lane(4),
+    lane6: lane(6),
+    lane8: lane(8),
+    lane12: lane(12),
+    lane16: lane(16),
+    laneCustom,
+
+    side0: side(0),
+    side1: side(1),
+    side2: side(2),
+    side3: side(3),
 
     zoomXIn,
     zoomXOut,

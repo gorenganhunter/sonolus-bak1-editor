@@ -12,6 +12,10 @@
                 "generating": "Generating waveform..."
             }
         },
+        "stage": {
+            "title": "Stage",
+            "changed": "Changed Stage"
+        },
         "brush": {
             "title": "Switch to Brush tool",
             "switched": "Switched to Brush tool",
@@ -48,6 +52,17 @@
                 }
             }
         },
+        "lanes": {
+            "title": "Switch to {0} lane",
+            "switched": "Switched to {0} lane",
+            "custom": {
+                "title": "Switch to custom lane",
+                "modal": {
+                    "title": "Custom Lane",
+                    "lane": "Lane"
+                }
+            }
+        },
         "eraser": {
             "title": "Switch to Eraser tool",
             "switched": "Switched to Eraser tool"
@@ -56,13 +71,21 @@
             "title": "Switch to Rotate Event tool",
             "switched": "Switched to Rotate Event tool"
         },
-        "shiftEvent": {
-            "title": "Switch to Shift Event tool",
-            "switched": "Switched to Shift Event tool"
+        "resizeEvent": {
+            "title": "Switch to Resize Event tool",
+            "switched": "Switched to Resize Event tool"
         },
-        "zoomEvent": {
-            "title": "Switch to Zoom Event tool",
-            "switched": "Switched to Zoom Event tool"
+        "transparentEvent": {
+            "title": "Switch to Transparent Event tool",
+            "switched": "Switched to Transparent Event tool"
+        },
+        "moveXEvent": {
+            "title": "Switch to MoveX Event tool",
+            "switched": "Switched to MoveX Event tool"
+        },
+        "moveYEvent": {
+            "title": "Switch to MoveY Event tool",
+            "switched": "Switched to MoveY Event tool"
         },
         "flip": {
             "title": "Flip",
@@ -145,6 +168,18 @@
             "title": "Switch to Tap Note tool",
             "switched": "Switched to Tap Note tool"
         },
+        "dragNote": {
+            "title": "Switch to Drag Note tool",
+            "switched": "Switched to Drag Note tool"
+        },
+        "flickNote": {
+            "title": "Switch to Flick Note tool",
+            "switched": "Switched to Flick Note tool"
+        },
+        "holdNote": {
+            "title": "Switch to Hold Note tool",
+            "switched": "Switched to Hold Note tool"
+        },
         "undo": {
             "title": "Undo",
             "noState": "Nothing to undo",
@@ -168,11 +203,16 @@
                 "toggled": "Toggled {0} visibility",
                 "types": {
                     "tapNote": "Tap Note",
+                    "dragNote": "Drag Note",
+                    "flickNote": "Flick Note",
+                    "holdNote": "Hold Note",
                     "singleHoldNote": "Single Hold Note",
                     "doubleHoldNote": "Double Hold Note",
                     "rotateEvent": "Rotate Event",
-                    "shiftEvent": "Shift Event",
-                    "zoomEvent": "Zoom Event",
+                    "resizeEvent": "Resize Event",
+                    "transparentEvent": "Transparent Event",
+                    "moveXEvent": "MoveX Event",
+                    "moveYEvent": "MoveY Event",
                     "timeScale": "Time Scale",
                     "bpm": "BPM"
                 }
@@ -250,6 +290,24 @@
                 "add": "Tap empty space to add.",
                 "move": "Drag 1 Tap Note object to move."
             },
+            "dragNoteTool": {
+                "title": "Drag Note Tool",
+                "edit": "Tap 1 Drag Note object to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 Drag Note object to move."
+            },
+            "flickNoteTool": {
+                "title": "Flick Note Tool",
+                "edit": "Tap 1 Flick Note object to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 Flick Note object to move."
+            },
+            "holdNoteTool": {
+                "title": "Hold Note Tool",
+                "edit": "Tap 1 Hold Note object to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 Hold Note object to move."
+            },
             "singleHoldNoteTool": {
                 "title": "Single Hold Note Tool",
                 "edit": "Tap 1 Single Hold Note object to edit.",
@@ -270,17 +328,29 @@
                 "add": "Tap empty space to add.",
                 "move": "Drag 1 Rotate Event object to move."
             },
-            "shiftEventTool": {
-                "title": "Shift Event Tool",
-                "edit": "Tap 1 Shift Event object to edit.",
+            "resizeEventTool": {
+                "title": "Resize Event Tool",
+                "edit": "Tap 1 Resize Event object to edit.",
                 "add": "Tap empty space to add.",
-                "move": "Drag 1 Shift Event object to move."
+                "move": "Drag 1 Resize Event object to move."
             },
-            "zoomEventTool": {
-                "title": "Zoom Event Tool",
-                "edit": "Tap 1 Zoom Event object to edit.",
+            "transparentEventTool": {
+                "title": "Transparent Event Tool",
+                "edit": "Tap 1 Transparent Event object to edit.",
                 "add": "Tap empty space to add.",
-                "move": "Drag 1 Zoom Event object to move."
+                "move": "Drag 1 Transparent Event object to move."
+            },
+            "moveXEventTool": {
+                "title": "MoveX Event Tool",
+                "edit": "Tap 1 MoveX Event object to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 MoveX Event object to move."
+            },
+            "moveYEventTool": {
+                "title": "MoveY Event Tool",
+                "edit": "Tap 1 MoveY Event object to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 MoveY Event object to move."
             },
             "bpmTool": {
                 "title": "BPM Tool",
@@ -370,8 +440,10 @@
             "replaced": "Replaced {0} {1} objects",
             "types": {
                 "rotateEvent": "Rotate Event",
-                "shiftEvent": "Shift Event",
-                "zoomEvent": "Zoom Event"
+                "resizeEvent": "Resize Event",
+                "transparentEvent": "Transparent Event",
+                "moveXEvent": "MoveX Event",
+                "moveYEvent": "MoveY Event"
             },
             "modals": {
                 "rotateEvent": {
@@ -380,15 +452,27 @@
                     "ease": "Ease",
                     "beat": "Beat"
                 },
-                "shiftEvent": {
-                    "title": "Shift Event Properties",
-                    "value": "Value",
+                "resizeEvent": {
+                    "title": "Resize Event Properties",
+                    "lane": "Lane",
                     "ease": "Ease",
                     "beat": "Beat"
                 },
-                "zoomEvent": {
-                    "title": "Zoom Event Properties",
-                    "value": "Value",
+                "transparentEvent": {
+                    "title": "Transparent Event Properties",
+                    "lane": "Lane",
+                    "ease": "Ease",
+                    "beat": "Beat"
+                },
+                "moveXEvent": {
+                    "title": "MoveX Event Properties",
+                    "lane": "Lane",
+                    "ease": "Ease",
+                    "beat": "Beat"
+                },
+                "moveYEvent": {
+                    "title": "MoveY Event Properties",
+                    "lane": "Lane",
                     "ease": "Ease",
                     "beat": "Beat"
                 }
@@ -442,7 +526,51 @@
                 "title": "Tap Note Properties",
                 "color": "Color",
                 "lane": "Lane",
+                "size": "Size",
                 "beat": "Beat"
+            }
+        },
+        "dragNote": {
+            "moving": "Moving {0} Drag Note objects",
+            "added": "Added {0} Drag Note objects",
+            "edited": "Edited {0} Drag Note objects",
+            "moved": "Moved {0} Drag Note objects",
+            "replaced": "Replaced {0} Drag Note objects",
+            "modal": {
+                "title": "Drag Note Properties",
+                "color": "Color",
+                "lane": "Lane",
+                "size": "Size",
+                "beat": "Beat"
+            }
+        },
+        "flickNote": {
+            "moving": "Moving {0} Flick Note objects",
+            "added": "Added {0} Flick Note objects",
+            "edited": "Edited {0} Flick Note objects",
+            "moved": "Moved {0} Flick Note objects",
+            "replaced": "Replaced {0} Flick Note objects",
+            "modal": {
+                "title": "Flick Note Properties",
+                "color": "Color",
+                "lane": "Lane",
+                "size": "Size",
+                "beat": "Beat"
+            }
+        },
+        "holdNote": {
+            "moving": "Moving {0} Hold Note objects",
+            "added": "Added {0} Hold Note objects",
+            "edited": "Edited {0} Hold Note objects",
+            "moved": "Moved {0} Hold Note objects",
+            "replaced": "Replaced {0} Hold Note objects",
+            "modal": {
+                "title": "Hold Note Properties",
+                "color": "Color",
+                "lane": "Lane",
+                "size": "Size",
+                "beat": "Beat",
+                "duration": "Duration"
             }
         },
         "values": {
@@ -500,11 +628,7 @@
                 "purple": "Purple",
                 "cyan": "Cyan"
             },
-            "ease": {
-                "out": "Out",
-                "linear": "Linear",
-                "in": "In"
-            },
+            "ease": {"inSine":"EaseInSine","outSine":"EaseOutSine","inOutSine":"EaseInOutSine","outInSine":"EaseOutInSine","inQuad":"EaseInQuad","outQuad":"EaseOutQuad","inOutQuad":"EaseInOutQuad","outInQuad":"EaseOutInQuad","inCubic":"EaseInCubic","outCubic":"EaseOutCubic","inOutCubic":"EaseInOutCubic","outInCubic":"EaseOutInCubic","inQuart":"EaseInQuart","outQuart":"EaseOutQuart","inOutQuart":"EaseInOutQuart","outInQuart":"EaseOutInQuart","inQuint":"EaseInQuint","outQuint":"EaseOutQuint","inOutQuint":"EaseInOutQuint","outInQuint":"EaseOutInQuint","inExpo":"EaseInExpo","outExpo":"EaseOutExpo","inOutExpo":"EaseInOutExpo","outInExpo":"EaseOutInExpo","inCirc":"EaseInCirc","outCirc":"EaseOutCirc","inOutCirc":"EaseInOutCirc","outInCirc":"EaseOutInCirc","inBack":"EaseInBack","outBack":"EaseOutBack","inOutBack":"EaseInOutBack","outInBack":"EaseOutInBack","inElastic":"EaseInElastic","outElastic":"EaseOutElastic","inOutElastic":"EaseInOutElastic","outInElastic":"EaseOutInElastic","zero":"Zero","one":"One","linear":"Linear"},
             "file": {
                 "select": "Select File..."
             },

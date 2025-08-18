@@ -6,4 +6,4 @@ export const serializeLevelDataRotateEvents = (
     joints: RotateEventJointEntity[],
     connections: RotateEventConnectionEntity[],
     getName: () => string,
-) => serializeLevelDataEventEntities(joints, connections, getName, 'RotateEvent')
+) => serializeLevelDataEventEntities(joints, connections, getName, 'StageRotateEvent')

@@ -11,4 +11,11 @@ export const toRotateEventJointEntity = (object: EventObject): RotateEventJointE
     ...toEventJointEntity(object, rotateEventValueToLane(object.value)),
 })
 
-export const rotateEventValueToLane = (value: number) => mod(-value + 0.5, 8) - 0.5
+export const rotateEventValueToLane = (value: number) => {
+    // console.log(value)
+    while (true) {
+        if (value < 0) value += 360
+        else break
+    }
+    return (value % 360) / 360
+}

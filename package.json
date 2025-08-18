@@ -1,5 +1,5 @@
 {
-  "name": "sonolus-horizon-editor",
+  "name": "sonolus-bak1-editor",
   "version": "1.2.1",
   "private": true,
   "type": "module",
@@ -13,6 +13,8 @@
   "dependencies": {
     "@sinclair/typebox": "^0.34.28",
     "@sonolus/core": "~7.12.0",
+    "eruda": "^3.4.1",
+    "eruda-vue": "^1.1.1",
     "file-saver": "^2.0.5",
     "pako": "^2.1.0",
     "vue": "^3.5.13"

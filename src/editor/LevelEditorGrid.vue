@@ -4,6 +4,7 @@ import { beats } from '.'
 import { bpms } from '../history/bpms'
 import { beatToTime } from '../state/integrals/bpms'
 import { computedRange } from '../utils/range'
+import { remap } from '../utils/math'
 import { view, viewBox } from './view'
 
 const range = computedRange(() => ({
@@ -21,28 +22,12 @@ const lines = computed(() =>
 
 <template>
     <g stroke="#fff">
-        <g
-            :transform="`translate(-5, ${Math.min(0, viewBox.b)}) scale(1, ${viewBox.t - Math.min(0, viewBox.b)})`"
-        >
-            <line
-                v-for="i in 9"
-                :key="i"
-                :x1="i"
-                :x2="i"
-                :y1="0"
-                :y2="1"
-                :stroke-opacity="i === 1 || i === 9 ? 0.5 : 0.25"
-            />
+        <g :transform="`translate(-5, ${Math.min(0, viewBox.b)}) scale(1, ${viewBox.t - Math.min(0, viewBox.b)})`">
+            <line v-for="i in view.lane + 1" :key="i" :x1="remap(1, view.lane + 1, 1, 9, i)"
+                :x2="remap(1, view.lane + 1, 1, 9, i)" :y1="0" :y2="1"
+                :stroke-opacity="i === 1 || i === view.lane + 1 ? 0.5 : 0.25" />
         </g>
-
-        <line
-            v-for="{ y, isBeat } in lines"
-            :key="y"
-            :x1="-4"
-            :x2="4"
-            :y1="y"
-            :y2="y"
-            :stroke-opacity="isBeat ? 0.5 : 0.25"
-        />
+        <line v-for="{ y, isBeat } in lines" :key="y" :x1="-4" :x2="4" :y1="y" :y2="y"
+            :stroke-opacity="isBeat ? 0.5 : 0.25" />
     </g>
 </template>

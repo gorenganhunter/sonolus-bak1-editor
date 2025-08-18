@@ -21,15 +21,17 @@ const paths = computed(() => {
     const value1 = sToValue(easeValue(min.s, ease))
     const value2 = sToValue(easeValue(max.s, ease))
 
-    const w = -(value1 - value2)
-    const x1 = 3.5 - rotateEventValueToLane(value1)
+    const w = -(value1 - value2) / 360 * 8
+    const x1 = rotateEventValueToLane(value1) * 8 - 4
     const x2 = x1 + w
+
+    // console.log(x1, x2, w)
 
     const y1 = min.time * viewBox.value.ups
     const y2 = max.time * viewBox.value.ups
 
     const d =
-        ease === 'linear' || value1 === value2
+        ease !== 'linear' || value1 === value2
             ? `M ${x1} ${y1} L ${x2} ${y2}`
             : `M ${x1} ${y1} Q ${remap(value1, value2, x1, x2, sToValue(easeCurve(min.s, max.s, ease)))} ${(y1 + y2) / 2} ${x2} ${y2}`
 

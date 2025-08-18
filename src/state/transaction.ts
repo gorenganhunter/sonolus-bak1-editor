@@ -1,4 +1,5 @@
 import type { State } from '.'
+import { view } from '../editor/view'
 import { calculateBpms, type BpmIntegral } from './integrals/bpms'
 import { calculateTimeScales, type TimeScaleIntegral } from './integrals/timeScales'
 
@@ -6,8 +7,11 @@ export type Transaction = ReturnType<typeof createTransaction>
 
 export const createTransaction = (state: State) => {
     const grid = createMapObjectTransaction(state.store.grid)
-    const eventRanges = { ...state.store.eventRanges }
-    const holdNoteRanges = createMapObjectTransaction(state.store.holdNoteRanges)
+    const eventRanges = {
+        ...state.store.eventRanges
+    }
+    const stages = [...state.store.stages]
+    // const holdNoteRanges = createMapObjectTransaction(state.store.holdNoteRanges)
 
     let bpms: BpmIntegral[] | undefined
     let timeScales: TimeScaleIntegral[] | undefined
@@ -16,7 +20,8 @@ export const createTransaction = (state: State) => {
         store: {
             grid: grid.accessor,
             eventRanges,
-            holdNoteRanges: holdNoteRanges.accessor,
+            stages,
+            // holdNoteRanges: holdNoteRanges.accessor,
         },
 
         get bpms() {
@@ -29,7 +34,7 @@ export const createTransaction = (state: State) => {
         commit: (): State => {
             if (bpms) bpms = calculateBpms(bpms)
             if (bpms || timeScales)
-                timeScales = calculateTimeScales(bpms ?? state.bpms, timeScales ?? state.timeScales)
+                timeScales = calculateTimeScales(bpms ?? state.bpms, timeScales ?? [...state.timeScales.filter(({ stage }) => stage === view.stage)])
 
             return {
                 ...state,
@@ -40,10 +45,11 @@ export const createTransaction = (state: State) => {
                         ...grid.value,
                     },
                     eventRanges,
-                    holdNoteRanges: {
-                        ...state.store.holdNoteRanges,
-                        ...holdNoteRanges.value,
-                    },
+                    stages
+                    // holdNoteRanges: {
+                    //     ...state.store.holdNoteRanges,
+                    //     ...holdNoteRanges.value,
+                    // },
                 },
 
                 bpms: bpms ?? state.bpms,

@@ -7,5 +7,5 @@ export type BpmEntity = BaseValueEntity & {
 
 export const toBpmEntity = (object: ValueObject): BpmEntity => ({
     type: 'bpm',
-    ...toValueEntity(object, -1),
+    ...toValueEntity(object, 1.0625),
 })

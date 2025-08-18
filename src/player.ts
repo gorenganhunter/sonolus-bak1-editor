@@ -17,14 +17,14 @@ let sfxBuffer: AudioBuffer | undefined
 
 let state:
     | {
-          speed: number
-          time: number
-          cursorTime: number
-          contextTime: number
+        speed: number
+        time: number
+        cursorTime: number
+        contextTime: number
 
-          lastTime: number
-          nodes: Set<AudioNode>
-      }
+        lastTime: number
+        nodes: Set<AudioNode>
+    }
     | undefined
 
 let preview: AudioNode | undefined
@@ -48,8 +48,9 @@ watch(time, ({ now }) => {
 
             if (
                 entity.type !== 'tapNote' &&
-                entity.type !== 'singleHoldNoteJoint' &&
-                entity.type !== 'doubleHoldNoteJoint'
+                entity.type !== 'holdNote' &&
+                entity.type !== 'dragNote' &&
+                entity.type !== 'flickNote'
             )
                 continue
 
@@ -62,8 +63,8 @@ watch(time, ({ now }) => {
                 sfxBuffer,
                 settings.playSfxVolume,
                 (beatToTime(bpms.value, beat) - state.cursorTime) / state.speed +
-                    state.contextTime +
-                    delay,
+                state.contextTime +
+                delay,
             )
         }
     }

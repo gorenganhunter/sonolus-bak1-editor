@@ -27,7 +27,13 @@ export const view = shallowReactive({
     w: 0,
     h: 0,
 
+    lane: 1,
     division: 4,
+
+    stage: 0,
+    side: 0,
+
+    lastHoldDuration: 1,
 
     visibilities: {
         bpm: true,
@@ -35,12 +41,19 @@ export const view = shallowReactive({
 
         rotateEventJoint: true,
         rotateEventConnection: true,
-        shiftEventJoint: true,
-        shiftEventConnection: true,
-        zoomEventJoint: true,
-        zoomEventConnection: true,
+        resizeEventJoint: true,
+        resizeEventConnection: true,
+        transparentEventJoint: true,
+        transparentEventConnection: true,
+        moveXEventJoint: true,
+        moveXEventConnection: true,
+        moveYEventJoint: true,
+        moveYEventConnection: true,
 
         tapNote: true,
+        dragNote: true,
+        flickNote: true,
+        holdNote: true,
 
         singleHoldNoteJoint: true,
         singleHoldNoteConnection: true,
@@ -60,20 +73,20 @@ export const view = shallowReactive({
 
     scrolling: optional<
         | {
-              type: 'inertia'
-              value: number
-          }
+            type: 'inertia'
+            value: number
+        }
         | {
-              type: 'ease'
-              from: {
-                  time: number
-                  viewTime: number
-              }
-              to: {
-                  time: number
-                  viewTime: number
-              }
-          }
+            type: 'ease'
+            from: {
+                time: number
+                viewTime: number
+            }
+            to: {
+                time: number
+                viewTime: number
+            }
+        }
     >(),
 })
 
@@ -153,7 +166,7 @@ export const scrollViewBy = (dy: number, smooth = false) => {
                 viewTime: Math.max(
                     0,
                     (view.scrolling?.type === 'ease' ? view.scrolling.to.viewTime : view.time) +
-                        dy / settings.pps,
+                    dy / settings.pps,
                 ),
             },
         }
@@ -198,9 +211,13 @@ export const updateViewPointer = (pointer?: { x: number; y: number }) => {
     }
 }
 
-export const xToLane = (x: number) => (0.5 - (x - view.x) / view.w) * settings.width + 3.5
+export const xToLane = (x: number) => {
+    const a = ((((x - view.x) / view.w - 0.5) * settings.width / (8 / view.lane) + (view.lane / 2)) / view.lane)
 
-export const xToValidLane = (x: number) => clamp(align(xToLane(x)), 0, 7)
+    return a
+}
+
+export const xToValidLane = (x: number) => clamp(Math.floor(xToLane(x) * view.lane) / view.lane + (1 / view.lane / 2) + view.side, 0, 4)
 
 export const yToTime = (y: number) => (0.5 * view.h - y + view.y) / settings.pps + view.time
 

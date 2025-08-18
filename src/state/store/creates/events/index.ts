@@ -13,25 +13,35 @@ export const createStoreEventEntities = <
     toJointEntity: (object: EventObject) => EntityOfType<T>,
     toConnectionEntity: (min: EntityOfType<T>, max: EntityOfType<T>) => EntityOfType<U>,
 ) => {
-    let min: EntityOfType<T> | undefined
-    let max: EntityOfType<T> | undefined
-    let prev: EntityOfType<T> | undefined
+    let stages: any[] = []
 
-    for (const object of [...objects].sort((a, b) => a.beat - b.beat)) {
-        const entity = toJointEntity(object)
+    objects.forEach(o => {
+        if (!stages.includes(o.stage)) stages.push(o.stage)
+    })
 
-        if (prev) addToStoreGrid(grid, toConnectionEntity(prev, entity), prev.beat, entity.beat)
+    stages = stages.map(s => objects.filter(o => o.stage === s))
+    //    console.log(stages)
+    for (let objects2 of stages) {
+        let min: EntityOfType<T> | undefined
+        let max: EntityOfType<T> | undefined
+        let prev: EntityOfType<T> | undefined
 
-        addToStoreGrid(grid, entity, entity.beat)
+        for (const object of [...objects2].sort((a, b) => a.beat - b.beat)) {
+            const entity = toJointEntity(object)
 
-        min ??= entity
-        max = entity
-        prev = entity
-    }
+            if (prev) addToStoreGrid(grid, toConnectionEntity(prev, entity), prev.beat, entity.beat)
 
-    if (min && max)
-        return {
-            min,
-            max,
+            addToStoreGrid(grid, entity, entity.beat)
+
+            min ??= entity
+            max = entity
+            prev = entity
         }
+        //
+        // if (min && max)
+        //     return {
+        //         min,
+        //         max,
+        //     }
+    }
 }

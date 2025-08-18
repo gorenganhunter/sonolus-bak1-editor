@@ -4,12 +4,15 @@ import { selectedEntities } from '../../history/selectedEntities'
 import { i18n } from '../../i18n'
 import type { Entity } from '../../state/entities'
 import type { RemoveMutation } from '../../state/mutations'
+import { removeMoveXEventJoint } from '../../state/mutations/events/moveX'
+import { removeMoveYEventJoint } from '../../state/mutations/events/moveY'
+import { removeResizeEventJoint } from '../../state/mutations/events/resize'
 import { removeRotateEventJoint } from '../../state/mutations/events/rotate'
-import { removeShiftEventJoint } from '../../state/mutations/events/shift'
-import { removeZoomEventJoint } from '../../state/mutations/events/zoom'
-import { removeDoubleHoldNoteJoint } from '../../state/mutations/holdNotes/double'
-import { removeSingleHoldNoteJoint } from '../../state/mutations/holdNotes/single'
-import { removeTapNote } from '../../state/mutations/tapNote'
+import { removeTransparentEventJoint } from '../../state/mutations/events/transparent'
+import { removeDragNote } from '../../state/mutations/notes/dragNote'
+import { removeFlickNote } from '../../state/mutations/notes/flickNote'
+import { removeHoldNote } from '../../state/mutations/notes/holdNote'
+import { removeTapNote } from '../../state/mutations/notes/tapNote'
 import { removeBpm } from '../../state/mutations/values/bpm'
 import { removeTimeScale } from '../../state/mutations/values/timeScale'
 import { createTransaction } from '../../state/transaction'
@@ -20,10 +23,10 @@ import { hitEntitiesAtPoint, hitEntitiesInSelection, toSelection } from './utils
 
 let active:
     | {
-          lane: number
-          time: number
-          count: number
-      }
+        lane: number
+        time: number
+        count: number
+    }
     | undefined
 
 export const eraser: Tool = {
@@ -128,12 +131,15 @@ const removes: {
     timeScale: removeTimeScale,
 
     rotateEventJoint: removeRotateEventJoint,
-    shiftEventJoint: removeShiftEventJoint,
-    zoomEventJoint: removeZoomEventJoint,
+    resizeEventJoint: removeResizeEventJoint,
+    transparentEventJoint: removeTransparentEventJoint,
+    moveXEventJoint: removeMoveXEventJoint,
+    moveYEventJoint: removeMoveYEventJoint,
 
     tapNote: removeTapNote,
-    singleHoldNoteJoint: removeSingleHoldNoteJoint,
-    doubleHoldNoteJoint: removeDoubleHoldNoteJoint,
+    dragNote: removeDragNote,
+    flickNote: removeFlickNote,
+    holdNote: removeHoldNote
 }
 
 const canRemove = (entity: Entity) => canRemoves[entity.type]?.(entity as never) ?? true

@@ -1,6 +1,8 @@
 import type { EventEntity } from './events'
-import type { HoldNoteEntity } from './holdNotes'
-import type { TapNoteEntity } from './tapNote'
+import type { DragNoteEntity } from './notes/dragNote'
+import type { FlickNoteEntity } from './notes/flickNote'
+import type { HoldNoteEntity } from './notes/holdNote'
+import type { TapNoteEntity } from './notes/tapNote'
 import type { ValueEntity } from './values'
 
 export type BaseEntity = {
@@ -15,7 +17,7 @@ export type BaseEntity = {
     beat: number
 }
 
-export type Entity = ValueEntity | EventEntity | TapNoteEntity | HoldNoteEntity
+export type Entity = ValueEntity | EventEntity | TapNoteEntity | HoldNoteEntity | DragNoteEntity | FlickNoteEntity
 
 export type EntityType = Entity['type']
 

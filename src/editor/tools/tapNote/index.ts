@@ -1,13 +1,13 @@
-import type { Tool } from '..'
-import type { TapNoteObject } from '../../../chart'
+import type { Tool } from 'vue-tsc'
+import type { BaseNoteObject } from '../../../chart'
 import { pushState, replaceState, state } from '../../../history'
 import { selectedEntities } from '../../../history/selectedEntities'
 import { store } from '../../../history/store'
 import { i18n } from '../../../i18n'
 import { showModal } from '../../../modals'
 import type { Entity } from '../../../state/entities'
-import { toTapNoteEntity, type TapNoteEntity } from '../../../state/entities/tapNote'
-import { addTapNote, removeTapNote } from '../../../state/mutations/tapNote'
+import { toTapNoteEntity, type TapNoteEntity } from '../../../state/entities/notes/tapNote'
+import { addTapNote, removeTapNote } from '../../../state/mutations/notes/tapNote'
 import { getInStoreGrid } from '../../../state/store/grid'
 import { createTransaction, type Transaction } from '../../../state/transaction'
 import { interpolate } from '../../../utils/interpolate'
@@ -26,14 +26,15 @@ import TapNotePropertiesModal from './TapNotePropertiesModal.vue'
 
 let active:
     | {
-          entity: TapNoteEntity
-          lane: number
-      }
+        entity: TapNoteEntity
+        lane: number
+    }
     | undefined
 
 export const tapNote: Tool = {
     hover(x, y) {
-        const [entity, beat, lane] = tryFind(x, y)
+        const stage = view.stage
+        const [entity, beat, lane] = tryFind(stage, x, y)
         if (entity) {
             view.entities = {
                 hovered: [entity],
@@ -45,8 +46,9 @@ export const tapNote: Tool = {
                 creating: [
                     toTapNoteEntity({
                         beat,
-                        color: 0,
                         lane,
+                        size: 1 / view.lane,
+                        stage,
                         ...getPropertiesFromSelection(),
                     }),
                 ],
@@ -55,7 +57,7 @@ export const tapNote: Tool = {
     },
 
     async tap(x, y) {
-        const [entity, beat, lane] = tryFind(x, y)
+        const [entity, beat, lane] = tryFind(view.stage, x, y)
         if (entity) {
             replaceState({
                 ...state.value,
@@ -76,8 +78,7 @@ export const tapNote: Tool = {
         } else {
             add({
                 beat,
-                color: 0,
-                lane,
+                lane, size: 1 / view.lane, stage: view.stage,
                 ...getPropertiesFromSelection(),
             })
             focusViewAtBeat(beat)
@@ -85,7 +86,7 @@ export const tapNote: Tool = {
     },
 
     dragStart(x, y) {
-        const [entity] = tryFind(x, y)
+        const [entity] = tryFind(view.stage, x, y)
         if (!entity) return false
 
         replaceState({
@@ -102,7 +103,7 @@ export const tapNote: Tool = {
 
         active = {
             entity,
-            lane: align(xToLane(x)),
+            lane: xToValidLane(x),
         }
         return true
     },
@@ -117,8 +118,9 @@ export const tapNote: Tool = {
             creating: [
                 toTapNoteEntity({
                     beat: yToValidBeat(y),
-                    color: active.entity.color,
-                    lane: mod(active.entity.lane + align(xToLane(x)) - active.lane, 8),
+                    lane: mod(active.entity.lane + xToValidLane(x) - active.lane, 4),
+                    size: active.entity.size,
+                    stage: active.entity.stage
                 }),
             ],
         }
@@ -129,8 +131,9 @@ export const tapNote: Tool = {
 
         editMoveOrReplace(active.entity, {
             beat: yToValidBeat(y),
-            color: active.entity.color,
-            lane: mod(active.entity.lane + align(xToLane(x)) - active.lane, 8),
+            lane: mod(active.entity.lane + xToValidLane(x) - active.lane, 4),
+            size: active.entity.size,
+            stage: active.entity.stage
         })
 
         active = undefined
@@ -144,36 +147,36 @@ const getPropertiesFromSelection = () => {
     if (entity?.type !== 'tapNote') return
 
     return {
-        color: entity.color,
+        // color: entity.color,
     }
 }
 
-const find = (beat: number, lane: number) =>
+const find = (stage: number, beat: number, lane: number) =>
     getInStoreGrid(store.value.grid, 'tapNote', beat)?.find(
-        (entity) => entity.beat === beat && entity.lane === lane,
+        (entity) => entity.stage === stage && entity.beat === beat && entity.lane === lane,
     )
 
-const tryFind = (x: number, y: number): [TapNoteEntity] | [undefined, number, number] => {
+const tryFind = (stage: number, x: number, y: number): [TapNoteEntity] | [undefined, number, number] => {
     const [hit] = hitEntitiesAtPoint(x, y)
         .filter((entity) => entity.type === 'tapNote')
         .sort((a, b) => +selectedEntities.value.includes(b) - +selectedEntities.value.includes(a))
-    if (hit) return [hit]
+    if (hit && Math.floor(hit.lane) === view.side && hit.stage === view.stage) return [hit]
 
     const lane = xToValidLane(x)
     const beat = yToValidBeat(y)
-    const nearest = find(beat, lane)
-    if (nearest) return [nearest]
+    const nearest = find(stage, beat, lane)
+    if (nearest && Math.floor(nearest.lane) === view.side && nearest.stage === view.stage) return [nearest]
 
     return [undefined, beat, lane]
 }
 
-const editMoveOrReplace = (entity: TapNoteEntity, object: TapNoteObject) => {
-    if (entity.beat === object.beat && entity.lane === object.lane) {
+const editMoveOrReplace = (entity: TapNoteEntity, object: BaseNoteObject) => {
+    if (entity.stage === object.stage && entity.beat === object.beat && entity.lane === object.lane) {
         edit(entity, object)
         return
     }
 
-    const overlap = find(object.beat, object.lane)
+    const overlap = find(object.stage, object.beat, object.lane)
     if (overlap) {
         replace(overlap, object, entity)
     } else {
@@ -199,7 +202,7 @@ const update = (message: () => string, action: (transaction: Transaction) => Ent
     notify(interpolate(message, `${selectedEntities.length}`))
 }
 
-const add = (object: TapNoteObject) => {
+const add = (object: BaseNoteObject) => {
     update(
         () => i18n.value.tools.tapNote.added,
         (transaction) => {
@@ -208,7 +211,7 @@ const add = (object: TapNoteObject) => {
     )
 }
 
-const edit = (entity: TapNoteEntity, object: TapNoteObject) => {
+const edit = (entity: TapNoteEntity, object: BaseNoteObject) => {
     update(
         () => i18n.value.tools.tapNote.edited,
         (transaction) => {
@@ -218,7 +221,7 @@ const edit = (entity: TapNoteEntity, object: TapNoteObject) => {
     )
 }
 
-const move = (object: TapNoteObject, old: TapNoteEntity) => {
+const move = (object: BaseNoteObject, old: TapNoteEntity) => {
     update(
         () => i18n.value.tools.tapNote.moved,
         (transaction) => {
@@ -228,7 +231,7 @@ const move = (object: TapNoteObject, old: TapNoteEntity) => {
     )
 }
 
-const replace = (entity: TapNoteEntity, object: TapNoteObject, old: TapNoteEntity) => {
+const replace = (entity: TapNoteEntity, object: BaseNoteObject, old: TapNoteEntity) => {
     update(
         () => i18n.value.tools.tapNote.replaced,
         (transaction) => {

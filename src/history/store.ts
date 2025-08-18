@@ -59,14 +59,16 @@ export const hitEntities = (laneMin: number, laneMax: number, timeMin: number, t
     const min = minBeatToKey(timeToBeat(bpms.value, Math.max(0, timeMin - 0.25 * spu)))
     const max = maxBeatToKey(timeToBeat(bpms.value, Math.max(0, timeMax + 0.25 * spu)))
 
-    return [...cullAllEntities(min, max)].filter(({ hitbox }) => {
+    return [...cullAllEntities(min, max)].filter(({ hitbox, type }) => {
         if (!hitbox) return false
 
-        const { lane, w } = hitbox
+        let { lane, w } = hitbox
 
         const time = beatToTime(bpms.value, hitbox.beat)
         const t = hitbox.t * spu
         const b = hitbox.b * spu
+
+        if (["tapNote", "holdNote", "dragNote", "flickNote"].includes(type)) lane -= view.side
 
         return laneMax > lane - w && laneMin < lane + w && timeMax > time - b && timeMin < time + t
     })

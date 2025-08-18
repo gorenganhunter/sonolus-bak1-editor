@@ -1,13 +1,15 @@
 import type { Store } from '..'
 import type { Chart } from '../../../chart'
 import type { StoreGrid } from '../grid'
-import type { HoldNoteRanges } from '../holdNoteRanges'
+import { createStoreMoveXEvents } from './events/moveX'
+import { createStoreMoveYEvents } from './events/moveY'
+import { createStoreResizeEvents } from './events/resize'
 import { createStoreRotateEvents } from './events/rotate'
-import { createStoreShiftEvents } from './events/shift'
-import { createStoreZoomEvents } from './events/zoom'
-import { createStoreDoubleHoldNotes } from './holdNotes/double'
-import { createStoreSingleHoldNotes } from './holdNotes/single'
-import { createStoreTapNotes } from './tapNote'
+import { createStoreTransparentEvents } from './events/transparent'
+import { createStoreDragNotes } from './notes/dragNote'
+import { createStoreFlickNotes } from './notes/flickNote'
+import { createStoreHoldNotes } from './notes/holdNote'
+import { createStoreTapNotes } from './notes/tapNote'
 import { createStoreBpms } from './values/bpm'
 import { createStoreTimeScales } from './values/timeScale'
 
@@ -18,43 +20,44 @@ export const createStore = (chart: Chart): Store => {
 
         rotateEventJoint: new Map(),
         rotateEventConnection: new Map(),
-        shiftEventJoint: new Map(),
-        shiftEventConnection: new Map(),
-        zoomEventJoint: new Map(),
-        zoomEventConnection: new Map(),
+        resizeEventJoint: new Map(),
+        resizeEventConnection: new Map(),
+        transparentEventJoint: new Map(),
+        transparentEventConnection: new Map(),
+        moveXEventJoint: new Map(),
+        moveXEventConnection: new Map(),
+        moveYEventJoint: new Map(),
+        moveYEventConnection: new Map(),
 
         tapNote: new Map(),
-
-        singleHoldNoteJoint: new Map(),
-        singleHoldNoteConnection: new Map(),
-        doubleHoldNoteJoint: new Map(),
-        doubleHoldNoteConnection: new Map(),
-    }
-
-    const holdNoteRanges: HoldNoteRanges = {
-        singleHoldNoteJoint: new Map(),
-        doubleHoldNoteJoint: new Map(),
+        dragNote: new Map(),
+        flickNote: new Map(),
+        holdNote: new Map()
     }
 
     createStoreBpms(grid, chart)
     createStoreTimeScales(grid, chart)
 
     const rotateEventJoint = createStoreRotateEvents(grid, chart)
-    const shiftEventJoint = createStoreShiftEvents(grid, chart)
-    const zoomEventJoint = createStoreZoomEvents(grid, chart)
+    const resizeEventJoint = createStoreResizeEvents(grid, chart)
+    const transparentEventJoint = createStoreTransparentEvents(grid, chart)
+    const moveXEventJoint = createStoreMoveXEvents(grid, chart)
+    const moveYEventJoint = createStoreMoveYEvents(grid, chart)
 
     createStoreTapNotes(grid, chart)
-
-    createStoreSingleHoldNotes(grid, holdNoteRanges, chart)
-    createStoreDoubleHoldNotes(grid, holdNoteRanges, chart)
+    createStoreDragNotes(grid, chart)
+    createStoreFlickNotes(grid, chart)
+    createStoreHoldNotes(grid, chart)
 
     return {
         grid,
         eventRanges: {
             rotateEventJoint,
-            shiftEventJoint,
-            zoomEventJoint,
+            resizeEventJoint,
+            transparentEventJoint,
+            moveXEventJoint,
+            moveYEventJoint
         },
-        holdNoteRanges,
+        stages: chart.rectStages || [{ id: 0 }]
     }
 }

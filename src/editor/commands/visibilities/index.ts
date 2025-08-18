@@ -8,11 +8,18 @@ import VisibilityIcon from './VisibilityIcon.vue'
 
 export const visibilityTypes = {
     tapNote: ['tapNote'],
-    singleHoldNote: ['singleHoldNoteJoint', 'singleHoldNoteConnection'],
-    doubleHoldNote: ['doubleHoldNoteJoint', 'doubleHoldNoteConnection'],
+    dragNote: ['dragNote'],
+    flickNote: ['flickNote'],
+    holdNote: ['holdNote'],
+    // singleHoldNote: ['singleHoldNoteJoint', 'singleHoldNoteConnection'],
+    // doubleHoldNote: ['doubleHoldNoteJoint', 'doubleHoldNoteConnection'],
     rotateEvent: ['rotateEventJoint', 'rotateEventConnection'],
-    shiftEvent: ['shiftEventJoint', 'shiftEventConnection'],
-    zoomEvent: ['zoomEventJoint', 'zoomEventConnection'],
+    resizeEvent: ['resizeEventJoint', 'resizeEventConnection'],
+    transparentEvent: ['transparentEventJoint', 'transparentEventConnection'],
+    moveXEvent: ['moveXEventJoint', 'moveXEventConnection'],
+    moveYEvent: ['moveYEventJoint', 'moveYEventConnection'],
+    // shiftEvent: ['shiftEventJoint', 'shiftEventConnection'],
+    // zoomEvent: ['zoomEventJoint', 'zoomEventConnection'],
     timeScale: ['timeScale'],
     bpm: ['bpm'],
 } satisfies Record<string, EntityType[]>
