@@ -68,16 +68,16 @@ import { hitEntitiesAtPoint, hitEntitiesInSelection, modifyEntities, toSelection
 
 let active:
     | {
+          type: 'move'
+          lane: number
+          focus: Entity
+          entities: Entity[]
+      }
+    | {
           type: 'select'
           lane: number
           time: number
           count: number
-          entities: Entity[]
-      }
-    | {
-          type: 'move'
-          lane: number
-          focus: Entity
           entities: Entity[]
       }
     | undefined
@@ -111,8 +111,8 @@ export const select: Tool = {
                 hovered: entities,
                 creating: [],
             }
-
             focusViewAtBeat(entity.beat)
+
             notify(interpolate(() => i18n.value.tools.select.selected, `${targets.length}`))
         } else {
             const entities = hitEntitiesAtPoint(x, y)
@@ -135,9 +135,11 @@ export const select: Tool = {
 
             if (entity) {
                 focusViewAtBeat(entity.beat)
+
                 notify(interpolate(() => i18n.value.tools.select.selected, `${targets.length}`))
             } else {
                 focusViewAtBeat(yToValidBeat(y))
+
                 if (selectedLength) notify(() => i18n.value.tools.select.deselected)
             }
         }
@@ -151,15 +153,21 @@ export const select: Tool = {
 
         const [focus] = entities.filter((entity) => selectedEntities.value.includes(entity))
         if (focus) {
+            focusViewAtBeat(focus.beat)
+
+            notify(
+                interpolate(
+                    () => i18n.value.tools.select.moving,
+                    `${selectedEntities.value.length}`,
+                ),
+            )
+
             active = {
                 type: 'move',
                 lane,
                 focus,
                 entities: selectedEntities.value,
             }
-
-            focusViewAtBeat(focus.beat)
-            notify(interpolate(() => i18n.value.tools.select.moving, `${active.entities.length}`))
         } else {
             const [entity] = entities
             if (entity) {
@@ -171,6 +179,9 @@ export const select: Tool = {
                     hovered: [],
                     creating: [],
                 }
+                focusViewAtBeat(entity.beat)
+
+                notify(interpolate(() => i18n.value.tools.select.moving, '1'))
 
                 active = {
                     type: 'move',
@@ -178,9 +189,6 @@ export const select: Tool = {
                     focus: entity,
                     entities: [entity],
                 }
-
-                focusViewAtBeat(entity.beat)
-                notify(interpolate(() => i18n.value.tools.select.moving, '1'))
             } else {
                 active = {
                     type: 'select',
@@ -200,52 +208,58 @@ export const select: Tool = {
 
         setViewHover(x, y)
 
-        if (active.type === 'select') {
-            const selection = toSelection(active.lane, active.time, x, y)
-            const entities = modifyEntities(hitEntitiesInSelection(selection), modifiers)
-            const targets = modifiers.shift
-                ? [...new Set([...active.entities, ...entities])]
-                : entities
+        switch (active.type) {
+            case 'move': {
+                const lane = xToLane(x)
+                const beatOffset = yToBeatOffset(y, active.focus.beat)
 
-            replaceState({
-                ...state.value,
-                selectedEntities: targets,
-            })
-            view.selection = selection
-            view.entities = {
-                hovered: [],
-                creating: [],
+                const creating: Entity[] = []
+                for (const entity of active.entities) {
+                    const beat = entity.beat + beatOffset
+                    if (beat < 0) continue
+
+                    const result = creates[entity.type]?.(
+                        active.entities,
+                        entity as never,
+                        active.lane,
+                        lane,
+                        beat,
+                        active.focus,
+                    )
+                    if (!result) continue
+
+                    creating.push(result)
+                }
+
+                view.entities = {
+                    hovered: [],
+                    creating,
+                }
+                focusViewAtBeat(active.focus.beat + beatOffset)
+                break
             }
+            case 'select': {
+                const selection = toSelection(active.lane, active.time, x, y)
+                const entities = modifyEntities(hitEntitiesInSelection(selection), modifiers)
+                const targets = modifiers.shift
+                    ? [...new Set([...active.entities, ...entities])]
+                    : entities
 
-            if (active.count === targets.length) return
-            active.count = targets.length
+                replaceState({
+                    ...state.value,
+                    selectedEntities: targets,
+                })
+                view.selection = selection
+                view.entities = {
+                    hovered: [],
+                    creating: [],
+                }
 
-            notify(interpolate(() => i18n.value.tools.select.selecting, `${targets.length}`))
-        } else {
-            const lane = xToLane(x)
-            const beatOffset = yToBeatOffset(y, active.focus.beat)
+                if (active.count === targets.length) return
+                active.count = targets.length
 
-            const creating: Entity[] = []
-            for (const entity of active.entities) {
-                const beat = entity.beat + beatOffset
-                if (beat < 0) continue
-
-                const result = creates[entity.type]?.(
-                    active.entities,
-                    entity as never,
-                    active.lane,
-                    lane,
-                    beat,
-                    active.focus,
-                )
-                if (!result) continue
-
-                creating.push(result)
-            }
-
-            view.entities = {
-                hovered: [],
-                creating,
+                notify(interpolate(() => i18n.value.tools.select.selecting, `${targets.length}`))
+                break
             }
         }
     },
@@ -253,66 +267,74 @@ export const select: Tool = {
     dragEnd(x, y, modifiers) {
         if (!active) return
 
-        if (active.type === 'select') {
-            const selection = toSelection(active.lane, active.time, x, y)
-            const entities = modifyEntities(hitEntitiesInSelection(selection), modifiers)
-            const targets = modifiers.shift
-                ? [...new Set([...active.entities, ...entities])]
-                : entities
+        switch (active.type) {
+            case 'move': {
+                const transaction = createTransaction(state.value)
 
-            replaceState({
-                ...state.value,
-                selectedEntities: targets,
-            })
-            view.selection = undefined
-            view.entities = {
-                hovered: [],
-                creating: [],
-            }
+                const lane = xToLane(x)
+                const beatOffset = yToBeatOffset(y, active.focus.beat)
 
-            notify(interpolate(() => i18n.value.tools.select.selected, `${targets.length}`))
-        } else {
-            const transaction = createTransaction(state.value)
-
-            const lane = xToLane(x)
-            const beatOffset = yToBeatOffset(y, active.focus.beat)
-
-            const entities = active.entities.sort(
-                beatOffset > 0 ? (a, b) => b.beat - a.beat : (a, b) => a.beat - b.beat,
-            )
-
-            const selectedEntities: Entity[] = []
-            for (const entity of entities) {
-                const beat = entity.beat + beatOffset
-                if (beat < 0) continue
-
-                const result = moves[entity.type]?.(
-                    transaction,
-                    entities,
-                    entity as never,
-                    active.lane,
-                    lane,
-                    beat,
-                    active.focus,
+                const entities = active.entities.sort(
+                    beatOffset > 0 ? (a, b) => b.beat - a.beat : (a, b) => a.beat - b.beat,
                 )
-                if (!result) continue
 
-                selectedEntities.push(...result)
+                const selectedEntities: Entity[] = []
+                for (const entity of entities) {
+                    const beat = entity.beat + beatOffset
+                    if (beat < 0) continue
+
+                    const result = moves[entity.type]?.(
+                        transaction,
+                        entities,
+                        entity as never,
+                        active.lane,
+                        lane,
+                        beat,
+                        active.focus,
+                    )
+                    if (!result) continue
+
+                    selectedEntities.push(...result)
+                }
+
+                pushState(
+                    interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`),
+                    {
+                        ...transaction.commit(),
+                        selectedEntities,
+                    },
+                )
+                view.entities = {
+                    hovered: [],
+                    creating: [],
+                }
+                focusViewAtBeat(active.focus.beat + beatOffset)
+
+                notify(
+                    interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`),
+                )
+                break
             }
+            case 'select': {
+                const selection = toSelection(active.lane, active.time, x, y)
+                const entities = modifyEntities(hitEntitiesInSelection(selection), modifiers)
+                const targets = modifiers.shift
+                    ? [...new Set([...active.entities, ...entities])]
+                    : entities
 
-            pushState(
-                interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`),
-                {
-                    ...transaction.commit(),
-                    selectedEntities,
-                },
-            )
-            view.entities = {
-                hovered: [],
-                creating: [],
+                replaceState({
+                    ...state.value,
+                    selectedEntities: targets,
+                })
+                view.selection = undefined
+                view.entities = {
+                    hovered: [],
+                    creating: [],
+                }
+
+                notify(interpolate(() => i18n.value.tools.select.selected, `${targets.length}`))
+                break
             }
-
-            notify(interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`))
         }
 
         active = undefined
