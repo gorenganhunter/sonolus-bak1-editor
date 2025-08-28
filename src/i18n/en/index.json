@@ -380,11 +380,21 @@
             "scrollInertia": "Scroll Inertia"
         }
     },
+    "sidebar": {
+        "default": {
+            "title": "Object Properties",
+            "none": "No object selected",
+            "edited": "Edited {0} objects"
+        }
+    },
     "tools": {
         "brush": {
             "deselected": "Deselected all objects",
             "brushing": "Brushing {0} objects",
-            "brushed": "Brushed {0} objects"
+            "brushed": "Brushed {0} objects",
+            "sidebar": {
+                "title": "Brush Properties"
+            }
         },
         "eraser": {
             "deselected": "Deselected all objects",
@@ -394,6 +404,7 @@
         "events": {
             "moving": "Moving {0} {1} objects",
             "adding": "Adding {0} {1} objects",
+            "selected": "Selected {0} {1} objects",
             "added": "Added {0} {1} objects",
             "edited": "Edited {0} {1} objects",
             "moved": "Moved {0} {1} objects",
@@ -412,6 +423,17 @@
                 },
                 "zoomEvent": {
                     "title": "Zoom Event Properties"
+                }
+            },
+            "sidebars": {
+                "rotateEvent": {
+                    "title": "Default Rotate Event Properties"
+                },
+                "shiftEvent": {
+                    "title": "Default Shift Event Properties"
+                },
+                "zoomEvent": {
+                    "title": "Default Zoom Event Properties"
                 }
             }
         },
@@ -434,10 +456,21 @@
                 "doubleHoldNote": {
                     "title": "Double Hold Note Properties"
                 }
+            },
+            "sidebars": {
+                "singleHoldNote": {
+                    "title": "Default Single Hold Note Properties"
+                },
+                "doubleHoldNote": {
+                    "title": "Default Double Hold Note Properties"
+                }
             }
         },
         "paste": {
-            "pasted": "Pasted {0} objects"
+            "pasted": "Pasted {0} objects",
+            "sidebar": {
+                "title": "Clipboard History"
+            }
         },
         "select": {
             "deselected": "Deselected all objects",
@@ -449,12 +482,16 @@
         "tapNote": {
             "moving": "Moving {0} Tap Note objects",
             "adding": "Adding {0} Tap Note objects",
+            "selected": "Selected {0} Tap Note objects",
             "added": "Added {0} Tap Note objects",
             "edited": "Edited {0} Tap Note objects",
             "moved": "Moved {0} Tap Note objects",
             "replaced": "Replaced {0} Tap Note objects",
             "modal": {
                 "title": "Tap Note Properties"
+            },
+            "sidebar": {
+                "title": "Default Tap Note Properties"
             }
         },
         "values": {
