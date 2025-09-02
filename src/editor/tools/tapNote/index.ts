@@ -262,9 +262,9 @@ const find = (beat: number, lane: number) =>
     )
 
 const tryFind = (x: number, y: number): [TapNoteEntity] | [undefined, number, number] => {
-    const [hit] = hitEntitiesAtPoint(x, y)
-        .filter((entity) => entity.type === 'tapNote')
-        .sort((a, b) => +selectedEntities.value.includes(b) - +selectedEntities.value.includes(a))
+    const [hit] = hitEntitiesAtPoint('tapNote', x, y).sort(
+        (a, b) => +selectedEntities.value.includes(b) - +selectedEntities.value.includes(a),
+    )
     if (hit) return [hit]
 
     const lane = xToValidLane(x)

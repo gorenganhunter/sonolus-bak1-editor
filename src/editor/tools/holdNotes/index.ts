@@ -75,11 +75,9 @@ export const createHoldNoteTool = <
         )
 
     const tryFind = (x: number, y: number): [EntityOfType<U>] | [undefined, number, number] => {
-        const [hit] = hitEntitiesAtPoint(x, y)
-            .filter(isJoint)
-            .sort(
-                (a, b) => +selectedEntities.value.includes(b) - +selectedEntities.value.includes(a),
-            )
+        const [hit] = hitEntitiesAtPoint(jointType, x, y).sort(
+            (a, b) => +selectedEntities.value.includes(b) - +selectedEntities.value.includes(a),
+        )
         if (hit) return [hit]
 
         const lane = xToValidLane(x)

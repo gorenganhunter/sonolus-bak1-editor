@@ -1,18 +1,26 @@
-import { cullEntities, hitEntities, store } from '../../history/store'
-import type { Entity } from '../../state/entities'
+import { cullEntities, hitAllEntities, hitEntities, store } from '../../history/store'
+import type { Entity, EntityType } from '../../state/entities'
 import { beatToKey } from '../../state/store/grid'
 import type { Modifiers } from '../controls/gestures/pointer'
 import { view, xToLane, yToTime, type Selection } from '../view'
 
-export const hitEntitiesAtPoint = (x: number, y: number) =>
-    hitEntities(xToLane(x + 10), xToLane(x - 10), yToTime(y + 10), yToTime(y - 10)).filter(
+export const hitEntitiesAtPoint = <T extends EntityType>(type: T, x: number, y: number) =>
+    hitEntities(type, xToLane(x + 10), xToLane(x - 10), yToTime(y + 10), yToTime(y - 10)).filter(
         isVisible,
     )
 
-export const hitEntitiesInSelection = (selection: Selection) =>
-    hitEntities(selection.laneMin, selection.laneMax, selection.timeMin, selection.timeMax).filter(
+export const hitAllEntitiesAtPoint = (x: number, y: number) =>
+    hitAllEntities(xToLane(x + 10), xToLane(x - 10), yToTime(y + 10), yToTime(y - 10)).filter(
         isVisible,
     )
+
+export const hitAllEntitiesInSelection = (selection: Selection) =>
+    hitAllEntities(
+        selection.laneMin,
+        selection.laneMax,
+        selection.timeMin,
+        selection.timeMax,
+    ).filter(isVisible)
 
 export const modifyEntities = (entities: Entity[], modifiers: Modifiers) => {
     if (!modifiers.ctrl) return entities
