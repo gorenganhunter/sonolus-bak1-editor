@@ -19,8 +19,7 @@ const model = shallowReactive({ ...props.object })
 <template>
     <FormModal :title="i18n.tools.values.modals.timeScale.title" @close="$emit('close')"
         @submit="$emit('close', model)">
-        <NumberField v-model="model.value" :label="i18n.tools.values.modals.timeScale.timeScale" :min="0.001"
-            :max="1000" :step="0.001" autofocus />
+        <NumberField v-model="model.value" :label="i18n.tools.values.modals.timeScale.timeScale" :step="0.001" autofocus />
         <NumberField v-model="model.beat" :label="i18n.tools.values.modals.timeScale.beat" :min="0" step="any" />
     </FormModal>
 </template>
