@@ -13,7 +13,11 @@ const number = (def: number, min: number, max: number) =>
         .Encode((value) => value)
 
 const settingsProperties = {
-    previewPosition: Type.Union([Type.Literal('top'), Type.Literal('left')]),
+    showSidebar: Type.Boolean({ default: true }),
+
+    sidebarWidth: Type.Number(),
+
+    previewPosition: Type.Union([Type.Literal('auto'), Type.Literal('top'), Type.Literal('left')]),
 
     showPreview: Type.Boolean({ default: true }),
 
@@ -21,7 +25,7 @@ const settingsProperties = {
 
     previewHeight: Type.Number(),
 
-    previewNoteSpeed: number(5, 1, 15),
+    previewNoteSpeed: number(8, 1, 15),
 
     previewConnectionAlpha: number(50, 10, 100),
 
@@ -38,7 +42,7 @@ const settingsProperties = {
 
     autoSaveDelay: number(1, 0, 5),
 
-    waveform: Type.Union([Type.Literal('off'), Type.Literal('fft'), Type.Literal('volume')]),
+    waveform: Type.Union([Type.Literal('volume'), Type.Literal('fft'), Type.Literal('off')]),
 
     toolbar: Type.Transform(
         Type.Array(
@@ -47,7 +51,7 @@ const settingsProperties = {
                 .Encode((values) => values),
             {
                 default: [
-                    ['reset', 'save', 'open'],
+                    ['utilities', 'reset', 'save', 'open'],
                     ['bgm', 'speedUp', 'speedDown', 'stop', 'play'],
                     [
                         'redo',
@@ -110,6 +114,7 @@ const settingsProperties = {
                         'cycleVisibilities',
                     ],
                     [
+                        'snapping',
                         'divisionCustom',
                         'division16',
                         'division12',
@@ -148,6 +153,7 @@ const settingsProperties = {
                 open: 'o',
                 save: 'p',
                 reset: 'n',
+                utilities: '.',
                 play: ' ',
                 stop: 'Backspace',
                 bgm: 'm',
@@ -187,6 +193,7 @@ const settingsProperties = {
                 division12: '9',
                 division16: '0',
                 divisionCustom: '`',
+                snapping: 'i',
                 zoomXIn: '[',
                 zoomXOut: ']',
                 zoomYIn: '-',

@@ -23,11 +23,13 @@ import { scrollPageUp } from './scrollPageUp'
 import { scrollUp } from './scrollUp'
 import { select } from './select'
 import { settings } from './settings'
+import { snapping } from './snapping'
 import { speedDown } from './speedDown'
 import { speedUp } from './speedUp'
 import { stop } from './stop'
 import { tapNote } from './tapNote'
 import { undo } from './undo'
+import { utilities } from './utilities'
 import { bpm } from './values/bpm'
 import { timeScale } from './values/timeScale'
 import { bpmVisibility } from './visibilities/bpm'
@@ -69,6 +71,7 @@ export const commands = {
     open,
     save,
     reset,
+    utilities,
 
     play,
     stop,
@@ -128,6 +131,7 @@ export const commands = {
     division12: division(12),
     division16: division(16),
     divisionCustom,
+    snapping,
 
     lane1: lane(1),
     lane2: lane(2),

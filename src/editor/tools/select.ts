@@ -1,4 +1,4 @@
-import type { Tool } from '.'
+import { type Tool } from '.'
 import type {
     EventObject,
     BaseNoteObject,
@@ -43,10 +43,43 @@ import { createTransaction, type Transaction } from '../../state/transaction'
 import { interpolate } from '../../utils/interpolate'
 import { align, clamp, mod } from '../../utils/math'
 import { notify } from '../notification'
-import { focusViewAtBeat, setViewHover, view, xToLane, yToTime, yToValidBeat } from '../view'
-import { hitEntitiesAtPoint, hitEntitiesInSelection, toSelection } from './utils'
+import {
+    focusViewAtBeat,
+    setViewHover,
+    view,
+    xToLane,
+    yToBeatOffset,
+    yToTime,
+    yToValidBeat,
+} from '../view'
+import {
+    hitAllEntitiesAtPoint,
+    hitAllEntitiesInSelection,
+    modifyEntities,
+    toSelection,
+} from './utils'
 
 let active:
+    | {
+        // <<<<<<< HEAD
+        //         type: 'select'
+        //         lane: number
+        //         time: number
+        //         count: number
+        //         entities: Entity[]
+        //     }
+        //     | {
+        //         type: 'move'
+        //         lane: number
+        //         beat: number
+        //         entities: Entity[]
+        //     }
+        // =======
+        type: 'move'
+        lane: number
+        focus: Entity
+        entities: Entity[]
+    }
     | {
         type: 'select'
         lane: number
@@ -54,17 +87,12 @@ let active:
         count: number
         entities: Entity[]
     }
-    | {
-        type: 'move'
-        lane: number
-        beat: number
-        entities: Entity[]
-    }
+    // >>>>>>> upstream/main
     | undefined
 
 export const select: Tool = {
-    hover(x, y) {
-        const entities = hitEntitiesAtPoint(x, y)
+    hover(x, y, modifiers) {
+        const entities = modifyEntities(hitAllEntitiesAtPoint(x, y), modifiers)
 
         view.entities = {
             hovered: entities,
@@ -72,10 +100,10 @@ export const select: Tool = {
         }
     },
 
-    tap(x, y, isShift) {
-        const entities = hitEntitiesAtPoint(x, y)
+    tap(x, y, modifiers) {
+        if (modifiers.ctrl) {
+            const entities = modifyEntities(hitAllEntitiesAtPoint(x, y), modifiers)
 
-        if (isShift) {
             const [entity] = entities
             if (!entity) return
 
@@ -91,19 +119,22 @@ export const select: Tool = {
                 hovered: entities,
                 creating: [],
             }
-
             focusViewAtBeat(entity.beat)
+
             notify(interpolate(() => i18n.value.tools.select.selected, `${targets.length}`))
         } else {
+            const entities = hitAllEntitiesAtPoint(x, y)
+
             const selectedLength = selectedEntities.value.length
             const current = selectedLength ? selectedEntities.value[0] : undefined
 
             const index = current ? (entities.indexOf(current) + 1) % entities.length : 0
             const entity = entities[index]
+            const targets = modifyEntities(entity ? [entity] : [], modifiers)
 
             replaceState({
                 ...state.value,
-                selectedEntities: entity ? [entity] : [],
+                selectedEntities: targets,
             })
             view.entities = {
                 hovered: entities,
@@ -112,9 +143,11 @@ export const select: Tool = {
 
             if (entity) {
                 focusViewAtBeat(entity.beat)
-                notify(interpolate(() => i18n.value.tools.select.selected, '1'))
+
+                notify(interpolate(() => i18n.value.tools.select.selected, `${targets.length}`))
             } else {
                 focusViewAtBeat(yToValidBeat(y))
+
                 if (selectedLength) notify(() => i18n.value.tools.select.deselected)
             }
         }
@@ -124,19 +157,25 @@ export const select: Tool = {
         const lane = xToLane(x)
         const time = yToTime(y)
 
-        const entities = hitEntitiesAtPoint(x, y)
+        const entities = hitAllEntitiesAtPoint(x, y)
 
         const [focus] = entities.filter((entity) => selectedEntities.value.includes(entity))
         if (focus) {
+            focusViewAtBeat(focus.beat)
+
+            notify(
+                interpolate(
+                    () => i18n.value.tools.select.moving,
+                    `${selectedEntities.value.length}`,
+                ),
+            )
+
             active = {
                 type: 'move',
                 lane,
-                beat: focus.beat,
+                focus,
                 entities: selectedEntities.value,
             }
-
-            focusViewAtBeat(focus.beat)
-            notify(interpolate(() => i18n.value.tools.select.moving, `${active.entities.length}`))
         } else {
             const [entity] = entities
             if (entity) {
@@ -148,16 +187,16 @@ export const select: Tool = {
                     hovered: [],
                     creating: [],
                 }
+                focusViewAtBeat(entity.beat)
+
+                notify(interpolate(() => i18n.value.tools.select.moving, '1'))
 
                 active = {
                     type: 'move',
                     lane,
-                    beat: entity.beat,
+                    focus: entity,
                     entities: [entity],
                 }
-
-                focusViewAtBeat(entity.beat)
-                notify(interpolate(() => i18n.value.tools.select.moving, '1'))
             } else {
                 active = {
                     type: 'select',
@@ -172,123 +211,138 @@ export const select: Tool = {
         return true
     },
 
-    dragUpdate(x, y, isShift) {
+    dragUpdate(x, y, modifiers) {
         if (!active) return
 
         setViewHover(x, y)
 
-        if (active.type === 'select') {
-            const selection = toSelection(active.lane, active.time, x, y)
-            const selectedEntities = isShift
-                ? [...new Set([...active.entities, ...hitEntitiesInSelection(selection)])]
-                : hitEntitiesInSelection(selection)
+        switch (active.type) {
+            case 'move': {
+                const lane = xToLane(x)
+                const beatOffset = yToBeatOffset(y, active.focus.beat)
 
-            replaceState({
-                ...state.value,
-                selectedEntities,
-            })
-            view.selection = selection
-            view.entities = {
-                hovered: [],
-                creating: [],
+                const creating: Entity[] = []
+                for (const entity of active.entities) {
+                    const beat = entity.beat + beatOffset
+                    if (beat < 0) continue
+
+                    const result = creates[entity.type]?.(
+                        active.entities,
+                        entity as never,
+                        active.lane,
+                        lane,
+                        beat,
+                        active.focus,
+                    )
+                    if (!result) continue
+
+                    creating.push(result)
+                }
+
+                view.entities = {
+                    hovered: [],
+                    creating,
+                }
+                focusViewAtBeat(active.focus.beat + beatOffset)
+                break
             }
+            case 'select': {
+                const selection = toSelection(active.lane, active.time, x, y)
+                const entities = modifyEntities(hitAllEntitiesInSelection(selection), modifiers)
+                const targets = modifiers.ctrl
+                    ? [...new Set([...active.entities, ...entities])]
+                    : entities
 
-            if (active.count === selectedEntities.length) return
-            active.count = selectedEntities.length
+                replaceState({
+                    ...state.value,
+                    selectedEntities: targets,
+                })
+                view.selection = selection
+                view.entities = {
+                    hovered: [],
+                    creating: [],
+                }
 
-            notify(
-                interpolate(() => i18n.value.tools.select.selecting, `${selectedEntities.length}`),
-            )
-        } else {
-            const lane = xToLane(x)
-            const beatOffset = yToValidBeat(y) - active.beat
+                if (active.count === targets.length) return
+                active.count = targets.length
 
-            const creating: Entity[] = []
-            for (const entity of active.entities) {
-                const beat = entity.beat + beatOffset
-                if (beat < 0) continue
-
-                const result = creates[entity.type]?.(
-                    active.entities,
-                    entity as never,
-                    active.lane,
-                    lane,
-                    beat,
-                )
-                if (!result) continue
-
-                creating.push(result)
-            }
-
-            view.entities = {
-                hovered: [],
-                creating,
+                notify(interpolate(() => i18n.value.tools.select.selecting, `${targets.length}`))
+                break
             }
         }
     },
 
-    dragEnd(x, y, isShift) {
+    dragEnd(x, y, modifiers) {
         if (!active) return
 
-        if (active.type === 'select') {
-            const selection = toSelection(active.lane, active.time, x, y)
-            const selectedEntities = isShift
-                ? [...new Set([...active.entities, ...hitEntitiesInSelection(selection)])]
-                : hitEntitiesInSelection(selection)
+        switch (active.type) {
+            case 'move': {
+                const transaction = createTransaction(state.value)
 
-            replaceState({
-                ...state.value,
-                selectedEntities,
-            })
-            view.selection = undefined
-            view.entities = {
-                hovered: [],
-                creating: [],
-            }
+                const lane = xToLane(x)
+                const beatOffset = yToBeatOffset(y, active.focus.beat)
 
-            notify(
-                interpolate(() => i18n.value.tools.select.selected, `${selectedEntities.length}`),
-            )
-        } else {
-            const transaction = createTransaction(state.value)
-
-            const lane = xToLane(x)
-            const beatOffset = yToValidBeat(y) - active.beat
-
-            const entities = active.entities.sort(
-                beatOffset > 0 ? (a, b) => b.beat - a.beat : (a, b) => a.beat - b.beat,
-            )
-
-            const selectedEntities: Entity[] = []
-            for (const entity of entities) {
-                const beat = entity.beat + beatOffset
-
-                const result = moves[entity.type]?.(
-                    transaction,
-                    entities,
-                    entity as never,
-                    active.lane,
-                    lane,
-                    beat,
+                const entities = active.entities.sort(
+                    beatOffset > 0 ? (a, b) => b.beat - a.beat : (a, b) => a.beat - b.beat,
                 )
-                if (!result) continue
 
-                selectedEntities.push(...result)
+                const selectedEntities: Entity[] = []
+                for (const entity of entities) {
+                    const beat = entity.beat + beatOffset
+                    if (beat < 0) continue
+
+                    const result = moves[entity.type]?.(
+                        transaction,
+                        entities,
+                        entity as never,
+                        active.lane,
+                        lane,
+                        beat,
+                        active.focus,
+                    )
+                    if (!result) continue
+
+                    selectedEntities.push(...result)
+                }
+
+                pushState(
+                    interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`),
+                    {
+                        ...transaction.commit(),
+                        selectedEntities,
+                    },
+                )
+                view.entities = {
+                    hovered: [],
+                    creating: [],
+                }
+                focusViewAtBeat(active.focus.beat + beatOffset)
+
+                notify(
+                    interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`),
+                )
+                break
             }
+            case 'select': {
+                const selection = toSelection(active.lane, active.time, x, y)
+                const entities = modifyEntities(hitAllEntitiesInSelection(selection), modifiers)
+                const targets = modifiers.ctrl
+                    ? [...new Set([...active.entities, ...entities])]
+                    : entities
 
-            pushState(
-                interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`),
-                {
-                    ...transaction.commit(),
-                    selectedEntities,
-                },
-            )
-            view.entities = {
-                hovered: [],
-                creating: [],
+                replaceState({
+                    ...state.value,
+                    selectedEntities: targets,
+                })
+                view.selection = undefined
+                view.entities = {
+                    hovered: [],
+                    creating: [],
+                }
+
+                notify(interpolate(() => i18n.value.tools.select.selected, `${targets.length}`))
+                break
             }
-
-            notify(interpolate(() => i18n.value.tools.select.moved, `${selectedEntities.length}`))
         }
 
         active = undefined
@@ -364,11 +418,64 @@ const toMovedHoldNoteObject = (
     beat: number,
 ): HoldNoteObject => ({
     beat,
+    // <<<<<<< HEAD
     lane: mod(entity.lane + align(lane, view.lane) - align(startLane, view.lane), 4),
     size: entity.size,
     stage: view.stage,
     duration: entity.duration
 })
+// =======
+//     color: entity.color,
+//     lane: mod(entity.lane + align(lane) - align(startLane), 8),
+//     scaleL: entity.scaleL,
+//     scaleR: entity.scaleR,
+// })
+
+// const toMovedDoubleHoldNoteJointObject = (
+//     entities: Entity[],
+//     entity: DoubleHoldNoteJointEntity,
+//     startLane: number,
+//     lane: number,
+//     beat: number,
+//     focus: Entity,
+// ): DoubleHoldNoteJointObject => {
+//     let focusL = Number.NEGATIVE_INFINITY
+//     let focusR = Number.POSITIVE_INFINITY
+//     if (
+//         focus.type === 'doubleHoldNoteJoint' &&
+//         entities.every((entity) => entity.type === 'doubleHoldNoteJoint')
+//     ) {
+//         focusL = Math.min(focus.laneL, focus.laneR)
+//         focusR = Math.max(focus.laneL, focus.laneR)
+//     }
+//
+//     const laneL = Math.min(entity.laneL, entity.laneR)
+//     const laneR = Math.max(entity.laneL, entity.laneR)
+//
+//     if (startLane < focusL)
+//         return {
+//             beat: entity.beat,
+//             color: entity.color,
+//             laneL: mod(laneL + align(lane) - align(startLane), 8),
+//             laneR,
+//         }
+//
+//     if (startLane > focusR)
+//         return {
+//             beat: entity.beat,
+//             color: entity.color,
+//             laneL,
+//             laneR: mod(laneR + align(lane) - align(startLane), 8),
+//         }
+//
+//     return {
+//         beat,
+//         color: entity.color,
+//         laneL: mod(laneL + align(lane) - align(startLane), 8),
+//         laneR: mod(laneR + align(lane) - align(startLane), 8),
+//     }
+// }
+// >>>>>>> upstream/main
 
 type Create<T extends Entity> = (
     entities: Entity[],
@@ -376,6 +483,7 @@ type Create<T extends Entity> = (
     startLane: number,
     lane: number,
     beat: number,
+    focus: Entity,
 ) => Entity | undefined
 
 const createValueEntity =
@@ -427,6 +535,7 @@ const creates: {
     ),
 
     tapNote: (entities, entity, startLane, lane, beat) =>
+        // <<<<<<< HEAD
         toTapNoteEntity(toMovedNoteObject(entity, startLane, lane, beat)),
     holdNote: (entities, entity, startLane, lane, beat) =>
         toHoldNoteEntity(toMovedHoldNoteObject(entity, startLane, lane, beat)),
@@ -434,6 +543,20 @@ const creates: {
         toDragNoteEntity(toMovedNoteObject(entity, startLane, lane, beat)),
     flickNote: (entities, entity, startLane, lane, beat) =>
         toFlickNoteEntity(toMovedNoteObject(entity, startLane, lane, beat)),
+    // =======
+    //     toTapNoteEntity(toMovedTapNoteObject(entity, startLane, lane, beat)),
+    //
+    //     singleHoldNoteJoint: (entities, entity, startLane, lane, beat) =>
+    //         toSingleHoldNoteJointEntity(
+    //             entity.id,
+    //             toMovedSingleHoldNoteJointObject(entity, startLane, lane, beat),
+    //         ),
+    //             doubleHoldNoteJoint: (entities, entity, startLane, lane, beat, focus) =>
+    //                 toDoubleHoldNoteJointEntity(
+    //                     entity.id,
+    //                     toMovedDoubleHoldNoteJointObject(entities, entity, startLane, lane, beat, focus),
+    //                 ),
+    // >>>>>>> upstream/main
 }
 
 type Move<T extends Entity> = (
@@ -443,6 +566,7 @@ type Move<T extends Entity> = (
     startLane: number,
     lane: number,
     beat: number,
+    focus: Entity,
 ) => Entity[] | undefined
 
 const moveValueEntity =
@@ -584,7 +708,45 @@ const moves: {
         return addHoldNote(transaction, object)
     },
 
+    // <<<<<<< HEAD
     tapNote: moveNoteObject("tapNote", addTapNote, removeTapNote),
     dragNote: moveNoteObject("dragNote", addDragNote, removeDragNote),
     flickNote: moveNoteObject("flickNote", addFlickNote, removeFlickNote),
+    // =======
+    //     singleHoldNoteJoint: (transaction, entities, entity, startLane, lane, beat) => {
+    //         const object = toMovedSingleHoldNoteJointObject(entity, startLane, lane, beat)
+    //
+    //         removeSingleHoldNoteJoint(transaction, entity)
+    //
+    //         const overlap = getInStoreGrid(
+    //             transaction.store.grid,
+    //             'singleHoldNoteJoint',
+    //             object.beat,
+    //         )?.find((joint) => joint.id === entity.id && joint.beat === object.beat)
+    //         if (overlap) removeSingleHoldNoteJoint(transaction, overlap)
+    //
+    //         return addSingleHoldNoteJoint(transaction, entity.id, object)
+    //     },
+    //     doubleHoldNoteJoint: (transaction, entities, entity, startLane, lane, beat, focus) => {
+    //         const object = toMovedDoubleHoldNoteJointObject(
+    //             entities,
+    //             entity,
+    //             startLane,
+    //             lane,
+    //             beat,
+    //             focus,
+    //         )
+    //
+    //         removeDoubleHoldNoteJoint(transaction, entity)
+    //
+    //         const overlap = getInStoreGrid(
+    //             transaction.store.grid,
+    //             'doubleHoldNoteJoint',
+    //             object.beat,
+    //         )?.find((joint) => joint.id === entity.id && joint.beat === object.beat)
+    //         if (overlap) removeDoubleHoldNoteJoint(transaction, overlap)
+    //
+    //         return addDoubleHoldNoteJoint(transaction, entity.id, object)
+    //     },
+    // >>>>>>> upstream/main
 }

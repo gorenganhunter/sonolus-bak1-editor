@@ -1,7 +1,10 @@
 import type { Command } from '..'
 import { i18n } from '../../../i18n'
+import { showModal } from '../../../modals'
 import { notify } from '../../notification'
-import { switchToolTo } from '../../tools'
+import { focusSidebar, isSidebarVisible } from '../../sidebars'
+import { switchToolTo, toolName } from '../../tools'
+import DefaultFlickNotePropertiesModal from './DefaultFlickNotePropertiesModal.vue'
 import FlickNoteIcon from './FlickNoteIcon.vue'
 
 export const flickNote: Command = {
@@ -11,8 +14,16 @@ export const flickNote: Command = {
     },
 
     execute() {
-        switchToolTo('flickNote')
+        if (toolName.value === 'flickNote') {
+            if (isSidebarVisible.value) {
+                focusSidebar()
+            } else {
+                void showModal(DefaultFlickNotePropertiesModal, {})
+            }
+        } else {
+            switchToolTo('flickNote')
 
-        notify(() => i18n.value.commands.flickNote.switched)
+            notify(() => i18n.value.commands.flickNote.switched)
+        }
     },
 }

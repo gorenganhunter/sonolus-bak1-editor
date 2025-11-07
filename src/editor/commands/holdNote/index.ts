@@ -1,7 +1,10 @@
 import type { Command } from '..'
 import { i18n } from '../../../i18n'
+import { showModal } from '../../../modals'
 import { notify } from '../../notification'
-import { switchToolTo } from '../../tools'
+import { focusSidebar, isSidebarVisible } from '../../sidebars'
+import { switchToolTo, toolName } from '../../tools'
+import DefaultHoldNotePropertiesModal from './DefaultHoldNotePropertiesModal.vue'
 import HoldNoteIcon from './HoldNoteIcon.vue'
 
 export const holdNote: Command = {
@@ -11,8 +14,16 @@ export const holdNote: Command = {
     },
 
     execute() {
-        switchToolTo('holdNote')
+        if (toolName.value === 'holdNote') {
+            if (isSidebarVisible.value) {
+                focusSidebar()
+            } else {
+                void showModal(DefaultHoldNotePropertiesModal, {})
+            }
+        } else {
+            switchToolTo('holdNote')
 
-        notify(() => i18n.value.commands.holdNote.switched)
+            notify(() => i18n.value.commands.holdNote.switched)
+        }
     },
 }

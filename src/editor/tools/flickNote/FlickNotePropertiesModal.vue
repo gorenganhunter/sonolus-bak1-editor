@@ -1,27 +1,22 @@
 <script setup lang="ts">
-import { shallowReactive } from 'vue'
-import type { FlickNoteObject } from '../../../chart'
 import { i18n } from '../../../i18n'
-import ColorField from '../../../modals/form/ColorField.vue'
-import FormModal from '../../../modals/form/FormModal.vue'
-import NumberField from '../../../modals/form/NumberField.vue'
+import MultiBeatField from '../../../modals/form/MultiBeatField.vue'
+import MultiSizeField from '../../../modals/form/MultiSizeField.vue'
+import MultiLaneField from '../../../modals/form/MultiLaneField.vue'
+import PropertiesModal from '../../../modals/form/PropertiesModal.vue'
+import { useSelectedEntitiesProperties } from '../../utils/properties'
 
-const props = defineProps<{
-    object: FlickNoteObject
-}>()
+const { createModel } = useSelectedEntitiesProperties((entity) => entity.type === 'flickNote')
 
-defineEmits<{
-    close: [flickNote?: FlickNoteObject]
-}>()
-
-const model = shallowReactive({ ...props.object })
+const size = createModel('size')
+const lane = createModel('lane')
+const beat = createModel('beat')
 </script>
 
 <template>
-    <FormModal :title="i18n.tools.flickNote.modal.title" @close="$emit('close')" @submit="$emit('close', model)">
-        <!--ColorField v-model="model.color" :label="i18n.tools.flickNote.modal.color" autofocus /-->
-        <NumberField v-model="model.lane" :label="i18n.tools.flickNote.modal.lane" :min="0" :max="4" step="any" />
-        <NumberField v-model="model.size" :label="i18n.tools.flickNote.modal.size" :min="0" :max="1" step="any" />
-        <NumberField v-model="model.beat" :label="i18n.tools.flickNote.modal.beat" :min="0" step="any" />
-    </FormModal>
+    <PropertiesModal :title="i18n.tools.flickNote.modal.title">
+        <MultiLaneField v-model="lane" />
+        <MultiSizeField v-model="size" />
+        <MultiBeatField v-model="beat" />
+    </PropertiesModal>
 </template>

@@ -1,4 +1,5 @@
-import { computed, ref } from 'vue'
+import { computed, ref, type Component } from 'vue'
+import type { Modifiers } from '../controls/gestures/pointer'
 import { view } from '../view'
 import { eraser } from './eraser'
 import { rotateEvent } from './events/rotate'
@@ -16,13 +17,15 @@ import { moveXEvent } from './events/moveX'
 import { transparentEvent } from './events/transparent'
 
 export type Tool = {
-    hover?: (x: number, y: number, isShift: boolean) => void | Promise<void>
+    sidebar?: Component
 
-    tap?: (x: number, y: number, isShift: boolean) => void | Promise<void>
+    hover?: (x: number, y: number, modifiers: Modifiers) => void | Promise<void>
 
-    dragStart?: (x: number, y: number, isShift: boolean) => boolean
-    dragUpdate?: (x: number, y: number, isShift: boolean) => void
-    dragEnd?: (x: number, y: number, isShift: boolean) => void | Promise<void>
+    tap?: (x: number, y: number, modifiers: Modifiers) => void | Promise<void>
+
+    dragStart?: (x: number, y: number, modifiers: Modifiers) => boolean
+    dragUpdate?: (x: number, y: number, modifiers: Modifiers) => void
+    dragEnd?: (x: number, y: number, modifiers: Modifiers) => void | Promise<void>
 }
 
 export const tools = {

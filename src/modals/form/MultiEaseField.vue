@@ -1,20 +1,15 @@
 <script setup lang="ts">
 import { EaseType } from '../../chart'
 import { i18n } from '../../i18n'
-import SelectField from './SelectField.vue'
-
-defineProps<{
-    label: string
-    autofocus?: boolean
-}>()
+import MultiSelectField from './MultiSelectField.vue'
 
 const modelValue = defineModel<number>({ required: true })
 </script>
 
 <template>
-    <SelectField
+    <MultiSelectField
         v-model="modelValue"
-        :label
+        :label="i18n.modals.form.ease.label"
         :options="[
   [ i18n.modals.form.ease.linear, EaseType.LINEAR ],
   [ i18n.modals.form.ease.inSine, EaseType.IN_SINE ],
@@ -56,6 +51,5 @@ const modelValue = defineModel<number>({ required: true })
   [ i18n.modals.form.ease.zero, EaseType.ZERO ],
   [ i18n.modals.form.ease.one, EaseType.ONE ]
 ]"
-        :autofocus
     />
 </template>

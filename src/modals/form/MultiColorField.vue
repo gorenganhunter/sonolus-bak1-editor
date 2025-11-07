@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import { colorNames } from '../../colors'
 import { i18n } from '../../i18n'
-import SelectField from './SelectField.vue'
+import MultiSelectField from './MultiSelectField.vue'
 
-defineProps<{
-    label: string
-    autofocus?: boolean
-}>()
-
-const modelValue = defineModel<number>({ required: true })
+const modelValue = defineModel<number | undefined>({ required: true })
 </script>
 
 <template>
-    <SelectField
+    <MultiSelectField
         v-model="modelValue"
-        :label
+        :label="i18n.modals.form.color.label"
         :options="colorNames.map((name, index) => [i18n.modals.form.color[name], index])"
-        :autofocus
     />
 </template>

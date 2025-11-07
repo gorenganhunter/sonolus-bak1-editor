@@ -29,6 +29,7 @@ export const view = shallowReactive({
 
     lane: 1,
     division: 4,
+    snapping: 'absolute' as 'absolute' | 'relative',
 
     stage: 0,
     side: 0,
@@ -153,6 +154,8 @@ export const viewBox = computed(() => {
     }
 })
 
+export const ups = computed(() => viewBox.value.ups)
+
 export const scrollViewBy = (dy: number, smooth = false) => {
     if (smooth) {
         view.scrolling = {
@@ -221,9 +224,13 @@ export const xToValidLane = (x: number) => clamp(Math.floor(xToLane(x) * view.la
 
 export const yToTime = (y: number) => (0.5 * view.h - y + view.y) / settings.pps + view.time
 
-export const yToValidBeat = (y: number) => {
-    const time = yToTime(y)
-    if (time <= 0) return 0
+const yToBeat = (y: number) => timeToBeat(bpms.value, Math.max(0, yToTime(y)))
 
-    return align(timeToBeat(bpms.value, time), view.division)
-}
+export const yToValidBeat = (y: number) => align(yToBeat(y), view.division)
+
+export const yToBeatOffset = (y: number, beat: number) =>
+    view.snapping === 'absolute'
+        ? align(yToBeat(y), view.division) - beat
+        : align(yToBeat(y) - beat, view.division)
+
+export const snapYToBeat = (y: number, beat: number) => Math.max(0, beat + yToBeatOffset(y, beat))

@@ -14,7 +14,10 @@ const toPs = (event: TouchEvent) =>
         id: touch.identifier,
         x: touch.clientX,
         y: touch.clientY,
-        isShift: event.shiftKey,
+        modifiers: {
+            ctrl: event.ctrlKey,
+            shift: event.shiftKey,
+        },
     }))
 
 const touchstart = (event: TouchEvent) => {

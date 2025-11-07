@@ -19,7 +19,12 @@ import { createTransaction } from '../../state/transaction'
 import { interpolate } from '../../utils/interpolate'
 import { notify } from '../notification'
 import { focusViewAtBeat, setViewHover, view, xToLane, yToTime, yToValidBeat } from '../view'
-import { hitEntitiesAtPoint, hitEntitiesInSelection, toSelection } from './utils'
+import {
+    hitAllEntitiesAtPoint,
+    hitAllEntitiesInSelection,
+    modifyEntities,
+    toSelection,
+} from './utils'
 
 let active:
     | {
@@ -30,28 +35,31 @@ let active:
     | undefined
 
 export const eraser: Tool = {
-    hover(x, y) {
-        const entities = hitEntitiesAtPoint(x, y)
+    hover(x, y, modifiers) {
+        const entities = hitAllEntitiesAtPoint(x, y)
 
         view.entities = {
-            hovered: entities.some((entity) => selectedEntities.value.includes(entity))
-                ? []
-                : entities.filter(canRemove).slice(0, 1),
+            hovered: modifyEntities(
+                entities.some((entity) => selectedEntities.value.includes(entity))
+                    ? selectedEntities.value
+                    : entities.filter(canRemove).slice(0, 1),
+                modifiers,
+            ),
             creating: [],
         }
     },
 
-    tap(x, y) {
-        const entities = hitEntitiesAtPoint(x, y)
+    tap(x, y, modifiers) {
+        const entities = hitAllEntitiesAtPoint(x, y)
 
         if (entities.some((entity) => selectedEntities.value.includes(entity))) {
             focusViewAtBeat(yToValidBeat(y))
-            remove(selectedEntities.value)
+            remove(modifyEntities(selectedEntities.value, modifiers))
         } else {
             const [entity] = entities.filter(canRemove)
             if (entity) {
                 focusViewAtBeat(entity.beat)
-                remove([entity])
+                remove(modifyEntities([entity], modifiers))
             } else {
                 const selectedLength = selectedEntities.value.length
 
@@ -80,17 +88,20 @@ export const eraser: Tool = {
         return true
     },
 
-    dragUpdate(x, y) {
+    dragUpdate(x, y, modifiers) {
         if (!active) return
 
         setViewHover(x, y)
 
         const selection = toSelection(active.lane, active.time, x, y)
-        const selectedEntities = hitEntitiesInSelection(selection).filter(canRemove)
+        const targets = modifyEntities(
+            hitAllEntitiesInSelection(selection).filter(canRemove),
+            modifiers,
+        )
 
         replaceState({
             ...state.value,
-            selectedEntities,
+            selectedEntities: targets,
         })
         view.selection = selection
         view.entities = {
@@ -98,20 +109,20 @@ export const eraser: Tool = {
             creating: [],
         }
 
-        if (active.count === selectedEntities.length) return
-        active.count = selectedEntities.length
+        if (active.count === targets.length) return
+        active.count = targets.length
 
-        notify(interpolate(() => i18n.value.tools.eraser.erasing, `${selectedEntities.length}`))
+        notify(interpolate(() => i18n.value.tools.eraser.erasing, `${targets.length}`))
     },
 
-    dragEnd(x, y) {
+    dragEnd(x, y, modifiers) {
         if (!active) return
 
         const selection = toSelection(active.lane, active.time, x, y)
 
         view.selection = undefined
 
-        remove(hitEntitiesInSelection(selection))
+        remove(modifyEntities(hitAllEntitiesInSelection(selection), modifiers))
 
         active = undefined
     },

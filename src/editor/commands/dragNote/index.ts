@@ -1,7 +1,10 @@
 import type { Command } from '..'
 import { i18n } from '../../../i18n'
+import { showModal } from '../../../modals'
 import { notify } from '../../notification'
-import { switchToolTo } from '../../tools'
+import { focusSidebar, isSidebarVisible } from '../../sidebars'
+import { switchToolTo, toolName } from '../../tools'
+import DefaultDragNotePropertiesModal from './DefaultDragNotePropertiesModal.vue'
 import DragNoteIcon from './DragNoteIcon.vue'
 
 export const dragNote: Command = {
@@ -11,8 +14,16 @@ export const dragNote: Command = {
     },
 
     execute() {
-        switchToolTo('dragNote')
+        if (toolName.value === 'dragNote') {
+            if (isSidebarVisible.value) {
+                focusSidebar()
+            } else {
+                void showModal(DefaultDragNotePropertiesModal, {})
+            }
+        } else {
+            switchToolTo('dragNote')
 
-        notify(() => i18n.value.commands.dragNote.switched)
+            notify(() => i18n.value.commands.dragNote.switched)
+        }
     },
 }

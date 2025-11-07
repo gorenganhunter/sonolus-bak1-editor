@@ -3,6 +3,7 @@ import { useTemplateRef, watch, type Ref } from 'vue'
 import { useAutoSave } from '../history'
 import { time } from '../time'
 import { controlListeners } from './controls'
+import { useFocusControl } from './controls/focus'
 import { useKeyboardControl } from './controls/keyboard'
 import LevelEditorCreatingEntities from './entities/LevelEditorCreatingEntities.vue'
 import LevelEditorEntities from './entities/LevelEditorEntities.vue'
@@ -19,11 +20,12 @@ import LevelEditorWaveform from './LevelEditorWaveform.vue'
 import LevelEditorToolbar from './toolbar/LevelEditorToolbar.vue'
 import { view, viewBox } from './view'
 
+useFocusControl()
 useKeyboardControl()
 
 useAutoSave()
 
-const container: Ref<Element | null> = useTemplateRef('container')
+const container: Ref<HTMLDivElement | null> = useTemplateRef('container')
 
 watch(time, () => {
     if (!container.value) return
@@ -37,7 +39,12 @@ watch(time, () => {
 </script>
 
 <template>
-    <div ref="container" class="relative size-full select-none overflow-hidden">
+    <div
+        ref="container"
+        class="relative size-full select-none overflow-hidden"
+        tabindex="-1"
+        @pointerdown="container?.focus()"
+    >
         <template v-if="view.w && view.h">
             <LevelEditorRangeMarkers />
             <LevelEditorHoverMarkers />

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'vue'
+import { createBlob } from './utils/canvas'
 
 export type Waveform = {
     images: string[]
@@ -42,7 +43,7 @@ export const createWaveform = async (
         }
     }
 
-    const count = Math.floor(h / canvas.height) + 1
+    const count = Math.ceil(h / canvas.height)
     for (let i = 0; i < count; i++) {
         for (let x = 0; x < w; x++) {
             for (let y = 0; y < canvas.height; y++) {
@@ -157,14 +158,3 @@ const createPixelsVolume = (buffer: AudioBuffer) => {
         },
     }
 }
-
-const createBlob = (canvas: HTMLCanvasElement) =>
-    new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob) => {
-            if (blob) {
-                resolve(blob)
-            } else {
-                reject(new Error('Unexpected missing blob'))
-            }
-        })
-    })

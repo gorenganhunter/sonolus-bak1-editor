@@ -1,39 +1,19 @@
 <script setup lang="ts">
-import { shallowReactive } from 'vue'
-import type { ValueObject } from '../../../../chart'
 import { i18n } from '../../../../i18n'
-import FormModal from '../../../../modals/form/FormModal.vue'
-import NumberField from '../../../../modals/form/NumberField.vue'
+import MultiBeatField from '../../../../modals/form/MultiBeatField.vue'
+import MultiBpmField from '../../../../modals/form/MultiBpmField.vue'
+import PropertiesModal from '../../../../modals/form/PropertiesModal.vue'
+import { useSelectedEntitiesProperties } from '../../../utils/properties'
 
-const props = defineProps<{
-    object: ValueObject
-}>()
+const { createModel } = useSelectedEntitiesProperties((entity) => entity.type === 'bpm')
 
-defineEmits<{
-    close: [bpm?: ValueObject]
-}>()
-
-const model = shallowReactive({ ...props.object })
+const value = createModel('value')
+const beat = createModel('beat')
 </script>
 
 <template>
-    <FormModal
-        :title="i18n.tools.values.modals.bpm.title"
-        @close="$emit('close')"
-        @submit="$emit('close', model)"
-    >
-        <NumberField
-            v-model="model.value"
-            :label="i18n.tools.values.modals.bpm.bpm"
-            :min="1"
-            :step="0.001"
-            autofocus
-        />
-        <NumberField
-            v-model="model.beat"
-            :label="i18n.tools.values.modals.bpm.beat"
-            :min="0"
-            step="any"
-        />
-    </FormModal>
+    <PropertiesModal :title="i18n.tools.values.modals.bpm.title">
+        <MultiBpmField v-model="value" />
+        <MultiBeatField v-model="beat" />
+    </PropertiesModal>
 </template>

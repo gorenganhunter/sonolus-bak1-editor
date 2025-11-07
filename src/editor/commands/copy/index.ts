@@ -6,6 +6,7 @@ import { serializeLevelDataEntities } from '../../../levelDataEntities/serialize
 import type { Entity, EntityOfType, EntityType } from '../../../state/entities'
 import { interpolate } from '../../../utils/interpolate'
 import { notify } from '../../notification'
+import { hitAllEntitiesAtPoint } from '../../tools/utils'
 import { view, xToLane, yToValidBeat } from '../../view'
 import CopyIcon from './CopyIcon.vue'
 
@@ -23,9 +24,13 @@ export const copy: Command = {
             return
         }
 
+        const [entity] = hitAllEntitiesAtPoint(view.pointer.x, view.pointer.y).filter((entity) =>
+            entities.includes(entity),
+        )
+
         const data: ClipboardData = {
             lane: xToLane(view.pointer.x),
-            beat: yToValidBeat(view.pointer.y),
+            beat: entity?.beat ?? yToValidBeat(view.pointer.y),
             entities: serializeLevelDataEntities(
                 [],
                 getEntities(entities, 'bpm'),

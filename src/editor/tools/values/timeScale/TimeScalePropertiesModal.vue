@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import { shallowReactive } from 'vue'
+// <<<<<<< HEAD
+// import { shallowReactive } from 'vue'
 import type { StageValueObject } from '../../../../chart'
+// =======
+// >>>>>>> upstream/main
 import { i18n } from '../../../../i18n'
-import FormModal from '../../../../modals/form/FormModal.vue'
-import NumberField from '../../../../modals/form/NumberField.vue'
+import MultiBeatField from '../../../../modals/form/MultiBeatField.vue'
+import MultiTimeScaleField from '../../../../modals/form/MultiTimeScaleField.vue'
+import PropertiesModal from '../../../../modals/form/PropertiesModal.vue'
+import { useSelectedEntitiesProperties } from '../../../utils/properties'
 
-const props = defineProps<{
-    object: StageValueObject
-}>()
+const { createModel } = useSelectedEntitiesProperties((entity) => entity.type === 'timeScale')
 
-defineEmits<{
-    close: [timeScale?: StageValueObject]
-}>()
-
-const model = shallowReactive({ ...props.object })
+const value = createModel('value')
+const beat = createModel('beat')
 </script>
 
 <template>
-    <FormModal :title="i18n.tools.values.modals.timeScale.title" @close="$emit('close')"
-        @submit="$emit('close', model)">
-        <NumberField v-model="model.value" :label="i18n.tools.values.modals.timeScale.timeScale" :step="0.001" autofocus />
-        <NumberField v-model="model.beat" :label="i18n.tools.values.modals.timeScale.beat" :min="0" step="any" />
-    </FormModal>
+    <PropertiesModal :title="i18n.tools.values.modals.timeScale.title">
+        <MultiTimeScaleField v-model="value" />
+        <MultiBeatField v-model="beat" />
+    </PropertiesModal>
 </template>

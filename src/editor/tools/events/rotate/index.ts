@@ -1,4 +1,5 @@
 import { createEventTool } from '..'
+import type { EaseType } from '../../../../chart'
 import { store } from '../../../../history/store'
 import { i18n } from '../../../../i18n'
 import { showModal } from '../../../../modals'
@@ -11,6 +12,17 @@ import { getInStoreGrid } from '../../../../state/store/grid'
 import { align, clamp } from '../../../../utils/math'
 import { xToLane } from '../../../view'
 import RotateEventPropertiesModal from './RotateEventPropertiesModal.vue'
+import RotateEventSidebar from './RotateEventSidebar.vue'
+
+export type DefaultRotateEventProperties = {
+    ease?: EaseType
+}
+
+export let defaultRotateEventProperties: DefaultRotateEventProperties = {}
+
+export const setDefaultRotateEventProperties = (properties: DefaultRotateEventProperties) => {
+    defaultRotateEventProperties = properties
+}
 
 const toValue = (x: number) => {
     let a = align(xToLane(x) * 360)
@@ -28,9 +40,10 @@ const getPrev = (beat: number) => {
     return range && beat >= range.max.beat ? range.max : undefined
 }
 
-export const rotateEvent = createEventTool(
+export const [rotateEvent, editRotateEventJoint, editSelectedRotateEventJoint] = createEventTool(
     () => i18n.value.tools.events.types.rotateEvent,
-    (object) => showModal(RotateEventPropertiesModal, { object }),
+    RotateEventSidebar,
+    () => showModal(RotateEventPropertiesModal, {}),
 
     (value, x) => (value - toValue(x)) % 360 === 0,
     (beat, x) => {
@@ -42,6 +55,7 @@ export const rotateEvent = createEventTool(
         return value + Math.floor(prev.value / 360) * 360
     },
     (value, sx, x) => value + align(xToLane(x) * 360) - align(xToLane(sx) * 360),
+    () => defaultRotateEventProperties.ease,
 
     'rotateEventJoint',
     toRotateEventJointEntity,

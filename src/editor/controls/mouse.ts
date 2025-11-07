@@ -1,4 +1,8 @@
 import { settings } from '../../settings'
+import { zoomXIn } from '../commands/zoom/zoomXIn'
+import { zoomXOut } from '../commands/zoom/zoomXOut'
+import { zoomYIn } from '../commands/zoom/zoomYIn'
+import { zoomYOut } from '../commands/zoom/zoomYOut'
 import { stopPlayer } from '../player'
 import { switchToolTo, tool, toolName, type ToolName } from '../tools'
 import { scrollViewBy, setViewHover, updateViewPointer, view } from '../view'
@@ -12,7 +16,10 @@ const toP = (event: MouseEvent) => ({
     id: 1,
     x: event.clientX,
     y: event.clientY,
-    isShift: event.shiftKey,
+    modifiers: {
+        ctrl: event.ctrlKey,
+        shift: event.shiftKey,
+    },
 })
 
 let secondarySwitchBack: ToolName | undefined
@@ -42,7 +49,7 @@ const mousemove = (event: MouseEvent) => {
         mouseGesture.move([p])
     } else {
         setViewHover(p.x, p.y)
-        void tool.value.hover?.(p.x, p.y, p.isShift)
+        void tool.value.hover?.(p.x, p.y, p.modifiers)
     }
 
     event.preventDefault()
@@ -72,16 +79,50 @@ const mouseleave = (event: MouseEvent) => {
 }
 
 const wheel = (event: WheelEvent) => {
-    switch (event.deltaMode) {
-        case WheelEvent.DOM_DELTA_PIXEL:
-            scrollViewBy(-event.deltaY, settings.mouseSmoothScrolling)
-            break
-        case WheelEvent.DOM_DELTA_LINE:
-            scrollViewBy(-(event.deltaY * 20), settings.mouseSmoothScrolling)
-            break
-        case WheelEvent.DOM_DELTA_PAGE:
-            scrollViewBy(-event.deltaY * view.h, settings.mouseSmoothScrolling)
-            break
+    if (event.ctrlKey) {
+        if (event.shiftKey) {
+            if (event.deltaY) {
+                if (event.deltaY > 0) {
+                    void zoomXOut.execute()
+                } else {
+                    void zoomXIn.execute()
+                }
+            }
+            if (event.deltaX) {
+                if (event.deltaX > 0) {
+                    void zoomYOut.execute()
+                } else {
+                    void zoomYIn.execute()
+                }
+            }
+        } else {
+            if (event.deltaY) {
+                if (event.deltaY > 0) {
+                    void zoomYOut.execute()
+                } else {
+                    void zoomYIn.execute()
+                }
+            }
+            if (event.deltaX) {
+                if (event.deltaX > 0) {
+                    void zoomXOut.execute()
+                } else {
+                    void zoomXIn.execute()
+                }
+            }
+        }
+    } else {
+        switch (event.deltaMode) {
+            case WheelEvent.DOM_DELTA_PIXEL:
+                scrollViewBy(-event.deltaY, settings.mouseSmoothScrolling)
+                break
+            case WheelEvent.DOM_DELTA_LINE:
+                scrollViewBy(-(event.deltaY * 20), settings.mouseSmoothScrolling)
+                break
+            case WheelEvent.DOM_DELTA_PAGE:
+                scrollViewBy(-event.deltaY * view.h, settings.mouseSmoothScrolling)
+                break
+        }
     }
 
     event.preventDefault()
