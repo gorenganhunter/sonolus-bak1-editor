@@ -24,10 +24,17 @@ const sfxBuffers = {
 
 let state:
     | {
+        // <<<<<<< HEAD
+        //         speed: number
+        //         time: number
+        //         cursorTime: number
+        //         contextTime: number
+        // =======
         speed: number
         time: number
-        cursorTime: number
+        bgmTime: number
         contextTime: number
+        // >>>>>>> 42251e39c5813576d16f30608d7b8a738e47135f
 
         lastTime: number
         nodes: Set<AudioNode>
@@ -46,8 +53,8 @@ watch(time, ({ now }) => {
     }
 
     const beats = {
-        min: timeToBeat(bpms.value, (state.lastTime - state.time) * state.speed + state.cursorTime),
-        max: timeToBeat(bpms.value, (now - state.time) * state.speed + state.cursorTime),
+        min: timeToBeat(bpms.value, (state.lastTime - state.time) * state.speed + state.bgmTime),
+        max: timeToBeat(bpms.value, (now - state.time) * state.speed + state.bgmTime),
     }
 
     for (const entity of cullAllEntities(beatToKey(beats.min), beatToKey(beats.max))) {
@@ -87,9 +94,15 @@ watch(time, ({ now }) => {
                 state.nodes,
                 sfxBuffers[type],
                 settings.playSfxVolume,
-                (beatToTime(bpms.value, beat) - state.cursorTime) / state.speed +
+                // <<<<<<< HEAD
+                //                 (beatToTime(bpms.value, beat) - state.cursorTime) / state.speed +
+                //                 state.contextTime +
+                //                 delay,
+                // =======
+                (beatToTime(bpms.value, beat) - state.bgmTime) / state.speed +
                 state.contextTime +
                 delay,
+                // >>>>>>> 42251e39c5813576d16f30608d7b8a738e47135f
             )
         }
     }
@@ -99,15 +112,14 @@ watch(time, ({ now }) => {
 
 export const loadBgm = (data: ArrayBuffer) => context.decodeAudioData(data)
 
-export const startPlayer = (speed: number) => {
+export const startPlayer = (bgmTime: number, speed: number) => {
     const time = performance.now() / 1000
-    const cursorTime = view.cursorTime
     const contextTime = context.currentTime
 
     state = {
         speed,
         time,
-        cursorTime,
+        bgmTime,
         contextTime,
 
         lastTime: time,
@@ -122,7 +134,7 @@ export const startPlayer = (speed: number) => {
             bgm.value.buffer,
             settings.playBgmVolume,
             contextTime + delay,
-            cursorTime + bgm.value.offset,
+            bgmTime + bgm.value.offset,
             speed,
         )
 

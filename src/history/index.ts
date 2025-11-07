@@ -1,17 +1,9 @@
-import { computed, ref, shallowReactive, watch } from 'vue'
+import { computed, ref, shallowReactive } from 'vue'
 import type { Chart } from '../chart'
-import { parseChart } from '../chart/parse'
-import { validateChart } from '../chart/validate'
 import { i18n } from '../i18n'
-import { parseLevelData } from '../levelData/parse'
-import { serializeLevelData } from '../levelData/serialize'
 import { showModal } from '../modals'
 import ConfirmModal from '../modals/ConfirmModal.vue'
-import LoadingModal from '../modals/LoadingModal.vue'
-import { settings } from '../settings'
 import { createState, type State } from '../state'
-import { storageGet, storageRemove, storageSet } from '../storage'
-import { timeout } from '../utils/promise'
 import { cleanupWaveform } from '../waveform'
 
 const defaultChart: Chart = {
@@ -46,6 +38,8 @@ const defaultChart: Chart = {
 
 const index = ref(0)
 
+export const isStateDirty = computed(() => index.value > 0)
+
 const states = shallowReactive([
     {
         name: () => i18n.value.history.initialize,
@@ -54,7 +48,7 @@ const states = shallowReactive([
 ])
 
 addEventListener('beforeunload', (event) => {
-    if (index.value) event.preventDefault()
+    if (isStateDirty.value) event.preventDefault()
 })
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -78,7 +72,7 @@ export const pushState = (name: () => string, state: State) => {
 }
 
 export const undoState = () => {
-    if (index.value <= 0) return
+    if (!isStateDirty.value) return
 
     const name = current.value.name
     index.value--
@@ -93,7 +87,7 @@ export const redoState = () => {
 }
 
 export const checkState = async () => {
-    if (!index.value) return true
+    if (!isStateDirty.value) return true
 
     return await showModal(ConfirmModal, {
         title: () => i18n.value.history.changes.title,
@@ -101,52 +95,12 @@ export const checkState = async () => {
     })
 }
 
-export const resetState = (chart?: Chart, offset?: number) => {
+export const resetState = (chart?: Chart, offset?: number, filename?: string) => {
     index.value = 0
     states.splice(0, states.length, {
         name: () => i18n.value.history.initialize,
-        state: createState(chart ?? defaultChart, offset ?? 0),
+        state: createState(chart ?? defaultChart, offset ?? 0, filename),
     })
 
     cleanupWaveform()
-}
-
-export const useAutoSave = () => {
-    let id: number | undefined
-
-    watch(
-        () => settings.autoSave && state.value,
-        (state) => {
-            clearTimeout(id)
-
-            if (!state) {
-                storageRemove('autoSave.levelData')
-                return
-            }
-
-            if (!index.value) return
-
-            id = setTimeout(() => {
-                storageSet('autoSave.levelData', serializeLevelData(state.bgm.offset, state.store))
-            }, settings.autoSaveDelay * 1000)
-        },
-    )
-
-    const data = storageGet('autoSave.levelData')
-    if (data) {
-        void showModal(LoadingModal, {
-            title: () => i18n.value.history.autoSave.title,
-            async *task() {
-                yield () => i18n.value.history.autoSave.importing
-                await timeout(50)
-
-                const levelData = parseLevelData(data)
-
-                const chart = parseChart(levelData.entities)
-                validateChart(chart)
-
-                resetState(chart, levelData.bgmOffset)
-            },
-        })
-    }
 }

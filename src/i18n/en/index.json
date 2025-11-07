@@ -282,6 +282,7 @@
                 "title": "Touchscreen",
                 "tap": "One finger tap to tap.",
                 "drag": "One finger drag to drag.",
+                "quickScroll": "One finger drag in quick scroll zone to scroll.",
                 "scroll": "Two finger pan vertically to scroll.",
                 "zoomY": "Two finger pinch vertically to zoom Y.",
                 "zoomX": "Two finger pinch horizontally to zoom X."
@@ -477,6 +478,11 @@
             "title": "Play",
             "bgmVolume": "BGM Volume",
             "sfxVolume": "SFX Volume",
+            "startPosition": {
+                "title": "Start Position",
+                "view": "View",
+                "cursor": "Cursor"
+            },
             "follow": "Follow",
             "followPosition": "Follow Position"
         },
@@ -499,6 +505,7 @@
         },
         "touch": {
             "title": "Touch",
+            "quickScrollZone": "Quick Scroll Zone",
             "scrollInertia": "Scroll Inertia"
         }
     },
@@ -716,7 +723,7 @@
         }
     },
     "notification": {
-        "title": "Sonolus Horizon Editor\nVersion {0}"
+        "title": "Sonolus BAK1 Editor\nVersion {0}"
     },
     "player": {
         "started": "Started playing",

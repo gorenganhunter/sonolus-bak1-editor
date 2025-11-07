@@ -450,7 +450,7 @@
     }
   },
   "notification": {
-    "title": "Sonolus Horizon 편집기 버전 {0}"
+    "title": "Sonolus BAK1 편집기 버전 {0}"
   },
   "player": {
     "started": "플레이 시작됨",
