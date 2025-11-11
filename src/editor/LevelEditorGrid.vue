@@ -52,8 +52,11 @@ const timeNumbers = computed(() =>
                 :x2="remap(1, view.lane + 1, 1, 9, i)" :y1="0" :y2="1"
                 :stroke-opacity="i === 1 || i === view.lane + 1 ? 0.5 : 0.25" />
         </g>
-        <line v-for="{ y, isBeat } in lines" :key="y" :x1="-4" :x2="4" :y1="y" :y2="y"
-            :stroke-opacity="isBeat ? 0.5 : 0.25" />
+
+        <template v-if="range.max - range.min <= 100">
+            <line v-for="{ y, isBeat } in lines" :key="y" :x1="-4" :x2="4" :y1="y" :y2="y"
+                :stroke-opacity="isBeat ? 0.5 : 0.25" />
+        </template>
     </g>
 
     <g fill="#fff" fill-opacity="0.5" font-size="0.4" dominant-baseline="middle">

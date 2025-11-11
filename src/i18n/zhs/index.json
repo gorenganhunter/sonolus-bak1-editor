@@ -563,7 +563,7 @@
     }
   },
   "notification": {
-    "title": "Sonolus BAK1 Editor 版本 {0}"
+    "title": "Sonolus BAK1 Editor\n版本 {0}"
   },
   "player": {
     "started": "开始播放",
