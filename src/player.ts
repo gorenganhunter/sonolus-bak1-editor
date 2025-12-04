@@ -61,17 +61,20 @@ watch(time, ({ now }) => {
         if (entity.beat < beats.min || entity.beat >= beats.max) continue
 
         // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-        // switch (entity.type) {
-        //     case 'tapNote':
-        targets.perfect.add(entity.beat)
-        //         break
-        //     case 'singleHoldNoteJoint':
-        //         targets.single.add(entity.beat)
-        //         break
-        //     case 'doubleHoldNoteJoint':
-        //         targets.double.add(entity.beat)
-        //         break
-        // }
+        switch (entity.type) {
+            case 'tapNote':
+            case 'flickNote':
+            case 'dragNote':
+            case 'holdNote':
+                targets.perfect.add(entity.beat)
+                break
+            //     case 'singleHoldNoteJoint':
+            //         targets.single.add(entity.beat)
+            //         break
+            //     case 'doubleHoldNoteJoint':
+            //         targets.double.add(entity.beat)
+            //         break
+        }
     }
 
     for (const type of ['perfect', 'single', 'double'] as const) {
