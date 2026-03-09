@@ -374,7 +374,7 @@ export const createValueTool = <T extends ValueEntityType>(
     ]
 }
 
-export const createStageValueTool = <T extends ValueEntityType>(
+export const createStageValueTool = <T extends TimeScaleEntity["type"]>(
     objectName: () => string,
     showPropertiesModal: () => Promise<void>,
 
@@ -426,7 +426,7 @@ export const createStageValueTool = <T extends ValueEntityType>(
         const transaction = createTransaction(state.value)
 
         const selectedEntities = action(transaction)
-        console.log(transaction)
+        //console.log(transaction)
         pushState(interpolate(message, `${selectedEntities.length}`, objectName), {
             ...transaction.commit(),
             selectedEntities,
@@ -443,7 +443,7 @@ export const createStageValueTool = <T extends ValueEntityType>(
         update(
             () => i18n.value.tools.values.added,
             (transaction) => {
-                console.log("add")
+                //console.log("add")
                 return addEntity(transaction, object)
             },
         )
@@ -453,7 +453,7 @@ export const createStageValueTool = <T extends ValueEntityType>(
         update(
             () => i18n.value.tools.values.edited,
             (transaction) => {
-                console.log("edit")
+                //console.log("edit")
                 removeEntity(transaction, entity)
                 return addEntity(transaction, object)
             },
@@ -464,7 +464,7 @@ export const createStageValueTool = <T extends ValueEntityType>(
         update(
             () => i18n.value.tools.values.moved,
             (transaction) => {
-                console.log("move")
+                //console.log("move")
                 if (old.beat) removeEntity(transaction, old)
                 return addEntity(transaction, object)
             },
@@ -475,7 +475,7 @@ export const createStageValueTool = <T extends ValueEntityType>(
         update(
             () => i18n.value.tools.values.replaced,
             (transaction) => {
-                console.log("replace")
+                //console.log("replace")
                 if (old.beat) removeEntity(transaction, old)
                 removeEntity(transaction, entity)
                 return addEntity(transaction, object)

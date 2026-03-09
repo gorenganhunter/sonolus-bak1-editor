@@ -19,6 +19,6 @@ const time = computed(() => beatToTime(bpms.value, props.beat))
         :cy="time * ups"
         r="0.1"
         stroke="#fff"
-        fill="#00f"
+        fill="#4d4d4d"
     />
 </template>

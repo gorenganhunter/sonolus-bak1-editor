@@ -9,7 +9,7 @@ defineEmits<{
     close: [lane?: number]
 }>()
 
-const model = ref(view.lane)
+const model = ref(view.laneDiv)
 </script>
 
 <template>

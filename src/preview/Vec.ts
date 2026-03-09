@@ -21,8 +21,8 @@ export class Vec {
         return new Vec(this.x * value, this.y * value)
     }
 
-    translate(x: number, y: number): Vec {
-        return new Vec(this.x + x, this.y + y)
+    add(x: number | VecLike, y: number = 0): Vec {
+        return new Vec(this.x + (typeof x === "number" ? x : x.x), this.y + (typeof x === "number" ? y : x.y))
     }
 
     rotate(angle: number): Vec {

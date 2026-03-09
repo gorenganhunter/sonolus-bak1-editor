@@ -1,50 +1,51 @@
 import { type ParticleDataGroupParticleProperty } from '@sonolus/core'
+import { EaseType } from './chart'
 
 export type Ease = Required<ParticleDataGroupParticleProperty>['ease']
 
-export const easings: Record<Ease, (x: number) => number> = {
-    linear: (x) => x,
-    inSine: (x) => 1 - Math.cos((x * Math.PI) / 2),
-    outSine: (x) => Math.sin((x * Math.PI) / 2),
-    inOutSine: (x) => -(Math.cos(x * Math.PI) - 1) / 2,
-    outInSine: (x) =>
+export const easings: Record<EaseType, (x: number) => number> = {
+    [EaseType.LINEAR]: (x) => x,
+    [EaseType.IN_SINE]: (x) => 1 - Math.cos((x * Math.PI) / 2),
+    [EaseType.OUT_SINE]: (x) => Math.sin((x * Math.PI) / 2),
+    [EaseType.IN_OUT_SINE]: (x) => -(Math.cos(x * Math.PI) - 1) / 2,
+    [EaseType.OUT_IN_SINE]: (x) =>
         x < 0.5 ? Math.sin(x * Math.PI) / 2 : 1 - 0.5 * Math.cos((x - 0.5) * Math.PI),
-    inQuad: (x) => x * x,
-    outQuad: (x) => 1 - (1 - x) * (1 - x),
-    inOutQuad: (x) => (x < 0.5 ? 2 * x * x : 1 - ((-2 * x + 2) * (-2 * x + 2)) / 2),
-    outInQuad: (x) =>
+    [EaseType.IN_QUAD]: (x) => x * x,
+    [EaseType.OUT_QUAD]: (x) => 1 - (1 - x) * (1 - x),
+    [EaseType.IN_OUT_QUAD]: (x) => (x < 0.5 ? 2 * x * x : 1 - ((-2 * x + 2) * (-2 * x + 2)) / 2),
+    [EaseType.OUT_IN_QUAD]: (x) =>
         x < 0.5 ? 0.5 - 0.5 * (1 - 2 * x) * (1 - 2 * x) : 0.5 + 0.5 * (2 * x - 1) * (2 * x - 1),
-    inCubic: (x) => x * x * x,
-    outCubic: (x) => 1 - (1 - x) * (1 - x) * (1 - x),
-    inOutCubic: (x) =>
+    [EaseType.IN_CUBIC]: (x) => x * x * x,
+    [EaseType.OUT_CUBIC]: (x) => 1 - (1 - x) * (1 - x) * (1 - x),
+    [EaseType.IN_OUT_CUBIC]: (x) =>
         x < 0.5 ? 4 * x * x * x : 1 - ((-2 * x + 2) * (-2 * x + 2) * (-2 * x + 2)) / 2,
-    outInCubic: (x) =>
+    [EaseType.OUT_IN_CUBIC]: (x) =>
         x < 0.5
             ? 0.5 - 0.5 * (1 - 2 * x) * (1 - 2 * x) * (1 - 2 * x)
             : 0.5 + 0.5 * (2 * x - 1) * (2 * x - 1) * (2 * x - 1),
-    inQuart: (x) => x * x * x * x,
-    outQuart: (x) => 1 - (1 - x) * (1 - x) * (1 - x) * (1 - x),
-    inOutQuart: (x) =>
+    [EaseType.IN_QUART]: (x) => x * x * x * x,
+    [EaseType.OUT_QUART]: (x) => 1 - (1 - x) * (1 - x) * (1 - x) * (1 - x),
+    [EaseType.IN_OUT_QUART]: (x) =>
         x < 0.5
             ? 8 * x * x * x * x
             : 1 - ((-2 * x + 2) * (-2 * x + 2) * (-2 * x + 2) * (-2 * x + 2)) / 2,
-    outInQuart: (x) =>
+    [EaseType.OUT_IN_QUART]: (x) =>
         x < 0.5
             ? 0.5 - 0.5 * (1 - 2 * x) * (1 - 2 * x) * (1 - 2 * x) * (1 - 2 * x)
             : 0.5 + 0.5 * (2 * x - 1) * (2 * x - 1) * (2 * x - 1) * (2 * x - 1),
-    inQuint: (x) => x * x * x * x * x,
-    outQuint: (x) => 1 - (1 - x) * (1 - x) * (1 - x) * (1 - x) * (1 - x),
-    inOutQuint: (x) =>
+    [EaseType.IN_QUINT]: (x) => x * x * x * x * x,
+    [EaseType.OUT_QUINT]: (x) => 1 - (1 - x) * (1 - x) * (1 - x) * (1 - x) * (1 - x),
+    [EaseType.IN_OUT_QUINT]: (x) =>
         x < 0.5
             ? 16 * x * x * x * x * x
             : 1 - ((-2 * x + 2) * (-2 * x + 2) * (-2 * x + 2) * (-2 * x + 2) * (-2 * x + 2)) / 2,
-    outInQuint: (x) =>
+    [EaseType.OUT_IN_QUINT]: (x) =>
         x < 0.5
             ? 0.5 - 0.5 * (1 - 2 * x) * (1 - 2 * x) * (1 - 2 * x) * (1 - 2 * x) * (1 - 2 * x)
             : 0.5 + 0.5 * (2 * x - 1) * (2 * x - 1) * (2 * x - 1) * (2 * x - 1) * (2 * x - 1),
-    inExpo: (x) => (x == 0 ? 0 : Math.pow(2, 10 * x - 10)),
-    outExpo: (x) => (x == 1 ? 1 : 1 - Math.pow(2, -10 * x)),
-    inOutExpo: (x) =>
+    [EaseType.IN_EXPO]: (x) => (x == 0 ? 0 : Math.pow(2, 10 * x - 10)),
+    [EaseType.OUT_EXPO]: (x) => (x == 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+    [EaseType.IN_OUT_EXPO]: (x) =>
         x == 0
             ? 0
             : x == 1
@@ -52,7 +53,7 @@ export const easings: Record<Ease, (x: number) => number> = {
                 : x < 0.5
                     ? 0.5 * Math.pow(2, 20 * x - 10)
                     : 1 - 0.5 * Math.pow(2, -20 * x + 10),
-    outInExpo: (x) =>
+    [EaseType.OUT_IN_EXPO]: (x) =>
         x == 0
             ? 0
             : x == 1
@@ -60,23 +61,23 @@ export const easings: Record<Ease, (x: number) => number> = {
                 : x < 0.5
                     ? 0.5 - 0.5 * Math.pow(2, -20 * x)
                     : 0.5 + 0.5 * Math.pow(2, 20 * x - 20),
-    inCirc: (x) => 1 - Math.sqrt(1 - x * x),
-    outCirc: (x) => Math.sqrt(1 - (x - 1) * (x - 1)),
-    inOutCirc: (x) =>
+    [EaseType.IN_CIRC]: (x) => 1 - Math.sqrt(1 - x * x),
+    [EaseType.OUT_CIRC]: (x) => Math.sqrt(1 - (x - 1) * (x - 1)),
+    [EaseType.IN_OUT_CIRC]: (x) =>
         x < 0.5
             ? 0.5 - 0.5 * Math.sqrt(1 - 4 * x * x)
             : 0.5 + 0.5 * Math.sqrt(1 - (-2 * x + 2) * (-2 * x + 2)),
-    outInCirc: (x) =>
+    [EaseType.OUT_IN_CIRC]: (x) =>
         x < 0.5
             ? 0.5 * Math.sqrt(1 - (2 * x - 1) * (2 * x - 1))
             : 1 - 0.5 * Math.sqrt(1 - (2 * x - 1) * (2 * x - 1)),
-    inBack: (x) => 2.70158 * x * x * x - 1.70158 * x * x,
-    outBack: (x) => 1 + 2.70158 * (x - 1) * (x - 1) * (x - 1) + 1.70158 * (x - 1) * (x - 1),
-    inOutBack: (x) =>
+    [EaseType.IN_BACK]: (x) => 2.70158 * x * x * x - 1.70158 * x * x,
+    [EaseType.OUT_BACK]: (x) => 1 + 2.70158 * (x - 1) * (x - 1) * (x - 1) + 1.70158 * (x - 1) * (x - 1),
+    [EaseType.IN_OUT_BACK]: (x) =>
         x < 0.5
             ? 2 * x * x * (7.18982 * x - 2.59491)
             : (x - 1) * (2 * x - 2) * (3.59491 * (x * 2 - 2) + 2.59491) + 1,
-    outInBack: (x) =>
+    [EaseType.OUT_IN_BACK]: (x) =>
         x < 0.5
             ? 0.5 +
             0.5 * 2.70158 * (2 * x - 1) * (2 * x - 1) * (2 * x - 1) +
@@ -84,19 +85,19 @@ export const easings: Record<Ease, (x: number) => number> = {
             : 0.5 +
             0.5 * 2.70158 * (2 * x - 1) * (2 * x - 1) * (2 * x - 1) -
             0.5 * 1.70158 * (2 * x - 1) * (2 * x - 1),
-    inElastic: (x) =>
+    [EaseType.IN_ELASTIC]: (x) =>
         x == 0
             ? 0
             : x == 1
                 ? 1
                 : -Math.pow(2, 10 * x - 10) * Math.sin(((x * 10 - 10.75) * 2 * Math.PI) / 3),
-    outElastic: (x) =>
+    [EaseType.OUT_ELASTIC]: (x) =>
         x == 0
             ? 0
             : x == 1
                 ? 1
                 : Math.pow(2, -10 * x) * Math.sin(((x * 10 - 0.75) * 2 * Math.PI) / 3) + 1,
-    inOutElastic: (x) =>
+    [EaseType.IN_OUT_ELASTIC]: (x) =>
         x == 0
             ? 0
             : x == 1
@@ -107,7 +108,7 @@ export const easings: Record<Ease, (x: number) => number> = {
                     : (Math.pow(2, -20 * x + 10) * Math.sin(((20 * x - 11.125) * 2 * Math.PI) / 4.5)) /
                     2 +
                     1,
-    outInElastic: (x) =>
+    [EaseType.OUT_IN_ELASTIC]: (x) =>
         x == 0
             ? 0
             : x == 1
@@ -118,5 +119,8 @@ export const easings: Record<Ease, (x: number) => number> = {
                     0.5 *
                     Math.pow(2, 10 * (2 * x - 1) - 10) *
                     Math.sin((((2 * x - 1) * 10 - 10.75) * 2 * Math.PI) / 3),
-    none: (x) => (x == 1 ? 1 : 0),
+    [EaseType.ZERO]: (x) => 0,
+    [EaseType.ONE]: (x) => 1
 }
+
+export const ease = (type: EaseType, x: number) => easings[type](x)

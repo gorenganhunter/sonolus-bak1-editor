@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Ease } from '../../chart'
+import { EaseType } from '../../chart'
 import { i18n } from '../../i18n'
 import OptionalSelectField from './OptionalSelectField.vue'
 
-const modelValue = defineModel<Ease | undefined>({ required: true })
+const modelValue = defineModel<EaseType | undefined>({ required: true })
 </script>
 
 <template>

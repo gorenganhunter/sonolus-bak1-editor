@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef, watch, type Ref } from 'vue'
 import { time } from '../time'
-import { zoom } from './events'
 import LevelPreviewStage from './LevelPreviewStage.vue'
-import LevelPreviewTapNotes from './LevelPreviewTapNotes.vue'
-import LevelPreviewHoldNotes from './LevelPreviewHoldNotes.vue'
-import LevelPreviewDragNotes from './LevelPreviewDragNotes.vue'
-import LevelPreviewFlickNotes from './LevelPreviewFlickNotes.vue'
-import { getTransform } from './projection'
+import LevelPreviewNotes from './LevelPreviewNotes.vue'
+import LevelPreviewDamages from './LevelPreviewDamages.vue'
+import LevelPreviewConnectors from './LevelPreviewConnectors.vue'
 
 const minAspectRatio = 16 / 9
 
@@ -49,10 +46,9 @@ watch(time, () => {
 
             <g transform="scale(1, -1)">
                 <LevelPreviewStage />
-                <LevelPreviewTapNotes />
-                <LevelPreviewHoldNotes />
-                <LevelPreviewDragNotes />
-                <LevelPreviewFlickNotes />
+                <LevelPreviewConnectors />
+                <LevelPreviewNotes />
+                <LevelPreviewDamages />
             </g>
         </g>
 

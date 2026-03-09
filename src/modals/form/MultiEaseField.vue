@@ -3,7 +3,7 @@ import { EaseType } from '../../chart'
 import { i18n } from '../../i18n'
 import MultiSelectField from './MultiSelectField.vue'
 
-const modelValue = defineModel<number>({ required: true })
+const modelValue = defineModel<EaseType | undefined>({ required: true })
 </script>
 
 <template>

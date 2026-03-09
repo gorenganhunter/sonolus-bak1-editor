@@ -20,20 +20,22 @@ const defaultChart: Chart = {
             stage: 0
         },
     ],
-    rectStages: [
+    stages: [
         {
             id: 0
         }
     ],
-    tapNotes: [],
-    dragNotes: [],
-    flickNotes: [],
-    holdNotes: [],
-    moveXEvents: [],
-    moveYEvents: [],
-    rotateEvents: [],
-    resizeEvents: [],
-    transparentEvents: []
+    slides: [],
+    judgeMoveXEvents: [],
+    judgeMoveYEvents: [],
+    judgeRotateEvents: [],
+    judgeResizeEvents: [],
+    spawnMoveXEvents: [],
+    spawnMoveYEvents: [],
+    spawnRotateEvents: [],
+    spawnResizeEvents: [],
+    transparentEvents: [],
+    noteHEvents: []
 }
 
 const index = ref(0)

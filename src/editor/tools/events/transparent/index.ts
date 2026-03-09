@@ -10,7 +10,7 @@ import {
 } from '../../../../state/mutations/events/transparent'
 import { getInStoreGrid } from '../../../../state/store/grid'
 import { align, clamp } from '../../../../utils/math'
-import { xToLane } from '../../../view'
+import { view, xToLane } from '../../../view'
 import TransparentEventPropertiesModal from './TransparentEventPropertiesModal.vue'
 import TransparentEventSidebar from './TransparentEventSidebar.vue'
 
@@ -32,7 +32,7 @@ const getPrev = (beat: number) => {
     )
     if (connection) return connection.min
 
-    const range = store.value.eventRanges.transparentEventJoint
+    const range = store.value.eventRanges.transparentEventJoint?.get(view.stage)
     return range && beat >= range.max.beat ? range.max : undefined
 }
 

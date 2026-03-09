@@ -5,7 +5,7 @@ import singleUrl from './assets/single.mp3?url'
 import { view } from './editor/view'
 import { bgm } from './history/bgm'
 import { bpms } from './history/bpms'
-import { cullAllEntities } from './history/store'
+import { cullAllEntities, cullEntities, store } from './history/store'
 import { settings } from './settings'
 import { beatToTime, timeToBeat } from './state/integrals/bpms'
 import { beatToKey } from './state/store/grid'
@@ -57,23 +57,36 @@ watch(time, ({ now }) => {
         max: timeToBeat(bpms.value, (now - state.time) * state.speed + state.bgmTime),
     }
 
-    for (const entity of cullAllEntities(beatToKey(beats.min), beatToKey(beats.max))) {
+    const keys = {
+        min: beatToKey(beats.min),
+        max: beatToKey(beats.max),
+    }
+
+    for (const entity of cullEntities('note', keys.min, keys.max)) {
         if (entity.beat < beats.min || entity.beat >= beats.max) continue
 
         // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-        switch (entity.type) {
-            case 'tapNote':
-            case 'flickNote':
-            case 'dragNote':
-            case 'holdNote':
+        const infos = store.value.slides.info.get(entity.slideId)
+        if (!infos) throw new Error('Unexpected missing infos')
+
+        const info = infos.find((info) => info.note === entity)
+        if (!info) throw new Error('Unexpected missing info')
+
+        //        const isInActive = info.activeHead !== info.activeTail
+        const isHead = info.attachHead === info.note
+
+        if (!isHead) continue
+
+        switch (entity.noteType) {
+            case "default":
                 targets.perfect.add(entity.beat)
                 break
-            //     case 'singleHoldNoteJoint':
-            //         targets.single.add(entity.beat)
-            //         break
-            //     case 'doubleHoldNoteJoint':
-            //         targets.double.add(entity.beat)
-            //         break
+            case "drag":
+                targets.single.add(entity.beat)
+                break
+            case "flick":
+                targets.double.add(entity.beat)
+                break
         }
     }
 

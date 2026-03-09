@@ -28,19 +28,13 @@ export const modifyEntities = (entities: Entity[], modifiers: Modifiers) => {
     const allEntities = new Set(entities)
 
     for (const entity of entities) {
-        if (entity.type !== 'singleHoldNoteJoint' && entity.type !== 'doubleHoldNoteJoint') continue
+        if (entity.type !== 'note') continue
 
-        const range = store.value.holdNoteRanges[entity.type].get(entity.id)
-        if (!range) continue
+        const notes = store.value.slides.note.get(entity.slideId)
+        if (!notes) continue
 
-        for (const joint of cullEntities(
-            entity.type,
-            beatToKey(range.min.beat),
-            beatToKey(range.max.beat),
-        )) {
-            if (joint.id !== entity.id) continue
-
-            allEntities.add(joint)
+        for (const note of notes) {
+            allEntities.add(note)
         }
     }
 
@@ -64,4 +58,4 @@ export const toSelection = (startLane: number, startTime: number, x: number, y: 
     }
 }
 
-const isVisible = (entity: Entity) => view.visibilities[entity.type] && (entity.type === "bpm" || entity.stage === view.stage)
+const isVisible = (entity: Entity) => view.visibilities[entity.type] && (entity.type === "bpm" || (entity.stage !== undefined && entity.stage === view.stage))

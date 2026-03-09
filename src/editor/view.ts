@@ -20,6 +20,7 @@ export const view = shallowReactive({
     hoverTime: 0,
     cursorTime: 0,
 
+    lane: 0,
     hoverLane: -1,
 
     x: 0,
@@ -27,39 +28,39 @@ export const view = shallowReactive({
     w: 0,
     h: 0,
 
-    lane: 1,
+    laneDiv: 1,
     division: 4,
     snapping: 'absolute' as 'absolute' | 'relative',
 
     stage: 0,
-    side: 0,
-
-    lastHoldDuration: 1,
 
     visibilities: {
         bpm: true,
         timeScale: true,
 
-        rotateEventJoint: true,
-        rotateEventConnection: true,
-        resizeEventJoint: true,
-        resizeEventConnection: true,
+        judgeRotateEventJoint: true,
+        judgeRotateEventConnection: true,
+        judgeResizeEventJoint: true,
+        judgeResizeEventConnection: true,
+        judgeMoveXEventJoint: true,
+        judgeMoveXEventConnection: true,
+        judgeMoveYEventJoint: true,
+        judgeMoveYEventConnection: true,
+        spawnRotateEventJoint: true,
+        spawnRotateEventConnection: true,
+        spawnResizeEventJoint: true,
+        spawnResizeEventConnection: true,
+        spawnMoveXEventJoint: true,
+        spawnMoveXEventConnection: true,
+        spawnMoveYEventJoint: true,
+        spawnMoveYEventConnection: true,
         transparentEventJoint: true,
         transparentEventConnection: true,
-        moveXEventJoint: true,
-        moveXEventConnection: true,
-        moveYEventJoint: true,
-        moveYEventConnection: true,
+        noteHEventJoint: true,
+        noteHEventConnection: true,
 
-        tapNote: true,
-        dragNote: true,
-        flickNote: true,
-        holdNote: true,
-
-        singleHoldNoteJoint: true,
-        singleHoldNoteConnection: true,
-        doubleHoldNoteJoint: true,
-        doubleHoldNoteConnection: true,
+        note: true,
+        connector: true
     },
 
     pointer: {
@@ -72,7 +73,24 @@ export const view = shallowReactive({
         creating: new Array<Entity>(),
     },
 
-    scrolling: optional<
+    scrollingX: optional<
+        | {
+            type: 'inertia'
+            value: number
+        }
+        | {
+            type: 'ease'
+            from: {
+                time: number
+                viewLane: number
+            }
+            to: {
+                time: number
+                viewLane: number
+            }
+        }
+    >(),
+    scrollingY: optional<
         | {
             type: 'inertia'
             value: number
@@ -92,36 +110,69 @@ export const view = shallowReactive({
 })
 
 watch(time, ({ now, delta }) => {
-    if (!view.scrolling) return
+    if (view.scrollingX) {
+        switch (view.scrollingX.type) {
+            case 'inertia': {
+                if (!view.scrollingX.value) {
+                    view.scrollingX = undefined
+                    break
+                }
 
-    switch (view.scrolling.type) {
-        case 'inertia': {
-            if (!view.scrolling.value) {
-                view.scrolling = undefined
+                const a = Math.sign(view.scrollingX.value) * 800
+                const t = Math.min(delta, view.scrollingX.value / a)
+
+                scrollViewXBy(((2 * view.scrollingX.value - a * t) * delta) / 2)
+
+                view.scrollingX.value -= a * t
                 break
             }
+            case 'ease': {
+                if (now >= view.scrollingX.to.time) {
+                    view.lane = view.scrollingX.to.viewLane
+                    view.scrollingX = undefined
+                    return
+                }
 
-            const a = Math.sign(view.scrolling.value) * 800
-            const t = Math.min(delta, view.scrolling.value / a)
-
-            scrollViewBy(((2 * view.scrolling.value - a * t) * delta) / 2)
-
-            view.scrolling.value -= a * t
-            break
-        }
-        case 'ease': {
-            if (now >= view.scrolling.to.time) {
-                view.time = view.scrolling.to.viewTime
-                view.scrolling = undefined
-                return
+                view.lane = lerp(
+                    view.scrollingX.from.viewLane,
+                    view.scrollingX.to.viewLane,
+                    1 - (1 - unlerp(view.scrollingX.from.time, view.scrollingX.to.time, now)) ** 2,
+                )
+                break
             }
+        }
+    }
 
-            view.time = lerp(
-                view.scrolling.from.viewTime,
-                view.scrolling.to.viewTime,
-                1 - (1 - unlerp(view.scrolling.from.time, view.scrolling.to.time, now)) ** 2,
-            )
-            break
+    if (view.scrollingY) {
+        switch (view.scrollingY.type) {
+            case 'inertia': {
+                if (!view.scrollingY.value) {
+                    view.scrollingY = undefined
+                    break
+                }
+
+                const a = Math.sign(view.scrollingY.value) * 800
+                const t = Math.min(delta, view.scrollingY.value / a)
+
+                scrollViewYBy(((2 * view.scrollingY.value - a * t) * delta) / 2)
+
+                view.scrollingY.value -= a * t
+                break
+            }
+            case 'ease': {
+                if (now >= view.scrollingY.to.time) {
+                    view.time = view.scrollingY.to.viewTime
+                    view.scrollingY = undefined
+                    return
+                }
+
+                view.time = lerp(
+                    view.scrollingY.from.viewTime,
+                    view.scrollingY.to.viewTime,
+                    1 - (1 - unlerp(view.scrollingY.from.time, view.scrollingY.to.time, now)) ** 2,
+                )
+                break
+            }
         }
     }
 })
@@ -130,8 +181,8 @@ export const viewBox = computed(() => {
     const w = settings.width
     const h = (view.h / view.w) * w
 
-    const l = -0.5 * w
-    const r = 0.5 * w
+    const l = -0.5 * w + view.lane
+    const r = 0.5 * w + view.lane
 
     const y = -(view.time * settings.pps) / view.h
     const t = (y - 0.5) * h
@@ -156,9 +207,29 @@ export const viewBox = computed(() => {
 
 export const ups = computed(() => viewBox.value.ups)
 
-export const scrollViewBy = (dy: number, smooth = false) => {
+export const scrollViewXBy = (dx: number, smooth = false) => {
     if (smooth) {
-        view.scrolling = {
+        view.scrollingX = {
+            type: 'ease',
+            from: {
+                time: time.value.now,
+                viewLane: view.lane,
+            },
+            to: {
+                time: time.value.now + 0.25,
+                viewLane: (view.scrollingX?.type === 'ease' ? view.scrollingX.to.viewLane : view.lane) +
+                    (dx / view.w) * settings.width
+
+            },
+        }
+    } else {
+        view.lane = view.lane + (dx / view.w) * settings.width
+    }
+}
+
+export const scrollViewYBy = (dy: number, smooth = false) => {
+    if (smooth) {
+        view.scrollingY = {
             type: 'ease',
             from: {
                 time: time.value.now,
@@ -168,7 +239,7 @@ export const scrollViewBy = (dy: number, smooth = false) => {
                 time: time.value.now + 0.25,
                 viewTime: Math.max(
                     0,
-                    (view.scrolling?.type === 'ease' ? view.scrolling.to.viewTime : view.time) +
+                    (view.scrollingY?.type === 'ease' ? view.scrollingY.to.viewTime : view.time) +
                     dy / settings.pps,
                 ),
             },
@@ -192,7 +263,7 @@ export const focusView = (t: number) => {
 
     if (t >= times.value.min && t <= times.value.max) return
 
-    view.scrolling = {
+    view.scrollingY = {
         type: 'ease',
         from: {
             time: time.value.now,
@@ -215,12 +286,15 @@ export const updateViewPointer = (pointer?: { x: number; y: number }) => {
 }
 
 export const xToLane = (x: number) => {
-    const a = ((((x - view.x) / view.w - 0.5) * settings.width / (8 / view.lane) + (view.lane / 2)) / view.lane)
+    //console.log(x, view.x, view.lane)
+    const a = (((((x - view.x) / view.w - 0.5) * settings.width + view.lane) / (8 / view.laneDiv) + (view.laneDiv / 2)) / view.laneDiv)
 
     return a
 }
 
-export const xToValidLane = (x: number) => clamp(Math.floor(xToLane(x) * view.lane) / view.lane + (1 / view.lane / 2) + view.side, 0, 4)
+export const xToValidLane = (x: number) => Math.floor(xToLane(x) * view.laneDiv) / view.laneDiv + (1 / view.laneDiv / 2)
+
+export const laneToValidLane = (lane: number) => Math.floor(lane * view.laneDiv) / view.laneDiv + (1 / view.laneDiv / 2)
 
 export const yToTime = (y: number) => (0.5 * view.h - y + view.y) / settings.pps + view.time
 

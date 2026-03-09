@@ -1,9 +1,12 @@
 import type { Command } from '..'
 import type { ClipboardData } from '../../../clipboardData/schema'
 import { selectedEntities } from '../../../history/selectedEntities'
+import { stages } from '../../../history/stages'
+import { store } from '../../../history/store'
 import { i18n } from '../../../i18n'
 import { serializeLevelDataEntities } from '../../../levelDataEntities/serialize'
 import type { Entity, EntityOfType, EntityType } from '../../../state/entities'
+import { createStore } from '../../../state/store/creates'
 import { interpolate } from '../../../utils/interpolate'
 import { notify } from '../../notification'
 import { hitAllEntitiesAtPoint } from '../../tools/utils'
@@ -32,24 +35,25 @@ export const copy: Command = {
             lane: xToLane(view.pointer.x),
             beat: entity?.beat ?? yToValidBeat(view.pointer.y),
             entities: serializeLevelDataEntities(
-                [],
-                getEntities(entities, 'bpm'),
-                getEntities(entities, 'timeScale'),
-                getEntities(entities, 'rotateEventJoint'),
-                [],
-                getEntities(entities, 'resizeEventJoint'),
-                [],
-                getEntities(entities, 'transparentEventJoint'),
-                [],
-                getEntities(entities, 'moveXEventJoint'),
-                [],
-                getEntities(entities, 'moveYEventJoint'),
-                [],
+                createStore({
+                    bpms: getEntities(entities, 'bpm'),
+                    timeScales: getEntities(entities, 'timeScale'),
 
-                getEntities(entities, 'tapNote'),
-                getEntities(entities, 'holdNote'),
-                getEntities(entities, 'dragNote'),
-                getEntities(entities, 'flickNote'),
+                    stages: stages.value,
+
+                    slides: getSlides(entities),
+
+                    judgeMoveXEvents: getEntities(entities, 'judgeMoveXEventJoint'),
+                    judgeMoveYEvents: getEntities(entities, 'judgeMoveYEventJoint'),
+                    judgeResizeEvents: getEntities(entities, 'judgeResizeEventJoint'),
+                    judgeRotateEvents: getEntities(entities, 'judgeRotateEventJoint'),
+                    spawnMoveXEvents: getEntities(entities, 'spawnMoveXEventJoint'),
+                    spawnMoveYEvents: getEntities(entities, 'spawnMoveYEventJoint'),
+                    spawnResizeEvents: getEntities(entities, 'spawnResizeEventJoint'),
+                    spawnRotateEvents: getEntities(entities, 'spawnRotateEventJoint'),
+                    transparentEvents: getEntities(entities, 'transparentEventJoint'),
+                    noteHEvents: getEntities(entities, 'noteHEventJoint'),
+                })
             ),
         }
         const text = JSON.stringify(data)
@@ -62,3 +66,15 @@ export const copy: Command = {
 
 const getEntities = <T extends EntityType>(entities: Entity[], type: T) =>
     entities.filter((entity): entity is EntityOfType<T> => entity.type === type)
+
+const getSlides = (entities: Entity[]) => {
+    const selectedNotes = entities.filter((entity) => entity.type === 'note')
+    const selectedNotesSet = new Set(selectedNotes)
+
+    return [...new Set(selectedNotes.map((note) => note.slideId))].map((slideId) => {
+        const notes = store.value.slides.note.get(slideId)
+        if (!notes) throw new Error('Unexpected notes not found')
+
+        return notes.filter((note) => selectedNotesSet.has(note))
+    })
+}

@@ -2,19 +2,23 @@ import { computed, ref, type Component } from 'vue'
 import type { Modifiers } from '../controls/gestures/pointer'
 import { view } from '../view'
 import { eraser } from './eraser'
-import { rotateEvent } from './events/rotate'
 import { paste } from './paste'
 import { select } from './select'
-import { tapNote } from './tapNote'
+import { note } from './note'
+import { slide } from './slide'
 import { bpm } from './values/bpm'
 import { timeScale } from './values/timeScale'
-import { flickNote } from './flickNote'
-import { dragNote } from './dragNote'
-import { holdNote } from './holdNote'
-import { resizeEvent } from './events/resize'
-import { moveYEvent } from './events/moveY'
-import { moveXEvent } from './events/moveX'
+import { judgeResizeEvent } from './events/judgeResize'
+import { judgeRotateEvent } from './events/judgeRotate'
+import { judgeMoveXEvent } from './events/judgeMoveX'
+import { judgeMoveYEvent } from './events/judgeMoveY'
+import { spawnResizeEvent } from './events/spawnResize'
+import { spawnRotateEvent } from './events/spawnRotate'
+import { spawnMoveXEvent } from './events/spawnMoveX'
+import { spawnMoveYEvent } from './events/spawnMoveY'
 import { transparentEvent } from './events/transparent'
+import { noteHEvent } from './events/noteH'
+import { brush } from './brush'
 
 export type Tool = {
     sidebar?: Component
@@ -32,17 +36,21 @@ export const tools = {
     select,
     eraser,
     paste,
+    brush,
 
-    tapNote,
-    dragNote,
-    flickNote,
-    holdNote,
+    note,
+    slide,
 
-    rotateEvent,
-    resizeEvent,
+    judgeRotateEvent,
+    judgeResizeEvent,
+    judgeMoveXEvent,
+    judgeMoveYEvent,
+    spawnRotateEvent,
+    spawnResizeEvent,
+    spawnMoveXEvent,
+    spawnMoveYEvent,
     transparentEvent,
-    moveXEvent,
-    moveYEvent,
+    noteHEvent,
 
     bpm,
     timeScale,

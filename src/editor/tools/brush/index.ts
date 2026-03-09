@@ -9,12 +9,17 @@ import { interpolate } from '../../../utils/interpolate'
 import { notify } from '../../notification'
 import type { EditableObject } from '../../sidebars/default'
 import { focusViewAtBeat, setViewHover, view, xToLane, yToTime, yToValidBeat } from '../../view'
-import { editSelectedRotateEventJoint } from '../events/rotate'
-import { editSelectedShiftEventJoint } from '../events/shift'
-import { editSelectedZoomEventJoint } from '../events/zoom'
-import { editSelectedDoubleHoldNoteJoint } from '../holdNotes/double'
-import { editSelectedSingleHoldNoteJoint } from '../holdNotes/single'
-import { editSelectedTapNote } from '../tapNote'
+import { editSelectedJudgeResizeEventJoint } from '../events/judgeResize'
+import { editSelectedJudgeRotateEventJoint } from '../events/judgeRotate'
+import { editSelectedJudgeMoveXEventJoint } from '../events/judgeMoveX'
+import { editSelectedJudgeMoveYEventJoint } from '../events/judgeMoveY'
+import { editSelectedSpawnResizeEventJoint } from '../events/spawnResize'
+import { editSelectedSpawnRotateEventJoint } from '../events/spawnRotate'
+import { editSelectedSpawnMoveXEventJoint } from '../events/spawnMoveX'
+import { editSelectedSpawnMoveYEventJoint } from '../events/spawnMoveY'
+import { editSelectedTransparentEventJoint } from '../events/transparent'
+import { editSelectedNoteHEventJoint } from '../events/noteH'
+import { editSelectedNote } from '../note'
 import {
     hitAllEntitiesAtPoint,
     hitAllEntitiesInSelection,
@@ -22,11 +27,14 @@ import {
     toSelection,
 } from '../utils'
 import BrushSidebar from './BrushSidebar.vue'
+import type { Ease, NoteType } from '../../../chart'
 
 export type BrushProperties = {
-    color?: number
-    scaleL?: number
-    scaleR?: number
+    stage?: number
+    noteType?: NoteType
+    lane?: number
+    size?: number
+    isFake?: boolean
     ease?: Ease
 }
 
@@ -139,14 +147,18 @@ const applies: {
         object: EditableObject,
     ) => Entity[]
 } = {
-    rotateEventJoint: editSelectedRotateEventJoint,
-    shiftEventJoint: editSelectedShiftEventJoint,
-    zoomEventJoint: editSelectedZoomEventJoint,
+    judgeRotateEventJoint: editSelectedJudgeRotateEventJoint,
+    judgeResizeEventJoint: editSelectedJudgeResizeEventJoint,
+    judgeMoveXEventJoint: editSelectedJudgeMoveXEventJoint,
+    judgeMoveYEventJoint: editSelectedJudgeMoveYEventJoint,
+    spawnRotateEventJoint: editSelectedSpawnRotateEventJoint,
+    spawnResizeEventJoint: editSelectedSpawnResizeEventJoint,
+    spawnMoveXEventJoint: editSelectedSpawnMoveXEventJoint,
+    spawnMoveYEventJoint: editSelectedSpawnMoveYEventJoint,
+    transparentEventJoint: editSelectedTransparentEventJoint,
+    noteHEventJoint: editSelectedNoteHEventJoint,
 
-    tapNote: editSelectedTapNote,
-
-    singleHoldNoteJoint: editSelectedSingleHoldNoteJoint,
-    doubleHoldNoteJoint: editSelectedDoubleHoldNoteJoint,
+    note: editSelectedNote,
 }
 
 const apply = (entities: Entity[]) => {

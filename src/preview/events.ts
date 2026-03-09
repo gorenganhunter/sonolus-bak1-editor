@@ -56,8 +56,13 @@ const getEvent = (jointType: EventJointEntityType, connectionType: EventConnecti
     })
 }
 
-export const rotate = (stage: number) => getEvent('rotateEventJoint', 'rotateEventConnection', stage)
-export const resize = (stage: number) => getEvent('resizeEventJoint', 'resizeEventConnection', stage)
+export const judgeRotate = (stage: number) => getEvent('judgeRotateEventJoint', 'judgeRotateEventConnection', stage)
+export const judgeResize = (stage: number) => getEvent('judgeResizeEventJoint', 'judgeResizeEventConnection', stage)
+export const judgeMoveX = (stage: number) => getEvent('judgeMoveXEventJoint', 'judgeMoveXEventConnection', stage)
+export const judgeMoveY = (stage: number) => getEvent('judgeMoveYEventJoint', 'judgeMoveYEventConnection', stage)
+export const spawnRotate = (stage: number) => getEvent('spawnRotateEventJoint', 'spawnRotateEventConnection', stage)
+export const spawnResize = (stage: number) => getEvent('spawnResizeEventJoint', 'spawnResizeEventConnection', stage)
+export const spawnMoveX = (stage: number) => getEvent('spawnMoveXEventJoint', 'spawnMoveXEventConnection', stage)
+export const spawnMoveY = (stage: number) => getEvent('spawnMoveYEventJoint', 'spawnMoveYEventConnection', stage)
 export const transparent = (stage: number) => getEvent('transparentEventJoint', 'transparentEventConnection', stage)
-export const moveX = (stage: number) => getEvent('moveXEventJoint', 'moveXEventConnection', stage)
-export const moveY = (stage: number) => getEvent('moveYEventJoint', 'moveYEventConnection', stage)
+export const noteH = (stage: number) => getEvent('noteHEventJoint', 'noteHEventConnection', stage)

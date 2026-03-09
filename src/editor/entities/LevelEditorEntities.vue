@@ -3,41 +3,51 @@ const layers = {
     timeScale: 0,
     bpm: 1,
 
-    transparentEventConnection: 20,
-    transparentEventJoint: 21,
+    transparentEventConnection: 10,
+    transparentEventJoint: 11,
 
-    moveXEventConnection: 22,
-    moveXEventJoint: 23,
+    noteHEventConnection: 12,
+    noteHEventJoint: 13,
 
-    moveYEventConnection: 24,
-    moveYEventJoint: 25,
+    spawnMoveXEventConnection: 14,
+    spawnMoveXEventJoint: 15,
 
-    resizeEventConnection: 27,
-    resizeEventJoint: 27,
+    spawnMoveYEventConnection: 18,
+    spawnMoveYEventJoint: 19,
 
-    rotateEventConnection: 30,
-    rotateEventJoint: 31,
+    spawnResizeEventConnection: 22,
+    spawnResizeEventJoint: 23,
 
-    holdConnector: 5,
+    spawnRotateEventConnection: 26,
+    spawnRotateEventJoint: 27,
 
-    dragNote: 40,
-    holdNote: 41,
-    tapNote: 42,
-    flickNote: 43,
+    judgeMoveXEventConnection: 16,
+    judgeMoveXEventJoint: 17,
 
-    singleHoldNoteConnection: 50,
-    singleHoldNoteJoint: 51,
+    judgeMoveYEventConnection: 20,
+    judgeMoveYEventJoint: 21,
 
-    doubleHoldNoteConnection: 60,
-    doubleHoldNoteJoint: 61,
+    judgeResizeEventConnection: 24,
+    judgeResizeEventJoint: 25,
+
+    judgeRotateEventConnection: 28,
+    judgeRotateEventJoint: 29,
+
+    note: 40,
+    connector: 39
 }
 
 const infinities = [
-    ['rotateEventConnection', LevelEditorRotateEventInfinity] as const,
-    ['resizeEventConnection', LevelEditorResizeEventInfinity] as const,
+    ['judgeRotateEventConnection', LevelEditorJudgeRotateEventInfinity] as const,
+    ['judgeResizeEventConnection', LevelEditorJudgeResizeEventInfinity] as const,
+    ['judgeMoveXEventConnection', LevelEditorJudgeMoveXEventInfinity] as const,
+    ['judgeMoveYEventConnection', LevelEditorJudgeMoveYEventInfinity] as const,
+    ['spawnRotateEventConnection', LevelEditorSpawnRotateEventInfinity] as const,
+    ['spawnResizeEventConnection', LevelEditorSpawnResizeEventInfinity] as const,
+    ['spawnMoveXEventConnection', LevelEditorSpawnMoveXEventInfinity] as const,
+    ['spawnMoveYEventConnection', LevelEditorSpawnMoveYEventInfinity] as const,
     ['transparentEventConnection', LevelEditorTransparentEventInfinity] as const,
-    ['moveXEventConnection', LevelEditorMoveXEventInfinity] as const,
-    ['moveYEventConnection', LevelEditorMoveYEventInfinity] as const,
+    ['noteHEventConnection', LevelEditorNoteHEventInfinity] as const,
 ]
 </script>
 
@@ -47,37 +57,61 @@ import { components } from '.'
 import { keys } from '..'
 import { selectedEntities } from '../../history/selectedEntities'
 import { cullAllEntities } from '../../history/store'
+import type { Entity } from '../../state/entities'
 import { view } from '../view'
-import LevelEditorRotateEventInfinity from './events/infinity/LevelEditorRotateEventInfinity.vue'
-import LevelEditorResizeEventInfinity from './events/infinity/LevelEditorResizeEventInfinity.vue'
+import LevelEditorJudgeRotateEventInfinity from './events/infinity/LevelEditorJudgeRotateEventInfinity.vue'
+import LevelEditorJudgeResizeEventInfinity from './events/infinity/LevelEditorJudgeResizeEventInfinity.vue'
+import LevelEditorJudgeMoveXEventInfinity from './events/infinity/LevelEditorJudgeMoveXEventInfinity.vue'
+import LevelEditorJudgeMoveYEventInfinity from './events/infinity/LevelEditorJudgeMoveYEventInfinity.vue'
+import LevelEditorSpawnRotateEventInfinity from './events/infinity/LevelEditorSpawnRotateEventInfinity.vue'
+import LevelEditorSpawnResizeEventInfinity from './events/infinity/LevelEditorSpawnResizeEventInfinity.vue'
+import LevelEditorSpawnMoveXEventInfinity from './events/infinity/LevelEditorSpawnMoveXEventInfinity.vue'
+import LevelEditorSpawnMoveYEventInfinity from './events/infinity/LevelEditorSpawnMoveYEventInfinity.vue'
 import LevelEditorTransparentEventInfinity from './events/infinity/LevelEditorTransparentEventInfinity.vue'
-import LevelEditorMoveXEventInfinity from './events/infinity/LevelEditorMoveXEventInfinity.vue'
-import LevelEditorMoveYEventInfinity from './events/infinity/LevelEditorMoveYEventInfinity.vue'
+import LevelEditorNoteHEventInfinity from './events/infinity/LevelEditorNoteHEventInfinity.vue'
 
 const sortedInfinities = computed(() =>
     infinities.sort(([a], [b]) => +view.visibilities[a] - +view.visibilities[b]),
 )
 
+const isEntityVisible = (entity: Entity) => {
+//    if (view.stage === undefined) return true
+
+    switch (entity.type) {
+        case 'bpm':
+            return true
+        case 'timeScale':
+        case 'note':
+            return entity.stage === view.stage
+        case 'connector':
+            console.log(entity)
+            return entity.head.stage === view.stage || entity.tail.stage === view.stage
+        default:
+            return entity.stage === view.stage
+    }
+}
+
 const culledEntities = computed(() => cullAllEntities(keys.value.min, keys.value.max))
 
 const visibleEntities = computed(() =>
-    [...culledEntities.value,
-    ...[...culledEntities.value].filter(a => a.type === "holdNote").map(a => ({ ...a, type: "holdConnector" }))
-    ].sort(
+    [...culledEntities.value].filter(isEntityVisible)
+    .sort(
         (a, b) =>
             +selectedEntities.value.includes(a) - +selectedEntities.value.includes(b) ||
             +view.visibilities[a.type] - +view.visibilities[b.type] ||
             layers[a.type] - layers[b.type] ||
             b.beat - a.beat,
     )
-    .filter(a => (!a.stage && a.stage !== 0) || a.stage === view.stage)
-    .filter(a => (a.type !== "tapNote" && a.type !== "holdNote" && a.type !== "dragNote" && a.type !== "holdConnector" && a.type !== "flickNote") || Math.floor(a.lane) === view.side)
 )
 </script>
 
 <template>
-    <component :is="component" v-for="[type, component] in sortedInfinities" :key="type"
-        :opacity="view.visibilities[type === 'holdConnector' ? 'holdNote' : type] ? 1 : 0.25" />
+    <component
+        :is="component"
+        v-for="[type, component] in sortedInfinities"
+        :key="type"
+        :opacity="view.visibilities[type] ? 1 : 0.25"
+    />
 
     <component :is="components[entity.type]" v-for="entity in visibleEntities" :key="entity as never" v-bind="entity"
         :opacity="selectedEntities.includes(entity) || view.visibilities[entity.type] ? 1 : 0.25" />

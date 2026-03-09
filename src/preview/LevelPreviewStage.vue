@@ -1,28 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { view } from '../editor/view'
-import { rotate, resize, transparent, moveX, moveY } from './events'
-import { getLane, getLaneCenter, laneLayout } from './lane'
-import { transform } from './projection'
-import { stages } from '../history/stages'
-import { Quad } from "./Quad"
+import { stageLayouts } from "./stage"
 
-const stages2 = computed(() =>
-    [...stages.value]
-    .map(({ id }) => {
-//            const [l, r] = getLane(lane, 1, shift.value, rotate.value)
-
-//            const targetTime = timeToScaledTime(timeScales.value, beatToTime(bpms.value, beat))
-//            const z = unlerp(targetTime - noteDuration.value, targetTime, scaledTimes.value.min)
-
-            const points = new Quad().rotate((rotate(id).value % 360) / 180 * Math.PI).mul(resize(id).value / 2).translate(moveX(id).value, moveY(id).value).toPoints()
-
-            return {
-                points,
-                opacity: transparent(id).value
-            }
-        }),
-)
+const stages = computed(() => stageLayouts.value.map(({ lane, judgeline, opacity }) => ({ lane: lane.toPoints(), judgeline: judgeline.toPoints(), opacity })))
 // const lanes = computed(() =>
 //     ([{
 //         points: laneLayout(...getLane(0, 1, shift.value, rotate.value)),
@@ -33,8 +13,11 @@ const stages2 = computed(() =>
 </script>
 
 <template>
-    <template v-for="({ points, opacity }, index) in stages2" :key="index">
-        <polygon :points stroke="white" :stroke-opacity="opacity" />
+    <template v-for="({ lane, judgeline, opacity }, index) in stages" :key="index">
+    <g stroke="#222" stroke-width="0.02">
+        <polygon :points="lane" fill="#444" :opacity="opacity" />
+        <polygon :points="judgeline" fill="#fff" :opacity="opacity" />
+    </g>
     </template>
     <!--template v-for="({ points, centers }, index) in lanes" :key="index">
         <polygon :points stroke="white" />

@@ -1,12 +1,17 @@
 import type { BaseEntity } from '../..'
 import type { Ease, EventObject } from '../../../../chart'
-import type { MoveXEventJointEntity } from './moveX'
-import type { MoveYEventJointEntity } from './moveY'
-import type { ResizeEventJointEntity } from './resize'
-import type { RotateEventJointEntity } from './rotate'
+import type { JudgeMoveXEventJointEntity } from './judgeMoveX'
+import type { JudgeMoveYEventJointEntity } from './judgeMoveY'
+import type { JudgeResizeEventJointEntity } from './judgeResize'
+import type { JudgeRotateEventJointEntity } from './judgeRotate'
+import type { SpawnMoveXEventJointEntity } from './spawnMoveX'
+import type { SpawnMoveYEventJointEntity } from './spawnMoveY'
+import type { SpawnResizeEventJointEntity } from './spawnResize'
+import type { SpawnRotateEventJointEntity } from './spawnRotate'
 import type { TransparentEventJointEntity } from './transparent'
+import type { NoteHEventJointEntity } from './noteH'
 
-export type EventJointEntity = RotateEventJointEntity | ResizeEventJointEntity | TransparentEventJointEntity | MoveXEventJointEntity | MoveYEventJointEntity
+export type EventJointEntity = JudgeMoveXEventJointEntity | JudgeMoveYEventJointEntity | JudgeResizeEventJointEntity | JudgeRotateEventJointEntity | SpawnMoveXEventJointEntity | SpawnMoveYEventJointEntity | SpawnResizeEventJointEntity | SpawnRotateEventJointEntity | TransparentEventJointEntity | NoteHEventJointEntity
 
 export type EventJointEntityType = EventJointEntity['type']
 

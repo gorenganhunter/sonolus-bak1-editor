@@ -96,8 +96,6 @@ const hitEntitiesByGetter = <T extends Entity>(
         const t = hitbox.t * spu
         const b = hitbox.b * spu
 
-        if (["tapNote", "holdNote", "dragNote", "flickNote"].includes(type)) lane -= view.side
-
         return laneMax > lane - w && laneMin < lane + w && timeMax > time - b && timeMin < time + t
     })
 }

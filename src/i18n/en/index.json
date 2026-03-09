@@ -63,20 +63,65 @@
             "title": "Switch to Eraser tool",
             "switched": "Switched to Eraser tool"
         },
-        "rotateEvent": {
-            "title": "Switch to Rotate Event tool",
-            "switched": "Switched to Rotate Event tool",
+        "judgeRotateEvent": {
+            "title": "Switch to JudgeRotate Event tool",
+            "switched": "Switched to JudgeRotate Event tool",
             "modal": {
-                "title": "Default Rotate Event Properties"
+                "title": "Default JudgeRotate Event Properties"
             }
         },
-        "resizeEvent": {
-            "title": "Switch to Resize Event tool",
-            "switched": "Switched to Resize Event tool",
+        "judgeResizeEvent": {
+            "title": "Switch to JudgeResize Event tool",
+            "switched": "Switched to JudgeResize Event tool",
             "modal": {
-                "title": "Default Resize Event Properties"
+                "title": "Default JudgeResize Event Properties"
             }
 
+        },
+        "judgeMoveXEvent": {
+            "title": "Switch to JudgeMoveX Event tool",
+            "switched": "Switched to JudgeMoveX Event tool",
+            "modal": {
+                "title": "Default JudgeMoveX Event Properties"
+            }
+
+        },
+        "judgeMoveYEvent": {
+            "title": "Switch to JudgeMoveY Event tool",
+            "switched": "Switched to JudgeMoveY Event tool",
+            "modal": {
+                "title": "Default JudgeMoveY Event Properties"
+            }
+        },
+        "spawnRotateEvent": {
+            "title": "Switch to SpawnRotate Event tool",
+            "switched": "Switched to SpawnRotate Event tool",
+            "modal": {
+                "title": "Default SpawnRotate Event Properties"
+            }
+        },
+        "spawnResizeEvent": {
+            "title": "Switch to SpawnResize Event tool",
+            "switched": "Switched to SpawnResize Event tool",
+            "modal": {
+                "title": "Default SpawnResize Event Properties"
+            }
+
+        },
+        "spawnMoveXEvent": {
+            "title": "Switch to SpawnMoveX Event tool",
+            "switched": "Switched to SpawnMoveX Event tool",
+            "modal": {
+                "title": "Default SpawnMoveX Event Properties"
+            }
+
+        },
+        "spawnMoveYEvent": {
+            "title": "Switch to SpawnMoveY Event tool",
+            "switched": "Switched to SpawnMoveY Event tool",
+            "modal": {
+                "title": "Default SpawnMoveY Event Properties"
+            }
         },
         "transparentEvent": {
             "title": "Switch to Transparent Event tool",
@@ -86,20 +131,13 @@
             }
 
         },
-        "moveXEvent": {
-            "title": "Switch to MoveX Event tool",
-            "switched": "Switched to MoveX Event tool",
+        "noteHEvent": {
+            "title": "Switch to NoteH Event tool",
+            "switched": "Switched to NoteH Event tool",
             "modal": {
-                "title": "Default MoveX Event Properties"
+                "title": "Default NoteH Event Properties"
             }
 
-        },
-        "moveYEvent": {
-            "title": "Switch to MoveY Event tool",
-            "switched": "Switched to MoveY Event tool",
-            "modal": {
-                "title": "Default MoveY Event Properties"
-            }
         },
         "flip": {
             "title": "Flip",
@@ -189,6 +227,31 @@
         "stop": {
             "title": "Stop"
         },
+        "note": {
+            "title": {
+                "default": "Switch to Note tool",
+                "preset": "Switch to Note tool #{0}"
+            },
+            "switched": "Switched to Note tool #{0}",
+            "modal": {
+                "title": "Default Note Properties"
+            }
+        },
+        "slide": {
+            "title": {
+                "default": "Switch to Slide tool",
+                "preset": "Switch to Slide tool #{0}"
+            },
+            "switched": "Switched to Slide tool #{0}",
+            "modal": {
+                "title": "Default Slide Properties"
+            }
+        },
+        "fullscreen": {
+            "title": "Fullscreen",
+            "toggled": "Toggled fullscreen",
+            "unsupported": "Fullscreen is not supported on your device"
+        },
         "tapNote": {
             "title": "Switch to Tap Note tool",
             "switched": "Switched to Tap Note tool",
@@ -248,13 +311,20 @@
                     "holdNote": "Hold Note",
                     "singleHoldNote": "Single Hold Note",
                     "doubleHoldNote": "Double Hold Note",
-                    "rotateEvent": "Rotate Event",
-                    "resizeEvent": "Resize Event",
+                    "judgeRotateEvent": "JudgeRotate Event",
+                    "judgeResizeEvent": "JudgeResize Event",
+                    "judgeMoveXEvent": "JudgeMoveX Event",
+                    "judgeMoveYEvent": "JudgeMoveY Event",
+                    "spawnRotateEvent": "SpawnRotate Event",
+                    "spawnResizeEvent": "SpawnResize Event",
+                    "spawnMoveXEvent": "SpawnMoveX Event",
+                    "spawnMoveYEvent": "SpawnMoveY Event",
                     "transparentEvent": "Transparent Event",
-                    "moveXEvent": "MoveX Event",
-                    "moveYEvent": "MoveY Event",
+                    "noteHEvent": "NoteH Event",
                     "timeScale": "Time Scale",
-                    "bpm": "BPM"
+                    "bpm": "BPM",
+                    "note": "Note",
+                    "slide": "Slide"
                 }
             }
         },
@@ -384,23 +454,77 @@
                 "shift": "Use Shift key to operate on all related hold note objects.",
                 "properties": "Switch to Double Hold Note Tool again to change default properties."
             },
-            "rotateEventTool": {
-                "title": "Rotate Event Tool",
-                "select": "Tap Rotate Event objects to select.",
-                "edit": "Tap selected Rotate Event objects to edit.",
+            "judgeRotateEventTool": {
+                "title": "JudgeRotate Event Tool",
+                "select": "Tap JudgeRotate Event objects to select.",
+                "edit": "Tap selected JudgeRotate Event objects to edit.",
                 "add": "Tap empty space to add.",
-                "move": "Drag 1 Rotate Event object to move.",
+                "move": "Drag 1 JudgeRotate Event object to move.",
                 "ctrl": "Use Ctrl key to add objects to selection.",
-                "properties": "Switch to Rotate Event Tool again to change default properties."
+                "properties": "Switch to JudgeRotate Event Tool again to change default properties."
             },
-            "resizeEventTool": {
-                "title": "Resize Event Tool",
-                "select": "Tap Resize Event objects to select.",
-                "edit": "Tap selected Resize Event objects to edit.",
+            "judgeResizeEventTool": {
+                "title": "JudgeResize Event Tool",
+                "select": "Tap JudgeResize Event objects to select.",
+                "edit": "Tap selected JudgeResize Event objects to edit.",
                 "add": "Tap empty space to add.",
-                "move": "Drag 1 Resize Event object to move.",
+                "move": "Drag 1 JudgeResize Event object to move.",
                 "ctrl": "Use Ctrl key to add objects to selection.",
-                "properties": "Switch to Resize Event Tool again to change default properties."
+                "properties": "Switch to JudgeResize Event Tool again to change default properties."
+            },
+            "judgeMoveXEventTool": {
+                "title": "JudgeMoveX Event Tool",
+                "select": "Tap JudgeMoveX Event objects to select.",
+                "edit": "Tap selected JudgeMoveX Event objects to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 JudgeMoveX Event object to move.",
+                "ctrl": "Use Ctrl key to add objects to selection.",
+                "properties": "Switch to JudgeMoveX Event Tool again to change default properties."
+            },
+            "judgeMoveYEventTool": {
+                "title": "JudgeMoveY Event Tool",
+                "select": "Tap JudgeMoveY Event objects to select.",
+                "edit": "Tap selected JudgeMoveY Event objects to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 JudgeMoveY Event object to move.",
+                "ctrl": "Use Ctrl key to add objects to selection.",
+                "properties": "Switch to JudgeMoveY Event Tool again to change default properties."
+            },
+            "spawnRotateEventTool": {
+                "title": "SpawnRotate Event Tool",
+                "select": "Tap SpawnRotate Event objects to select.",
+                "edit": "Tap selected SpawnRotate Event objects to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 SpawnRotate Event object to move.",
+                "ctrl": "Use Ctrl key to add objects to selection.",
+                "properties": "Switch to SpawnRotate Event Tool again to change default properties."
+            },
+            "spawnResizeEventTool": {
+                "title": "SpawnResize Event Tool",
+                "select": "Tap SpawnResize Event objects to select.",
+                "edit": "Tap selected SpawnResize Event objects to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 SpawnResize Event object to move.",
+                "ctrl": "Use Ctrl key to add objects to selection.",
+                "properties": "Switch to SpawnResize Event Tool again to change default properties."
+            },
+            "spawnMoveXEventTool": {
+                "title": "SpawnMoveX Event Tool",
+                "select": "Tap SpawnMoveX Event objects to select.",
+                "edit": "Tap selected SpawnMoveX Event objects to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 SpawnMoveX Event object to move.",
+                "ctrl": "Use Ctrl key to add objects to selection.",
+                "properties": "Switch to SpawnMoveX Event Tool again to change default properties."
+            },
+            "spawnMoveYEventTool": {
+                "title": "SpawnMoveY Event Tool",
+                "select": "Tap SpawnMoveY Event objects to select.",
+                "edit": "Tap selected SpawnMoveY Event objects to edit.",
+                "add": "Tap empty space to add.",
+                "move": "Drag 1 SpawnMoveY Event object to move.",
+                "ctrl": "Use Ctrl key to add objects to selection.",
+                "properties": "Switch to SpawnMoveY Event Tool again to change default properties."
             },
             "transparentEventTool": {
                 "title": "Transparent Event Tool",
@@ -411,23 +535,14 @@
                 "ctrl": "Use Ctrl key to add objects to selection.",
                 "properties": "Switch to Transparent Event Tool again to change default properties."
             },
-            "moveXEventTool": {
-                "title": "MoveX Event Tool",
-                "select": "Tap MoveX Event objects to select.",
-                "edit": "Tap selected MoveX Event objects to edit.",
+            "noteHEventTool": {
+                "title": "NoteH Event Tool",
+                "select": "Tap NoteH Event objects to select.",
+                "edit": "Tap selected NoteH Event objects to edit.",
                 "add": "Tap empty space to add.",
-                "move": "Drag 1 MoveX Event object to move.",
+                "move": "Drag 1 NoteH Event object to move.",
                 "ctrl": "Use Ctrl key to add objects to selection.",
-                "properties": "Switch to MoveX Event Tool again to change default properties."
-            },
-            "moveYEventTool": {
-                "title": "MoveY Event Tool",
-                "select": "Tap MoveY Event objects to select.",
-                "edit": "Tap selected MoveY Event objects to edit.",
-                "add": "Tap empty space to add.",
-                "move": "Drag 1 MoveY Event object to move.",
-                "ctrl": "Use Ctrl key to add objects to selection.",
-                "properties": "Switch to MoveY Event Tool again to change default properties."
+                "properties": "Switch to NoteH Event Tool again to change default properties."
             },
             "bpmTool": {
                 "title": "BPM Tool",
@@ -460,7 +575,10 @@
                 "fft": "FFT",
                 "volume": "Volume",
                 "changed": "You have changed waveform visualization, select BGM file again in order for this change to take effect."
-            }
+            },
+            "lockScrollX": "Lock Scroll X",
+            "dragToPanY": "Drag to Pan Y",
+            "dragToPanX": "Drag to Pan X"
         },
         "keyboardShortcuts": {
             "title": "Keyboard Shortcuts"
@@ -495,7 +613,8 @@
                 "left": "Left"
             },
             "noteSpeed": "Note Speed",
-            "connectorAlpha": "Connector Alpha"
+            "connectorAlpha": "Connector Alpha",
+            "damageWarning": "Damage Warning (ms)"
         },
         "toolbar": {
             "title": "Toolbar",
@@ -539,44 +658,79 @@
             "moved": "Moved {0} {1} objects",
             "replaced": "Replaced {0} {1} objects",
             "types": {
-                "rotateEvent": "Rotate Event",
-                "resizeEvent": "Resize Event",
+                "judgeRotateEvent": "JudgeRotate Event",
+                "judgeResizeEvent": "JudgeResize Event",
+                "judgeMoveXEvent": "JudgeMoveX Event",
+                "judgeMoveYEvent": "JudgeMoveY Event",
+                "spawnRotateEvent": "SpawnRotate Event",
+                "spawnResizeEvent": "SpawnResize Event",
+                "spawnMoveXEvent": "SpawnMoveX Event",
+                "spawnMoveYEvent": "SpawnMoveY Event",
                 "transparentEvent": "Transparent Event",
-                "moveXEvent": "MoveX Event",
-                "moveYEvent": "MoveY Event"
+                "noteHEvent": "NoteH Event"
             },
             "modals": {
-                "rotateEvent": {
-                    "title": "Rotate Event Properties"
+                "judgeRotateEvent": {
+                    "title": "JudgeRotate Event Properties"
                 },
-                "resizeEvent": {
-                    "title": "Resize Event Properties"
+                "judgeResizeEvent": {
+                    "title": "JudgeResize Event Properties"
+                },
+                "judgeMoveXEvent": {
+                    "title": "JudgeMoveX Event Properties"
+                },
+                "judgeMoveYEvent": {
+                    "title": "JudgeMoveY Event Properties"
+                },
+                "spawnRotateEvent": {
+                    "title": "SpawnRotate Event Properties"
+                },
+                "spawnResizeEvent": {
+                    "title": "SpawnResize Event Properties"
+                },
+                "spawnMoveXEvent": {
+                    "title": "SpawnMoveX Event Properties"
+                },
+                "spawnMoveYEvent": {
+                    "title": "SpawnMoveY Event Properties"
                 },
                 "transparentEvent": {
                     "title": "Transparent Event Properties"
                 },
-                "moveXEvent": {
-                    "title": "MoveX Event Properties"
-                },
-                "moveYEvent": {
-                    "title": "MoveY Event Properties"
+                "noteHEvent": {
+                    "title": "NoteH Event Properties"
                 }
             },
             "sidebars": {
-                "rotateEvent": {
-                    "title": "Default Rotate Event Properties"
+                "judgeRotateEvent": {
+                    "title": "Default JudgeRotate Event Properties"
+                },
+                "judgeResizeEvent": {
+                    "title": "Default JudgeResize Event Properties"
+                },
+                "judgeMoveXEvent": {
+                    "title": "Default JudgeMoveX Event Properties"
+                },
+                "judgeMoveYEvent": {
+                    "title": "Default JudgeMoveY Event Properties"
+                },
+                "spawnRotateEvent": {
+                    "title": "Default SpawnRotate Event Properties"
+                },
+                "spawnResizeEvent": {
+                    "title": "Default SpawnResize Event Properties"
+                },
+                "spawnMoveXEvent": {
+                    "title": "Default SpawnMoveX Event Properties"
+                },
+                "spawnMoveYEvent": {
+                    "title": "Default SpawnMoveY Event Properties"
                 },
                 "transparentEvent": {
                     "title": "Default Transparent Event Properties"
                 },
-                "resizeEvent": {
-                    "title": "Default Resize Event Properties"
-                },
-                "moveXEvent": {
-                    "title": "Default MoveX Event Properties"
-                },
-                "moveYEvent": {
-                    "title": "Default MoveY Event Properties"
+                "noteHEvent": {
+                    "title": "Default NoteH Event Properties"
                 }
             }
         },
@@ -622,19 +776,36 @@
             "moving": "Moving {0} objects",
             "moved": "Moved {0} objects"
         },
-        "tapNote": {
-            "moving": "Moving {0} Tap Note objects",
-            "adding": "Adding {0} Tap Note objects",
-            "selected": "Selected {0} Tap Note objects",
-            "added": "Added {0} Tap Note objects",
-            "edited": "Edited {0} Tap Note objects",
-            "moved": "Moved {0} Tap Note objects",
-            "replaced": "Replaced {0} Tap Note objects",
+        "note": {
+            "moving": "Moving {0} Note objects",
+            "adding": "Adding {0} Note objects",
+            "editing": "Editing {0} Note objects",
+            "selected": "Selected {0} Note objects",
+            "added": "Added {0} Note objects",
+            "edited": "Edited {0} Note objects",
+            "moved": "Moved {0} Note objects",
+            "replaced": "Replaced {0} Note objects",
             "modal": {
-                "title": "Tap Note Properties"
+                "title": "Note Properties"
             },
             "sidebar": {
-                "title": "Default Tap Note Properties"
+                "title": "Default Note Properties"
+            }
+        },
+        "slide": {
+            "moving": "Moving {0} Slide objects",
+            "adding": "Adding {0} Slide objects",
+            "editing": "Editing {0} Slide objects",
+            "selected": "Selected {0} Slide objects",
+            "added": "Added {0} Slide objects",
+            "edited": "Edited {0} Slide objects",
+            "moved": "Moved {0} Slide objects",
+            "replaced": "Replaced {0} Slide objects",
+            "modal": {
+                "title": "Slide Properties"
+            },
+            "sidebar": {
+                "title": "Default Slide Properties"
             }
         },
         "dragNote": {
@@ -770,15 +941,28 @@
             "lane": {
                 "label": "Lane"
             },
+            "isFake": {
+                "label": "Fake"
+            },
             "laneL": {
                 "label": "Lane L"
             },
             "laneR": {
                 "label": "Lane R"
             },
+            "noteType": {
+                "label": "Note Type",
+                "default": "Default",
+                "drag": "Drag",
+                "flick": "Flick",
+                "damage": "Damage"
+            },
             "key": {
                 "input": "Input Key",
                 "press": "Press a key..."
+            },
+            "preset": {
+                "label": "Preset"
             },
             "scaleL": {
                 "label": "Scale L"

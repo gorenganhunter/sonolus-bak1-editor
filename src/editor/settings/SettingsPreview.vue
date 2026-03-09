@@ -22,7 +22,7 @@ import SettingsSection from './SettingsSection.vue'
             v-model="settings.previewNoteSpeed"
             :label="i18n.settings.preview.noteSpeed"
             :min="1"
-            :max="15"
+            :max="20"
             :step="0.1"
         />
 
@@ -32,6 +32,14 @@ import SettingsSection from './SettingsSection.vue'
             :min="10"
             :max="100"
             :step="5"
+        />
+        
+        <NumberField
+            v-model="settings.previewDamageWarning"
+            :label="i18n.settings.preview.damageWarning"
+            :min="0"
+            :max="1000"
+            :step="1"
         />
     </SettingsSection>
 </template>

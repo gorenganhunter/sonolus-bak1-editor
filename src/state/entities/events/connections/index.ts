@@ -1,13 +1,18 @@
 import type { BaseEntity } from '../..'
 import type { Range } from '../../../../utils/range'
 import type { EventJointEntity } from '../joints'
-import type { MoveXEventConnectionEntity } from './moveX'
-import type { MoveYEventConnectionEntity } from './moveY'
-import type { ResizeEventConnectionEntity } from './resize'
-import type { RotateEventConnectionEntity } from './rotate'
+import type { JudgeMoveXEventConnectionEntity } from './judgeMoveX'
+import type { JudgeMoveYEventConnectionEntity } from './judgeMoveY'
+import type { JudgeResizeEventConnectionEntity } from './judgeResize'
+import type { JudgeRotateEventConnectionEntity } from './judgeRotate'
+import type { SpawnMoveXEventConnectionEntity } from './spawnMoveX'
+import type { SpawnMoveYEventConnectionEntity } from './spawnMoveY'
+import type { SpawnResizeEventConnectionEntity } from './spawnResize'
+import type { SpawnRotateEventConnectionEntity } from './spawnRotate'
 import type { TransparentEventConnectionEntity } from './transparent'
+import type { NoteHEventConnectionEntity } from './noteH'
 
-export type EventConnectionEntity = RotateEventConnectionEntity | ResizeEventConnectionEntity | TransparentEventConnectionEntity | MoveXEventConnectionEntity | MoveYEventConnectionEntity
+export type EventConnectionEntity = JudgeMoveXEventConnectionEntity | JudgeMoveYEventConnectionEntity | JudgeResizeEventConnectionEntity | JudgeRotateEventConnectionEntity | SpawnMoveXEventConnectionEntity | SpawnMoveYEventConnectionEntity | SpawnResizeEventConnectionEntity | SpawnRotateEventConnectionEntity | TransparentEventConnectionEntity | NoteHEventConnectionEntity
 
 export type EventConnectionEntityType = EventConnectionEntity['type']
 

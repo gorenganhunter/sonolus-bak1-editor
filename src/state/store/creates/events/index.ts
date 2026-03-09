@@ -1,4 +1,5 @@
 import type { EventObject } from '../../../../chart'
+import type { Range } from '../../../../utils/range'
 import type { EntityOfType } from '../../../entities'
 import type { EventConnectionEntityType } from '../../../entities/events/connections'
 import type { EventJointEntityType } from '../../../entities/events/joints'
@@ -19,9 +20,10 @@ export const createStoreEventEntities = <
         if (!stages.includes(o.stage)) stages.push(o.stage)
     })
 
-    stages = stages.map(s => objects.filter(o => o.stage === s))
-    //    console.log(stages)
-    for (let objects2 of stages) {
+    stages = stages.map(s => [s, objects.filter(o => o.stage === s)])
+    const ranges = new Map<number, Range<EntityOfType<T>>>()
+    //    //console.log(stages)
+    for (let [s, objects2] of stages) {
         let min: EntityOfType<T> | undefined
         let max: EntityOfType<T> | undefined
         let prev: EntityOfType<T> | undefined
@@ -37,11 +39,13 @@ export const createStoreEventEntities = <
             max = entity
             prev = entity
         }
-        //
-        // if (min && max)
-        //     return {
-        //         min,
-        //         max,
-        //     }
+
+        if (min && max)
+            ranges.set(s, {
+                min,
+                max
+            })
     }
+
+    return ranges
 }

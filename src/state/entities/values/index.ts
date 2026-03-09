@@ -30,7 +30,7 @@ export const toStageValueEntity = (object: StageValueObject, hitboxLane: number)
     hitbox: {
         lane: hitboxLane,
         beat: object.beat,
-        w: 0.5,
+        w: 0.125,
         t: 0.25,
         b: 0.25,
     },

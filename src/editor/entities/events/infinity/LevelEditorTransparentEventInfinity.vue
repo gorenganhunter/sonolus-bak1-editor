@@ -6,16 +6,11 @@ import { transparentEventValueToLane } from '../../../../state/entities/events/j
 import { beatToTime } from '../../../../state/integrals/bpms'
 import { viewBox, view, ups } from '../../../view'
 
-const range = computed(() => {
-    let evs = []
-    store.value.grid.transparentEventJoint.forEach(b => [...b].forEach(a => { if(a.stage === view.stage) evs.push(a) }))
-    evs = evs.sort((a, b) => a.beat - b.beat)
-    return evs.length ? { min: evs[0], max: evs[evs.length - 1] } : null
-})
+const range = computed(() => store.value.eventRanges.transparentEventJoint?.get(view.stage))
 </script>
 
 <template>
-    <g stroke="#00f" stroke-opacity="0.5">
+    <g stroke="#4d4d4d" stroke-opacity="0.5">
         <template v-if="range">
             <line
                 :x1="(transparentEventValueToLane(range.min.value) - 0.5) * 8"

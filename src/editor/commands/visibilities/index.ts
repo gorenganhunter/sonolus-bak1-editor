@@ -7,21 +7,23 @@ import { view } from '../../view'
 import VisibilityIcon from './VisibilityIcon.vue'
 
 export const visibilityTypes = {
-    tapNote: ['tapNote'],
-    dragNote: ['dragNote'],
-    flickNote: ['flickNote'],
-    holdNote: ['holdNote'],
     // singleHoldNote: ['singleHoldNoteJoint', 'singleHoldNoteConnection'],
     // doubleHoldNote: ['doubleHoldNoteJoint', 'doubleHoldNoteConnection'],
-    rotateEvent: ['rotateEventJoint', 'rotateEventConnection'],
-    resizeEvent: ['resizeEventJoint', 'resizeEventConnection'],
+    judgeRotateEvent: ['judgeRotateEventJoint', 'judgeRotateEventConnection'],
+    judgeResizeEvent: ['judgeResizeEventJoint', 'judgeResizeEventConnection'],
+    judgeMoveXEvent: ['judgeMoveXEventJoint', 'judgeMoveXEventConnection'],
+    judgeMoveYEvent: ['judgeMoveYEventJoint', 'judgeMoveYEventConnection'],
+    spawnRotateEvent: ['spawnRotateEventJoint', 'spawnRotateEventConnection'],
+    spawnResizeEvent: ['spawnResizeEventJoint', 'spawnResizeEventConnection'],
+    spawnMoveXEvent: ['spawnMoveXEventJoint', 'spawnMoveXEventConnection'],
+    spawnMoveYEvent: ['spawnMoveYEventJoint', 'spawnMoveYEventConnection'],
     transparentEvent: ['transparentEventJoint', 'transparentEventConnection'],
-    moveXEvent: ['moveXEventJoint', 'moveXEventConnection'],
-    moveYEvent: ['moveYEventJoint', 'moveYEventConnection'],
+    noteHEvent: ['noteHEventJoint', 'noteHEventConnection'],
     // shiftEvent: ['shiftEventJoint', 'shiftEventConnection'],
     // zoomEvent: ['zoomEventJoint', 'zoomEventConnection'],
     timeScale: ['timeScale'],
     bpm: ['bpm'],
+    note: ['note', 'connector']
 } satisfies Record<string, EntityType[]>
 
 export const createVisibility = (key: keyof typeof visibilityTypes, props: object): Command => ({

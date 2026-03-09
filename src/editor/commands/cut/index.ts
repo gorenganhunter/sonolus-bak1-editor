@@ -6,11 +6,17 @@ import { i18n } from '../../../i18n'
 import { serializeLevelDataEntities } from '../../../levelDataEntities/serialize'
 import type { Entity, EntityOfType, EntityType } from '../../../state/entities'
 import type { RemoveMutation } from '../../../state/mutations'
-import { removeRotateEventJoint } from '../../../state/mutations/events/rotate'
-import { removeTapNote } from '../../../state/mutations/notes/tapNote'
-import { removeHoldNote } from '../../../state/mutations/notes/holdNote'
-import { removeDragNote } from '../../../state/mutations/notes/dragNote'
-import { removeFlickNote } from '../../../state/mutations/notes/flickNote'
+import { removeJudgeRotateEventJoint } from '../../../state/mutations/events/judgeRotate'
+import { removeJudgeResizeEventJoint } from '../../../state/mutations/events/judgeResize'
+import { removeJudgeMoveXEventJoint } from '../../../state/mutations/events/judgeMoveX'
+import { removeJudgeMoveYEventJoint } from '../../../state/mutations/events/judgeMoveY'
+import { removeSpawnRotateEventJoint } from '../../../state/mutations/events/spawnRotate'
+import { removeSpawnResizeEventJoint } from '../../../state/mutations/events/spawnResize'
+import { removeSpawnMoveXEventJoint } from '../../../state/mutations/events/spawnMoveX'
+import { removeSpawnMoveYEventJoint } from '../../../state/mutations/events/spawnMoveY'
+import { removeTransparentEventJoint } from '../../../state/mutations/events/transparent'
+import { removeNoteHEventJoint } from '../../../state/mutations/events/noteH'
+import { removeNote } from '../../../state/mutations/slides/note'
 import { removeBpm } from '../../../state/mutations/values/bpm'
 import { removeTimeScale } from '../../../state/mutations/values/timeScale'
 import { createTransaction } from '../../../state/transaction'
@@ -18,6 +24,9 @@ import { interpolate } from '../../../utils/interpolate'
 import { notify } from '../../notification'
 import { view, xToLane, yToValidBeat } from '../../view'
 import CutIcon from './CutIcon.vue'
+import { stages } from '../../../history/stages'
+import { createStore } from '../../../state/store/creates'
+import { store } from '../../../history/store'
 
 export const cut: Command = {
     title: () => i18n.value.commands.cut.title,
@@ -37,24 +46,25 @@ export const cut: Command = {
             lane: xToLane(view.pointer.x),
             beat: yToValidBeat(view.pointer.y),
             entities: serializeLevelDataEntities(
-                [],
-                getEntities(entities, 'bpm'),
-                getEntities(entities, 'timeScale'),
-                getEntities(entities, 'rotateEventJoint'),
-                [],
-                getEntities(entities, 'resizeEventJoint'),
-                [],
-                getEntities(entities, 'transparentEventJoint'),
-                [],
-                getEntities(entities, 'moveXEventJoint'),
-                [],
-                getEntities(entities, 'moveYEventJoint'),
-                [],
+                createStore({
+                    bpms: getEntities(entities, 'bpm'),
+                    timeScales: getEntities(entities, 'timeScale'),
 
-                getEntities(entities, 'tapNote'),
-                getEntities(entities, 'holdNote'),
-                getEntities(entities, 'dragNote'),
-                getEntities(entities, 'flickNote'),
+                    stages: stages.value,
+
+                    slides: getSlides(entities),
+
+                    judgeMoveXEvents: getEntities(entities, 'judgeMoveXEventJoint'),
+                    judgeMoveYEvents: getEntities(entities, 'judgeMoveYEventJoint'),
+                    judgeResizeEvents: getEntities(entities, 'judgeResizeEventJoint'),
+                    judgeRotateEvents: getEntities(entities, 'judgeRotateEventJoint'),
+                    spawnMoveXEvents: getEntities(entities, 'spawnMoveXEventJoint'),
+                    spawnMoveYEvents: getEntities(entities, 'spawnMoveYEventJoint'),
+                    spawnResizeEvents: getEntities(entities, 'spawnResizeEventJoint'),
+                    spawnRotateEvents: getEntities(entities, 'spawnRotateEventJoint'),
+                    transparentEvents: getEntities(entities, 'transparentEventJoint'),
+                    noteHEvents: getEntities(entities, 'noteHEventJoint'),
+                })
             ),
         }
         const text = JSON.stringify(data)
@@ -100,6 +110,18 @@ export const cut: Command = {
 const getEntities = <T extends EntityType>(entities: Entity[], type: T) =>
     entities.filter((entity): entity is EntityOfType<T> => entity.type === type)
 
+const getSlides = (entities: Entity[]) => {
+    const selectedNotes = entities.filter((entity) => entity.type === 'note')
+    const selectedNotesSet = new Set(selectedNotes)
+
+    return [...new Set(selectedNotes.map((note) => note.slideId))].map((slideId) => {
+        const notes = store.value.slides.note.get(slideId)
+        if (!notes) throw new Error('Unexpected notes not found')
+
+        return notes.filter((note) => selectedNotesSet.has(note))
+    })
+}
+
 const canRemoves: {
     [T in Entity as T['type']]?: (entity: T) => boolean
 } = {
@@ -113,10 +135,16 @@ const removes: {
     bpm: removeBpm,
     timeScale: removeTimeScale,
 
-    rotateEventJoint: removeRotateEventJoint,
+    judgeRotateEventJoint: removeJudgeRotateEventJoint,
+    judgeResizeEventJoint: removeJudgeResizeEventJoint,
+    judgeMoveXEventJoint: removeJudgeMoveXEventJoint,
+    judgeMoveYEventJoint: removeJudgeMoveYEventJoint,
+    spawnRotateEventJoint: removeSpawnRotateEventJoint,
+    spawnResizeEventJoint: removeSpawnResizeEventJoint,
+    spawnMoveXEventJoint: removeSpawnMoveXEventJoint,
+    spawnMoveYEventJoint: removeSpawnMoveYEventJoint,
+    transparentEventJoint: removeTransparentEventJoint,
+    noteHEventJoint: removeNoteHEventJoint,
 
-    tapNote: removeTapNote,
-    holdNote: removeHoldNote,
-    dragNote: removeDragNote,
-    flickNote: removeFlickNote,
+    note: removeNote
 }

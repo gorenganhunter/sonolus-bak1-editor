@@ -1,18 +1,25 @@
-import LevelEditorRotateEventConnection from './events/connection/LevelEditorRotateEventConnection.vue'
-import LevelEditorRotateEventJoint from './events/joint/LevelEditorRotateEventJoint.vue'
-import LevelEditorResizeEventConnection from './events/connection/LevelEditorResizeEventConnection.vue'
-import LevelEditorResizeEventJoint from './events/joint/LevelEditorResizeEventJoint.vue'
+import LevelEditorJudgeRotateEventConnection from './events/connection/LevelEditorJudgeRotateEventConnection.vue'
+import LevelEditorJudgeRotateEventJoint from './events/joint/LevelEditorJudgeRotateEventJoint.vue'
+import LevelEditorJudgeResizeEventConnection from './events/connection/LevelEditorJudgeResizeEventConnection.vue'
+import LevelEditorJudgeResizeEventJoint from './events/joint/LevelEditorJudgeResizeEventJoint.vue'
+import LevelEditorJudgeMoveXEventConnection from './events/connection/LevelEditorJudgeMoveXEventConnection.vue'
+import LevelEditorJudgeMoveXEventJoint from './events/joint/LevelEditorJudgeMoveXEventJoint.vue'
+import LevelEditorJudgeMoveYEventConnection from './events/connection/LevelEditorJudgeMoveYEventConnection.vue'
+import LevelEditorJudgeMoveYEventJoint from './events/joint/LevelEditorJudgeMoveYEventJoint.vue'
+import LevelEditorSpawnRotateEventConnection from './events/connection/LevelEditorSpawnRotateEventConnection.vue'
+import LevelEditorSpawnRotateEventJoint from './events/joint/LevelEditorSpawnRotateEventJoint.vue'
+import LevelEditorSpawnResizeEventConnection from './events/connection/LevelEditorSpawnResizeEventConnection.vue'
+import LevelEditorSpawnResizeEventJoint from './events/joint/LevelEditorSpawnResizeEventJoint.vue'
+import LevelEditorSpawnMoveXEventConnection from './events/connection/LevelEditorSpawnMoveXEventConnection.vue'
+import LevelEditorSpawnMoveXEventJoint from './events/joint/LevelEditorSpawnMoveXEventJoint.vue'
+import LevelEditorSpawnMoveYEventConnection from './events/connection/LevelEditorSpawnMoveYEventConnection.vue'
+import LevelEditorSpawnMoveYEventJoint from './events/joint/LevelEditorSpawnMoveYEventJoint.vue'
 import LevelEditorTransparentEventConnection from './events/connection/LevelEditorTransparentEventConnection.vue'
 import LevelEditorTransparentEventJoint from './events/joint/LevelEditorTransparentEventJoint.vue'
-import LevelEditorMoveXEventConnection from './events/connection/LevelEditorMoveXEventConnection.vue'
-import LevelEditorMoveXEventJoint from './events/joint/LevelEditorMoveXEventJoint.vue'
-import LevelEditorMoveYEventConnection from './events/connection/LevelEditorMoveYEventConnection.vue'
-import LevelEditorMoveYEventJoint from './events/joint/LevelEditorMoveYEventJoint.vue'
-import LevelEditorTapNote from './notes/LevelEditorTapNote.vue'
-import LevelEditorDragNote from './notes/LevelEditorDragNote.vue'
-import LevelEditorFlickNote from './notes/LevelEditorFlickNote.vue'
-import LevelEditorHoldNote from './notes/LevelEditorHoldNote.vue'
-import LevelEditorHoldConnector from './notes/LevelEditorHoldConnector.vue'
+import LevelEditorNoteHEventConnection from './events/connection/LevelEditorNoteHEventConnection.vue'
+import LevelEditorNoteHEventJoint from './events/joint/LevelEditorNoteHEventJoint.vue'
+import LevelEditorNote from './notes/LevelEditorNote.vue'
+import LevelEditorConnector from './connector/LevelEditorConnector.vue'
 import LevelEditorBpm from './values/LevelEditorBpm.vue'
 import LevelEditorTimeScale from './values/LevelEditorTimeScale.vue'
 import { state } from '../../history'
@@ -21,20 +28,27 @@ export const components = {
     bpm: LevelEditorBpm,
     timeScale: LevelEditorTimeScale,
 
-    rotateEventJoint: LevelEditorRotateEventJoint,
-    rotateEventConnection: LevelEditorRotateEventConnection,
-    resizeEventJoint: LevelEditorResizeEventJoint,
-    resizeEventConnection: LevelEditorResizeEventConnection,
+    judgeRotateEventJoint: LevelEditorJudgeRotateEventJoint,
+    judgeRotateEventConnection: LevelEditorJudgeRotateEventConnection,
+    judgeResizeEventJoint: LevelEditorJudgeResizeEventJoint,
+    judgeResizeEventConnection: LevelEditorJudgeResizeEventConnection,
+    judgeMoveXEventJoint: LevelEditorJudgeMoveXEventJoint,
+    judgeMoveXEventConnection: LevelEditorJudgeMoveXEventConnection,
+    judgeMoveYEventJoint: LevelEditorJudgeMoveYEventJoint,
+    judgeMoveYEventConnection: LevelEditorJudgeMoveYEventConnection,
+    spawnRotateEventJoint: LevelEditorSpawnRotateEventJoint,
+    spawnRotateEventConnection: LevelEditorSpawnRotateEventConnection,
+    spawnResizeEventJoint: LevelEditorSpawnResizeEventJoint,
+    spawnResizeEventConnection: LevelEditorSpawnResizeEventConnection,
+    spawnMoveXEventJoint: LevelEditorSpawnMoveXEventJoint,
+    spawnMoveXEventConnection: LevelEditorSpawnMoveXEventConnection,
+    spawnMoveYEventJoint: LevelEditorSpawnMoveYEventJoint,
+    spawnMoveYEventConnection: LevelEditorSpawnMoveYEventConnection,
     transparentEventJoint: LevelEditorTransparentEventJoint,
     transparentEventConnection: LevelEditorTransparentEventConnection,
-    moveXEventJoint: LevelEditorMoveXEventJoint,
-    moveXEventConnection: LevelEditorMoveXEventConnection,
-    moveYEventJoint: LevelEditorMoveYEventJoint,
-    moveYEventConnection: LevelEditorMoveYEventConnection,
+    noteHEventJoint: LevelEditorNoteHEventJoint,
+    noteHEventConnection: LevelEditorNoteHEventConnection,
 
-    tapNote: LevelEditorTapNote,
-    dragNote: LevelEditorDragNote,
-    flickNote: LevelEditorFlickNote,
-    holdNote: LevelEditorHoldNote,
-    holdConnector: LevelEditorHoldConnector
+    note: LevelEditorNote,
+    connector: LevelEditorConnector
 }

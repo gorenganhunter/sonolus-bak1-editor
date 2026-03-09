@@ -12,7 +12,7 @@ export const transparentEvent: Command = {
     icon: {
         is: EventIcon,
         props: {
-            fill: '#00f',
+            fill: '#4d4d4d',
         },
     },
 

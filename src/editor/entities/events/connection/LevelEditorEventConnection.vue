@@ -19,12 +19,12 @@ const times = computedRange(() => ({
 }))
 
 const scaledTimes = computedRange(() => ({
-    min: timeToScaledTime(timeScales.value.filter(({ stage }) => stage === view.stage), times.min),
-    max: timeToScaledTime(timeScales.value.filter(({ stage }) => stage === view.stage), times.max),
+    min: timeToScaledTime(timeScales.value.filter(({ stage }) => stage === view.stage), times.value.min),
+    max: timeToScaledTime(timeScales.value.filter(({ stage }) => stage === view.stage), times.value.max),
 }))
 
 const segments = computed(() => {
-    // console.log(props, bpms.value, times)
+    // //console.log(props, bpms.value, times)
     const scaledTimeToS = (scaledTime: number) =>
         unlerp(scaledTimes.value.min, scaledTimes.value.max, scaledTime)
 
@@ -75,7 +75,7 @@ const segments = computed(() => {
     //     max = min
     // }
 
-    // console.log(segments)
+    // //console.log(segments)
 // =======
 //     for (let i = bisect(timeScales.value, 'x', times.value.max) - 1; i >= 0; i--) {
 //         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

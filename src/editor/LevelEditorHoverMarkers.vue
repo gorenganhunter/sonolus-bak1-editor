@@ -23,7 +23,7 @@ const width = computed(() => 8 / viewBox.value.w)
 
     <div class="absolute flex w-full -translate-y-1/2 justify-center" :style="{ top: `${hover.top}px` }">
         <div class="flex justify-around" :style="{ width: `${width * 100}%` }">
-            <span v-for="i in view.lane" :key="i" :class="i - 1 === view.hoverLane ? 'text-white' : 'text-white/50'">{{
+            <span v-for="i in view.laneDiv" :key="i" :class="i - 1 === view.hoverLane ? 'text-white' : 'text-white/50'">{{
                 i - 1 }}</span>
         </div>
     </div>

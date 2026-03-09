@@ -1,76 +1,65 @@
 import type { LevelDataEntity } from '@sonolus/core'
-import type { RotateEventConnectionEntity } from '../../state/entities/events/connections/rotate'
-import type { RotateEventJointEntity } from '../../state/entities/events/joints/rotate'
-import type { TapNoteEntity } from '../../state/entities/notes/tapNote'
-import type { HoldNoteEntity } from '../../state/entities/notes/holdNote'
-import type { DragNoteEntity } from '../../state/entities/notes/dragNote'
-import type { FlickNoteEntity } from '../../state/entities/notes/flickNote'
 import type { BpmEntity } from '../../state/entities/values/bpm'
 import type { TimeScaleEntity } from '../../state/entities/values/timeScale'
-import { serializeLevelDataRotateEvents } from './events/rotate'
-import { serializeLevelDataTapNotes } from './notes/tapNote'
-import { serializeLevelDataHoldNotes } from './notes/holdNote'
-import { serializeLevelDataDragNotes } from './notes/dragNote'
-import { serializeLevelDataFlickNotes } from './notes/flickNote'
 import { serializeLevelDataBpms } from './values/bpm'
 // import { serializeLevelDataTimeScales } from './values/timeScale'
-import type { RectStageObject } from '../../chart'
-import { serializeLevelDataRectStages } from './stage'
-import type { ResizeEventJointEntity } from '../../state/entities/events/joints/resize'
-import type { ResizeEventConnectionEntity } from '../../state/entities/events/connections/resize'
-import type { TransparentEventJointEntity } from '../../state/entities/events/joints/transparent'
-import type { TransparentEventConnectionEntity } from '../../state/entities/events/connections/transparent'
-import type { MoveXEventJointEntity } from '../../state/entities/events/joints/moveX'
-import type { MoveXEventConnectionEntity } from '../../state/entities/events/connections/moveX'
-import type { MoveYEventJointEntity } from '../../state/entities/events/joints/moveY'
-import type { MoveYEventConnectionEntity } from '../../state/entities/events/connections/moveY'
-import { serializeLevelDataResizeEvents } from './events/resize'
+import type { Stage } from '../../chart'
+import { serializeLevelDataStages } from './stage'
+import type { JudgeRotateEventConnectionEntity } from '../../state/entities/events/connections/judgeRotate'
+import type { JudgeRotateEventJointEntity } from '../../state/entities/events/joints/judgeRotate'
+import type { JudgeResizeEventJointEntity } from '../../state/entities/events/joints/judgeResize'
+import type { JudgeResizeEventConnectionEntity } from '../../state/entities/events/connections/judgeResize'
+import type { JudgeMoveXEventJointEntity } from '../../state/entities/events/joints/judgeMoveX'
+import type { JudgeMoveXEventConnectionEntity } from '../../state/entities/events/connections/judgeMoveX'
+import type { JudgeMoveYEventJointEntity } from '../../state/entities/events/joints/judgeMoveY'
+import type { JudgeMoveYEventConnectionEntity } from '../../state/entities/events/connections/judgeMoveY'
+import { serializeLevelDataJudgeRotateEvents } from './events/judgeRotate'
+import { serializeLevelDataJudgeResizeEvents } from './events/judgeResize'
+import { serializeLevelDataJudgeMoveYEvents } from './events/judgeMoveY'
+import { serializeLevelDataJudgeMoveXEvents } from './events/judgeMoveX'
+import { serializeLevelDataSpawnRotateEvents } from './events/spawnRotate'
+import { serializeLevelDataSpawnResizeEvents } from './events/spawnResize'
+import { serializeLevelDataSpawnMoveYEvents } from './events/spawnMoveY'
+import { serializeLevelDataSpawnMoveXEvents } from './events/spawnMoveX'
 import { serializeLevelDataTransparentEvents } from './events/transparent'
-import { serializeLevelDataMoveYEvents } from './events/moveY'
-import { serializeLevelDataMoveXEvents } from './events/moveX'
+import { serializeLevelDataNoteHEvents } from './events/noteH'
+
+import { serializeSlidesToLevelDataEntities } from './slide'
+import type { Store } from '../../state/store'
 
 export const serializeLevelDataEntities = (
-    rectStages: RectStageObject[],
-
-    bpms: BpmEntity[],
-    timeScales: TimeScaleEntity[],
-
-    rotateEventJoints: RotateEventJointEntity[],
-    rotateEventConnections: RotateEventConnectionEntity[],
-
-    resizeEventJoints: ResizeEventJointEntity[],
-    resizeEventConnections: ResizeEventConnectionEntity[],
-
-    transparentEventJoints: TransparentEventJointEntity[],
-    transparentEventConnections: TransparentEventConnectionEntity[],
-
-    moveXEventJoints: MoveXEventJointEntity[],
-    moveXEventConnections: MoveXEventConnectionEntity[],
-
-    moveYEventJoints: MoveYEventJointEntity[],
-    moveYEventConnections: MoveYEventConnectionEntity[],
-
-    tapNotes: TapNoteEntity[],
-    holdNotes: HoldNoteEntity[],
-    dragNotes: DragNoteEntity[],
-    flickNotes: FlickNoteEntity[],
+    store: Store
 ): LevelDataEntity[] => {
     let id = 0
     const getName = () => (id++).toString(16)
 
     return [
-        ...serializeLevelDataBpms(bpms),
-        ...serializeLevelDataRectStages(rectStages, timeScales, getName),
+        ...serializeLevelDataBpms([...getStoreEntities(store.grid.bpm)]),
+        ...serializeLevelDataStages(store.stages, [...getStoreEntities(store.grid.timeScale)], getName),
 
-        ...serializeLevelDataRotateEvents(rotateEventJoints, rotateEventConnections, getName),
-        ...serializeLevelDataResizeEvents(resizeEventJoints, resizeEventConnections, getName),
-        ...serializeLevelDataTransparentEvents(transparentEventJoints, transparentEventConnections, getName),
-        ...serializeLevelDataMoveXEvents(moveXEventJoints, moveXEventConnections, getName),
-        ...serializeLevelDataMoveYEvents(moveYEventJoints, moveYEventConnections, getName),
+        ...serializeLevelDataJudgeRotateEvents([...getStoreEntities(store.grid.judgeRotateEventJoint)], [...getStoreEntities(store.grid.judgeRotateEventConnection)], getName),
+        ...serializeLevelDataJudgeResizeEvents([...getStoreEntities(store.grid.judgeResizeEventJoint)], [...getStoreEntities(store.grid.judgeResizeEventConnection)], getName),
+        ...serializeLevelDataJudgeMoveXEvents([...getStoreEntities(store.grid.judgeMoveXEventJoint)], [...getStoreEntities(store.grid.judgeMoveXEventConnection)], getName),
+        ...serializeLevelDataJudgeMoveYEvents([...getStoreEntities(store.grid.judgeMoveYEventJoint)], [...getStoreEntities(store.grid.judgeMoveYEventConnection)], getName),
+        ...serializeLevelDataSpawnRotateEvents([...getStoreEntities(store.grid.spawnRotateEventJoint)], [...getStoreEntities(store.grid.spawnRotateEventConnection)], getName),
+        ...serializeLevelDataSpawnResizeEvents([...getStoreEntities(store.grid.spawnResizeEventJoint)], [...getStoreEntities(store.grid.spawnResizeEventConnection)], getName),
+        ...serializeLevelDataSpawnMoveXEvents([...getStoreEntities(store.grid.spawnMoveXEventJoint)], [...getStoreEntities(store.grid.spawnMoveXEventConnection)], getName),
+        ...serializeLevelDataSpawnMoveYEvents([...getStoreEntities(store.grid.spawnMoveYEventJoint)], [...getStoreEntities(store.grid.spawnMoveYEventConnection)], getName),
+        ...serializeLevelDataTransparentEvents([...getStoreEntities(store.grid.transparentEventJoint)], [...getStoreEntities(store.grid.transparentEventConnection)], getName),
+        ...serializeLevelDataNoteHEvents([...getStoreEntities(store.grid.noteHEventJoint)], [...getStoreEntities(store.grid.noteHEventConnection)], getName),
 
-        ...serializeLevelDataTapNotes(tapNotes),
-        ...serializeLevelDataHoldNotes(holdNotes),
-        ...serializeLevelDataDragNotes(dragNotes),
-        ...serializeLevelDataFlickNotes(flickNotes),
+        ...serializeSlidesToLevelDataEntities(store, getName),
     ]
+}
+
+export const getStoreEntities = <T>(map: Map<number, Set<T>>) => {
+    const entities = new Set<T>()
+
+    for (const set of map.values()) {
+        for (const entity of set) {
+            entities.add(entity)
+        }
+    }
+
+    return entities
 }

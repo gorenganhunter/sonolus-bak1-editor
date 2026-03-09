@@ -3,18 +3,20 @@ export type Chart = {
 
     timeScales: StageValueObject[]
 
-    rectStages: RectStageObject[]
+    stages: Stage[]
 
-    moveXEvents: EventObject[]
-    moveYEvents: EventObject[]
-    resizeEvents: EventObject[]
-    rotateEvents: EventObject[]
+    judgeMoveXEvents: EventObject[]
+    judgeMoveYEvents: EventObject[]
+    judgeResizeEvents: EventObject[]
+    judgeRotateEvents: EventObject[]
+    spawnMoveXEvents: EventObject[]
+    spawnMoveYEvents: EventObject[]
+    spawnResizeEvents: EventObject[]
+    spawnRotateEvents: EventObject[]
     transparentEvents: EventObject[]
+    noteHEvents: EventObject[]
 
-    tapNotes: BaseNoteObject[]
-    dragNotes: BaseNoteObject[]
-    flickNotes: BaseNoteObject[]
-    holdNotes: HoldNoteObject[]
+    slides: NoteObject[][]
 }
 
 export type StageObject = {
@@ -34,17 +36,17 @@ export type EventObject = StageValueObject & {
 
 export type Ease = EaseType
 
-export type BaseNoteObject = StageObject & {
+export type NoteType = "default" | "drag" | "flick" | "damage"
+
+export type NoteObject = StageObject & {
+    noteType: NoteType
     beat: number
     lane: number
     size: number
+    isFake: boolean
 }
 
-export type HoldNoteObject = BaseNoteObject & {
-    duration: number
-}
-
-export type RectStageObject = {
+export type Stage = {
     id: number
 }
 

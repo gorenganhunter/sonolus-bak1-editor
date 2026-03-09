@@ -4,15 +4,17 @@ import { selectedEntities } from '../../history/selectedEntities'
 import { i18n } from '../../i18n'
 import type { Entity } from '../../state/entities'
 import type { RemoveMutation } from '../../state/mutations'
-import { removeMoveXEventJoint } from '../../state/mutations/events/moveX'
-import { removeMoveYEventJoint } from '../../state/mutations/events/moveY'
-import { removeResizeEventJoint } from '../../state/mutations/events/resize'
-import { removeRotateEventJoint } from '../../state/mutations/events/rotate'
+import { removeJudgeMoveXEventJoint } from '../../state/mutations/events/judgeMoveX'
+import { removeJudgeMoveYEventJoint } from '../../state/mutations/events/judgeMoveY'
+import { removeJudgeResizeEventJoint } from '../../state/mutations/events/judgeResize'
+import { removeJudgeRotateEventJoint } from '../../state/mutations/events/judgeRotate'
+import { removeSpawnMoveXEventJoint } from '../../state/mutations/events/spawnMoveX'
+import { removeSpawnMoveYEventJoint } from '../../state/mutations/events/spawnMoveY'
+import { removeSpawnResizeEventJoint } from '../../state/mutations/events/spawnResize'
+import { removeSpawnRotateEventJoint } from '../../state/mutations/events/spawnRotate'
 import { removeTransparentEventJoint } from '../../state/mutations/events/transparent'
-import { removeDragNote } from '../../state/mutations/notes/dragNote'
-import { removeFlickNote } from '../../state/mutations/notes/flickNote'
-import { removeHoldNote } from '../../state/mutations/notes/holdNote'
-import { removeTapNote } from '../../state/mutations/notes/tapNote'
+import { removeNoteHEventJoint } from '../../state/mutations/events/noteH'
+import { removeNote } from '../../state/mutations/slides/note'
 import { removeBpm } from '../../state/mutations/values/bpm'
 import { removeTimeScale } from '../../state/mutations/values/timeScale'
 import { createTransaction } from '../../state/transaction'
@@ -141,16 +143,18 @@ const removes: {
     bpm: removeBpm,
     timeScale: removeTimeScale,
 
-    rotateEventJoint: removeRotateEventJoint,
-    resizeEventJoint: removeResizeEventJoint,
+    judgeRotateEventJoint: removeJudgeRotateEventJoint,
+    judgeResizeEventJoint: removeJudgeResizeEventJoint,
+    judgeMoveXEventJoint: removeJudgeMoveXEventJoint,
+    judgeMoveYEventJoint: removeJudgeMoveYEventJoint,
+    spawnRotateEventJoint: removeSpawnRotateEventJoint,
+    spawnResizeEventJoint: removeSpawnResizeEventJoint,
+    spawnMoveXEventJoint: removeSpawnMoveXEventJoint,
+    spawnMoveYEventJoint: removeSpawnMoveYEventJoint,
     transparentEventJoint: removeTransparentEventJoint,
-    moveXEventJoint: removeMoveXEventJoint,
-    moveYEventJoint: removeMoveYEventJoint,
+    noteHEventJoint: removeNoteHEventJoint,
 
-    tapNote: removeTapNote,
-    dragNote: removeDragNote,
-    flickNote: removeFlickNote,
-    holdNote: removeHoldNote
+    note: removeNote
 }
 
 const canRemove = (entity: Entity) => canRemoves[entity.type]?.(entity as never) ?? true

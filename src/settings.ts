@@ -1,4 +1,4 @@
-import { Type, type StaticDecode, type TSchema, type TString } from '@sinclair/typebox'
+import { Type, type Static, type StaticDecode, type TSchema, type TString } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { shallowRef, watch } from 'vue'
 import { isCommandName, type CommandName } from './editor/commands'
@@ -11,6 +11,84 @@ const number = (def: number, min: number, max: number) =>
     Type.Transform(Type.Number({ default: def }))
         .Decode((value) => clamp(value, min, max))
         .Encode((value) => value)
+
+const defaultNoteSlidePropertiesSchema = Type.Partial(
+    Type.Object({
+        noteType: Type.Union([
+            Type.Literal('default'),
+            // Type.Literal('trace'),
+            // Type.Literal('anchor'),
+            Type.Literal('drag'),
+            Type.Literal('flick'),
+            //            Type.Literal('tick'),
+            Type.Literal('damage'),
+            // Type.Literal('forceTick'),
+            // Type.Literal('forceNonTick'),
+        ]),
+        // isAttached: Type.Boolean(),
+        size: Type.Number(),
+        // isCritical: Type.Boolean(),
+        // flickDirection: Type.Union([
+        //     Type.Literal('none'),
+        //     Type.Literal('left'),
+        //     Type.Literal('right'),
+        //     Type.Literal('up'),
+        //     Type.Literal('down')
+        //     // Type.Literal('up'),
+        //     // Type.Literal('upLeft'),
+        //     // Type.Literal('upRight'),
+        //     // Type.Literal('down'),
+        //     // Type.Literal('downLeft'),
+        //     // Type.Literal('downRight'),
+        // ]),
+        // shortenEarlyWindow: Type.Union([
+        //     Type.Literal('none'),
+        //     Type.Literal('perfect'),
+        //     Type.Literal('great'),
+        //     Type.Literal('good'),
+        // ]),
+        isFake: Type.Boolean(),
+        // sfx: Type.Union([
+        //     Type.Literal('default'),
+        //     Type.Literal('none'),
+        //     Type.Literal('normalTap'),
+        //     Type.Literal('criticalTap'),
+        //     Type.Literal('normalFlick'),
+        //     Type.Literal('criticalFlick'),
+        //     Type.Literal('normalTrace'),
+        //     Type.Literal('criticalTrace'),
+        //     Type.Literal('normalTick'),
+        //     Type.Literal('criticalTick'),
+        //     Type.Literal('damage'),
+        // ]),
+        // isConnectorSeparator: Type.Boolean(),
+        // connectorType: Type.Union([Type.Literal('active'), Type.Literal('guide')]),
+        // connectorEase: Type.Union([
+        //     Type.Literal('linear'),
+        //     Type.Literal('in'),
+        //     Type.Literal('out'),
+        //     Type.Literal('inOut'),
+        //     Type.Literal('outIn'),
+        //     Type.Literal('none'),
+        // ]),
+        // connectorActiveIsCritical: Type.Boolean(),
+        // connectorActiveIsFake: Type.Boolean(),
+        // connectorGuideColor: Type.Union([
+        //     Type.Literal('neutral'),
+        //     Type.Literal('red'),
+        //     Type.Literal('green'),
+        //     Type.Literal('blue'),
+        //     Type.Literal('yellow'),
+        //     Type.Literal('purple'),
+        //     Type.Literal('cyan'),
+        //     Type.Literal('black'),
+        // ]),
+        // connectorGuideAlpha: Type.Number(),
+        // connectorLayer: Type.Union([Type.Literal('top'), Type.Literal('judge')]),
+    }),
+)
+
+export type DefaultNoteSlideProperties = Static<typeof defaultNoteSlidePropertiesSchema>
 
 const settingsProperties = {
     showSidebar: Type.Boolean({ default: true }),
@@ -25,9 +103,11 @@ const settingsProperties = {
 
     previewHeight: Type.Number(),
 
-    previewNoteSpeed: number(8, 1, 15),
+    previewNoteSpeed: number(5, 1, 20),
 
     previewConnectionAlpha: number(50, 10, 100),
+
+    previewDamageWarning: Type.Number({ default: 200 }),
 
     width: number(12, 1, 100),
 
@@ -60,19 +140,13 @@ const settingsProperties = {
                         'copy',
                         'cut',
                         'flip',
-                        // 'brush',
+                        'brush',
                         'eraser',
                         'deselect',
                         'select',
                     ],
                     [
                         'stage'
-                    ],
-                    [
-                        'side3',
-                        'side2',
-                        'side1',
-                        'side0'
                     ],
                     [
                         'laneCustom',
@@ -85,14 +159,9 @@ const settingsProperties = {
                         'lane2',
                         'lane1',
                     ],
-                    [
-                        /*'doubleHoldNote', 'singleHoldNote',*/
-                        'holdNote',
-                        'flickNote',
-                        'dragNote',
-                        'tapNote'
-                    ],
-                    ['resizeEvent', 'moveXEvent', 'moveYEvent', 'transparentEvent', 'rotateEvent'],
+                    ['note3', 'note2', 'note1', 'note0', 'note'],
+                    ['slide0', 'slide'],
+                    ['spawnResizeEvent', 'spawnRotateEvent', 'spawnMoveXEvent', 'spawnMoveYEvent', 'judgeResizeEvent', 'judgeRotateEvent', 'judgeMoveXEvent', 'judgeMoveYEvent', 'transparentEvent', 'noteHEvent'],
                     ['timeScale', 'bpm'],
                     [
                         'jumpUp',
@@ -103,14 +172,19 @@ const settingsProperties = {
                         'jumpDown',
                     ],
                     [
+                        'noteVisibility',
                         'timeScaleVisibility',
                         'bpmVisibility',
-                        'rotateEventVisibility',
-                        'resizeEventVisibility',
+                        'judgeRotateEventVisibility',
+                        'judgeResizeEventVisibility',
+                        'judgeMoveXEventVisibility',
+                        'judgeMoveYEventVisibility',
+                        'spawnRotateEventVisibility',
+                        'spawnResizeEventVisibility',
+                        'spawnMoveXEventVisibility',
+                        'spawnMoveYEventVisibility',
                         'transparentEventVisibility',
-                        'moveXEventVisibility',
-                        'moveYEventVisibility',
-                        'tapNoteVisibility',
+                        'noteHEventVisibility',
                         'cycleVisibilities',
                     ],
                     [
@@ -151,6 +225,12 @@ const settingsProperties = {
 
     touchScrollInertia: Type.Boolean({ default: true }),
 
+    lockScrollX: Type.Boolean({ default: true }),
+
+    dragToPanY: Type.Boolean({ default: true }),
+
+    dragToPanX: Type.Boolean(),
+
     keyboardShortcuts: Type.Transform(
         Type.Record(Type.String(), Type.String(), {
             default: {
@@ -166,17 +246,17 @@ const settingsProperties = {
                 select: 'f',
                 deselect: 'Escape',
                 eraser: 'g',
-                // brush: 'b',
+                brush: 'b',
                 flip: 'u',
                 cut: 'x',
                 copy: 'c',
                 paste: 'v',
                 undo: 'z',
                 redo: 'y',
-                tapNote: 'a',
-                singleHoldNote: 's',
-                doubleHoldNote: 'd',
-                rotateEvent: 'e',
+                note: 'a',
+                // singleHoldNote: 's',
+                // doubleHoldNote: 'd',
+                // rotateEvent: 'e',
                 // shiftEvent: 'r',
                 // zoomEvent: 't',
                 bpm: 'q',
@@ -214,6 +294,35 @@ const settingsProperties = {
                 ) as Partial<Record<CommandName, string>>,
         )
         .Encode((values) => values),
+
+    defaultNotePropertiesPresets: Type.Array(defaultNoteSlidePropertiesSchema, {
+        minItems: 4,
+        maxItems: 4,
+        default: [
+            {
+                noteType: 'default',
+            },
+            {
+                noteType: 'drag',
+            },
+            {
+                noteType: 'flick',
+            },
+            {
+                noteType: 'damage',
+            },
+        ] satisfies DefaultNoteSlideProperties[],
+    }),
+
+    defaultSlidePropertiesPresets: Type.Array(defaultNoteSlidePropertiesSchema, {
+        minItems: 1,
+        maxItems: 1,
+        default: [
+            {
+                noteType: 'default',
+            }
+        ] satisfies DefaultNoteSlideProperties[],
+    }),
 }
 
 const normalize = <T extends TSchema>(schema: T, value: unknown) =>

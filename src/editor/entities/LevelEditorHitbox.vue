@@ -7,7 +7,7 @@ import { ups, view } from '../view'
 
 const props = defineProps<{
     hitbox: EntityHitbox,
-    stage: number
+    stage?: number
 }>()
 
 const time = computed(() => beatToTime(bpms.value, props.hitbox.beat))
@@ -22,8 +22,8 @@ const time = computed(() => beatToTime(bpms.value, props.hitbox.beat))
         stroke="#fff"
         stroke-dasharray="6 4"
     /-->
-        <rect v-if="hitbox && Math.floor(hitbox.lane) === view.side && (stage === view.stage)"
-            :x="(hitbox.lane % 1 - 1 / view.lane / 2) * 8 - (4 - 4 / view.lane) - hitbox.w * 4 - 0.1"
-            :y="beatToTime(bpms, hitbox.beat) * ups - hitbox.t - 0.1" :width="hitbox.w * 4 * 2 + 0.2"
+        <rect v-if="hitbox && (stage === undefined || stage === view.stage)"
+            :x="(hitbox.lane - 1 / view.laneDiv / 2) * 8 - (4 - 4 / view.laneDiv) - hitbox.w * 8 - 0.1"
+            :y="beatToTime(bpms, hitbox.beat) * ups - hitbox.t - 0.1" :width="hitbox.w * 8 * 2 + 0.2"
             :height="hitbox.t + hitbox.b + 0.2" stroke="#fff" stroke-opacity="0.5" stroke-dasharray="6 4" />
 </template>

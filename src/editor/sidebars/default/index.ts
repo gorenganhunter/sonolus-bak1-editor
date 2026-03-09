@@ -1,7 +1,6 @@
 import type {
     EventObject,
-    BaseNoteObject,
-    HoldNoteObject,
+    NoteObject,
     ValueObject,
     StageValueObject
 } from '../../../chart'
@@ -9,37 +8,48 @@ import { pushState, state } from '../../../history'
 import { selectedEntities } from '../../../history/selectedEntities'
 import { i18n } from '../../../i18n'
 import type { Entity } from '../../../state/entities'
-import type { RotateEventJointEntity } from '../../../state/entities/events/joints/rotate'
-import type { ResizeEventJointEntity } from '../../../state/entities/events/joints/resize'
+import type { JudgeRotateEventJointEntity } from '../../../state/entities/events/joints/judgeRotate'
+import type { JudgeResizeEventJointEntity } from '../../../state/entities/events/joints/judgeResize'
+import type { JudgeMoveXEventJointEntity } from '../../../state/entities/events/joints/judgeMoveX'
+import type { JudgeMoveYEventJointEntity } from '../../../state/entities/events/joints/judgeMoveY'
+import type { SpawnRotateEventJointEntity } from '../../../state/entities/events/joints/spawnRotate'
+import type { SpawnResizeEventJointEntity } from '../../../state/entities/events/joints/spawnResize'
+import type { SpawnMoveXEventJointEntity } from '../../../state/entities/events/joints/spawnMoveX'
+import type { SpawnMoveYEventJointEntity } from '../../../state/entities/events/joints/spawnMoveY'
 import type { TransparentEventJointEntity } from '../../../state/entities/events/joints/transparent'
-import type { MoveXEventJointEntity } from '../../../state/entities/events/joints/moveX'
-import type { MoveYEventJointEntity } from '../../../state/entities/events/joints/moveY'
-import type { TapNoteEntity } from '../../../state/entities/notes/tapNote'
-import type { DragNoteEntity } from '../../../state/entities/notes/dragNote'
-import type { FlickNoteEntity } from '../../../state/entities/notes/flickNote'
-import type { HoldNoteEntity } from '../../../state/entities/notes/holdNote'
+import type { NoteHEventJointEntity } from '../../../state/entities/events/joints/noteH'
+// import type { TapNoteEntity } from '../../../state/entities/notes/tapNote'
+// import type { DragNoteEntity } from '../../../state/entities/notes/dragNote'
+// import type { FlickNoteEntity } from '../../../state/entities/notes/flickNote'
+// import type { HoldNoteEntity } from '../../../state/entities/notes/holdNote'
 import type { BpmEntity } from '../../../state/entities/values/bpm'
 import type { TimeScaleEntity } from '../../../state/entities/values/timeScale'
 import { createTransaction, type Transaction } from '../../../state/transaction'
 import { interpolate } from '../../../utils/interpolate'
 import { notify } from '../../notification'
-import { editRotateEventJoint, editSelectedRotateEventJoint } from '../../tools/events/rotate'
-import { editResizeEventJoint, editSelectedResizeEventJoint } from '../../tools/events/resize'
+import { editJudgeRotateEventJoint, editSelectedJudgeRotateEventJoint } from '../../tools/events/judgeRotate'
+import { editJudgeResizeEventJoint, editSelectedJudgeResizeEventJoint } from '../../tools/events/judgeResize'
+import { editJudgeMoveXEventJoint, editSelectedJudgeMoveXEventJoint } from '../../tools/events/judgeMoveX'
+import { editJudgeMoveYEventJoint, editSelectedJudgeMoveYEventJoint } from '../../tools/events/judgeMoveY'
+import { editSpawnRotateEventJoint, editSelectedSpawnRotateEventJoint } from '../../tools/events/spawnRotate'
+import { editSpawnResizeEventJoint, editSelectedSpawnResizeEventJoint } from '../../tools/events/spawnResize'
+import { editSpawnMoveXEventJoint, editSelectedSpawnMoveXEventJoint } from '../../tools/events/spawnMoveX'
+import { editSpawnMoveYEventJoint, editSelectedSpawnMoveYEventJoint } from '../../tools/events/spawnMoveY'
 import { editTransparentEventJoint, editSelectedTransparentEventJoint } from '../../tools/events/transparent'
-import { editMoveXEventJoint, editSelectedMoveXEventJoint } from '../../tools/events/moveX'
-import { editMoveYEventJoint, editSelectedMoveYEventJoint } from '../../tools/events/moveY'
-import { editSelectedTapNote, editTapNote } from '../../tools/tapNote'
-import { editSelectedDragNote, editDragNote } from '../../tools/dragNote'
-import { editSelectedFlickNote, editFlickNote } from '../../tools/flickNote'
-import { editSelectedHoldNote, editHoldNote } from '../../tools/holdNote'
+import { editNoteHEventJoint, editSelectedNoteHEventJoint } from '../../tools/events/noteH'
+// import { editSelectedTapNote, editTapNote } from '../../tools/tapNote'
+// import { editSelectedDragNote, editDragNote } from '../../tools/dragNote'
+// import { editSelectedFlickNote, editFlickNote } from '../../tools/flickNote'
+// import { editSelectedHoldNote, editHoldNote } from '../../tools/holdNote'
 import { editBpm, editSelectedBpm } from '../../tools/values/bpm'
 import { editSelectedTimeScale, editTimeScale } from '../../tools/values/timeScale'
 import { view } from '../../view'
+import type { NoteEntity } from '../../../state/entities/slides/note'
+import { editNote, editSelectedNote } from '../../tools/note'
 
 export type EditableObject = Partial<
     EventObject &
-    BaseNoteObject &
-    HoldNoteObject &
+    NoteObject &
     ValueObject &
     StageValueObject
 >
@@ -47,26 +57,32 @@ export type EditableObject = Partial<
 export type EditableEntity =
     | BpmEntity
     | TimeScaleEntity
-    | RotateEventJointEntity
-    | ResizeEventJointEntity
+    | JudgeRotateEventJointEntity
+    | JudgeResizeEventJointEntity
+    | JudgeMoveXEventJointEntity
+    | JudgeMoveYEventJointEntity
+    | SpawnRotateEventJointEntity
+    | SpawnResizeEventJointEntity
+    | SpawnMoveXEventJointEntity
+    | SpawnMoveYEventJointEntity
     | TransparentEventJointEntity
-    | MoveXEventJointEntity
-    | MoveYEventJointEntity
-    | TapNoteEntity
-    | DragNoteEntity
-    | FlickNoteEntity
-    | HoldNoteEntity
+    | NoteHEventJointEntity
+    | NoteEntity
 
 export const isEditableEntity = (entity: Entity) =>
     entity.type === 'bpm' ||
     entity.type === 'timeScale' ||
-    entity.type === 'rotateEventJoint' ||
-    entity.type === 'resizeEventJoint' ||
+    entity.type === 'judgeRotateEventJoint' ||
+    entity.type === 'judgeResizeEventJoint' ||
+    entity.type === 'judgeMoveXEventJoint' ||
+    entity.type === 'judgeMoveYEventJoint' ||
+    entity.type === 'spawnRotateEventJoint' ||
+    entity.type === 'spawnResizeEventJoint' ||
+    entity.type === 'spawnMoveXEventJoint' ||
+    entity.type === 'spawnMoveYEventJoint' ||
     entity.type === 'transparentEventJoint' ||
-    entity.type === 'tapNote' ||
-    entity.type === 'dragNote' ||
-    entity.type === 'flickNote' ||
-    entity.type === 'holdNote'
+    entity.type === 'noteHEventJoint' ||
+    entity.type === 'note'
 
 export const editSelectedEditableEntities = (object: EditableObject) => {
     if (selectedEntities.value.length === 1) {
@@ -91,7 +107,7 @@ export const editSelectedEditableEntities = (object: EditableObject) => {
                 `${selectedEntities.value.length}`,
             ),
             {
-                ...transaction.commit(),
+                ...transaction.commit(selectedEntities.value),
                 selectedEntities: entities,
             },
         )
@@ -120,16 +136,17 @@ const getEditEntity = () =>
     bpm: editBpm,
     timeScale: editTimeScale,
 
-    rotateEventJoint: editRotateEventJoint,
-    resizeEventJoint: editResizeEventJoint,
+    judgeRotateEventJoint: editJudgeRotateEventJoint,
+    judgeResizeEventJoint: editJudgeResizeEventJoint,
+    judgeMoveXEventJoint: editJudgeMoveXEventJoint,
+    judgeMoveYEventJoint: editJudgeMoveYEventJoint,
+    spawnRotateEventJoint: editSpawnRotateEventJoint,
+    spawnResizeEventJoint: editSpawnResizeEventJoint,
+    spawnMoveXEventJoint: editSpawnMoveXEventJoint,
+    spawnMoveYEventJoint: editSpawnMoveYEventJoint,
     transparentEventJoint: editTransparentEventJoint,
-    moveXEventJoint: editMoveXEventJoint,
-    moveYEventJoint: editMoveYEventJoint,
-
-    tapNote: editTapNote,
-    dragNote: editDragNote,
-    flickNote: editFlickNote,
-    holdNote: editHoldNote
+    noteHEventJoint: editNoteHEventJoint,
+    note: editNote
 })
 
 let editSelectedEntity:
@@ -147,14 +164,16 @@ const getEditSelectedEntity = () =>
     bpm: editSelectedBpm,
     timeScale: editSelectedTimeScale,
 
-    rotateEventJoint: editSelectedRotateEventJoint,
-    resizeEventJoint: editSelectedResizeEventJoint,
+    judgeRotateEventJoint: editSelectedJudgeRotateEventJoint,
+    judgeResizeEventJoint: editSelectedJudgeResizeEventJoint,
+    judgeMoveXEventJoint: editSelectedJudgeMoveXEventJoint,
+    judgeMoveYEventJoint: editSelectedJudgeMoveYEventJoint,
+    spawnRotateEventJoint: editSelectedSpawnRotateEventJoint,
+    spawnResizeEventJoint: editSelectedSpawnResizeEventJoint,
+    spawnMoveXEventJoint: editSelectedSpawnMoveXEventJoint,
+    spawnMoveYEventJoint: editSelectedSpawnMoveYEventJoint,
     transparentEventJoint: editSelectedTransparentEventJoint,
-    moveXEventJoint: editSelectedMoveXEventJoint,
-    moveYEventJoint: editSelectedMoveYEventJoint,
+    noteHEventJoint: editSelectedNoteHEventJoint,
 
-    tapNote: editSelectedTapNote,
-    dragNote: editSelectedDragNote,
-    flickNote: editSelectedFlickNote,
-    holdNote: editSelectedHoldNote
+    note: editSelectedNote,
 })

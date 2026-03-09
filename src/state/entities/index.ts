@@ -1,8 +1,6 @@
 import type { EventEntity } from './events'
-import type { DragNoteEntity } from './notes/dragNote'
-import type { FlickNoteEntity } from './notes/flickNote'
-import type { HoldNoteEntity } from './notes/holdNote'
-import type { TapNoteEntity } from './notes/tapNote'
+import type { ConnectorEntity } from './slides/connector'
+import type { NoteEntity } from './slides/note'
 import type { ValueEntity } from './values'
 
 export type EntityHitbox = {
@@ -19,7 +17,7 @@ export type BaseEntity = {
     beat: number
 }
 
-export type Entity = ValueEntity | EventEntity | TapNoteEntity | HoldNoteEntity | DragNoteEntity | FlickNoteEntity
+export type Entity = ValueEntity | EventEntity | NoteEntity | ConnectorEntity
 
 export type EntityType = Entity['type']
 

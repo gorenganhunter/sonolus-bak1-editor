@@ -12,7 +12,7 @@ export const laneCustom: Command = {
     icon: {
         is: TextIcon,
         props: {
-            title: '1/n',
+            title: 'n-k',
         },
     },
 
@@ -20,7 +20,7 @@ export const laneCustom: Command = {
         const lane: number | undefined = await showModal(CustomLaneModal, {})
         if (!lane) return
 
-        view.lane = lane
+        view.laneDiv = lane
 
         notify(interpolate(() => i18n.value.commands.lanes.switched, `${lane}`))
     },

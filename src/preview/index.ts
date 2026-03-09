@@ -7,6 +7,7 @@ import { scaledTimeToTime, timeToScaledTime } from '../state/integrals/timeScale
 import { beatToKey } from '../state/store/grid'
 import { computedRange } from '../utils/range'
 import { noteDuration } from './note'
+import { stages } from '../history/stages'
 
 export const scaledTimes = (stage: number) => computed(() => {
     const min = timeToScaledTime(timeScales.value.filter(t => t.stage === stage), view.cursorTime)
@@ -27,12 +28,32 @@ export const beats = (stage: number) => computed(() => ({
     max: timeToBeat(bpms.value, times(stage).value.max),
 }))
 
-export const keys = computedRange(() => ({
+export const keys = computedRange(() => {
     // <<<<<<< HEAD
-    min: beatToKey(timeToBeat(bpms.value, view.cursorTime)),
-    max: 1000//maxBeatToKey(beats.value.max),
+
+    let range = {
+        min: Infinity,
+        max: -Infinity
+    }
+
+    for (const { id } of stages.value) {
+        let { min, max } = beats(id).value
+        if (min > max) [min, max] = [max, min]
+
+        if (min < range.min) range.min = min
+        if (max > range.max) range.max = max
+    }
+
+    // const range = {
+    //     min: beatToKey(timeToBeat(bpms.value, view.cursorTime)),
+    //     max: 1000//maxBeatToKey(beats.value.max),
+    // }
     // =======
     //     min: beatToKey(beats.value.min),
     //     max: beatToKey(beats.value.max),
     // >>>>>>> upstream/main
-}))
+    return {
+        min: beatToKey(range.min),
+        max: beatToKey(range.max)
+    }
+})

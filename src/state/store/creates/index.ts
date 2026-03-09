@@ -1,63 +1,90 @@
 import type { Store } from '..'
 import type { Chart } from '../../../chart'
+import { store } from '../../../history/store'
 import type { StoreGrid } from '../grid'
-import { createStoreMoveXEvents } from './events/moveX'
-import { createStoreMoveYEvents } from './events/moveY'
-import { createStoreResizeEvents } from './events/resize'
-import { createStoreRotateEvents } from './events/rotate'
+import { createStoreJudgeMoveXEvents } from './events/judgeMoveX'
+import { createStoreJudgeMoveYEvents } from './events/judgeMoveY'
+import { createStoreJudgeResizeEvents } from './events/judgeResize'
+import { createStoreJudgeRotateEvents } from './events/judgeRotate'
+import { createStoreNoteHEvents } from './events/noteH'
+import { createStoreSpawnMoveXEvents } from './events/spawnMoveX'
+import { createStoreSpawnMoveYEvents } from './events/spawnMoveY'
+import { createStoreSpawnResizeEvents } from './events/spawnResize'
+import { createStoreSpawnRotateEvents } from './events/spawnRotate'
 import { createStoreTransparentEvents } from './events/transparent'
-import { createStoreDragNotes } from './notes/dragNote'
-import { createStoreFlickNotes } from './notes/flickNote'
-import { createStoreHoldNotes } from './notes/holdNote'
-import { createStoreTapNotes } from './notes/tapNote'
+import { createStoreSlides } from './slide'
 import { createStoreBpms } from './values/bpm'
 import { createStoreTimeScales } from './values/timeScale'
 
 export const createStore = (chart: Chart): Store => {
-    const grid: StoreGrid = {
-        bpm: new Map(),
-        timeScale: new Map(),
+    const store: Store = {
+        grid: {
+            bpm: new Map(),
+            timeScale: new Map(),
 
-        rotateEventJoint: new Map(),
-        rotateEventConnection: new Map(),
-        resizeEventJoint: new Map(),
-        resizeEventConnection: new Map(),
-        transparentEventJoint: new Map(),
-        transparentEventConnection: new Map(),
-        moveXEventJoint: new Map(),
-        moveXEventConnection: new Map(),
-        moveYEventJoint: new Map(),
-        moveYEventConnection: new Map(),
+            judgeRotateEventJoint: new Map(),
+            judgeRotateEventConnection: new Map(),
+            judgeResizeEventJoint: new Map(),
+            judgeResizeEventConnection: new Map(),
+            judgeMoveXEventJoint: new Map(),
+            judgeMoveXEventConnection: new Map(),
+            judgeMoveYEventJoint: new Map(),
+            judgeMoveYEventConnection: new Map(),
+            spawnRotateEventJoint: new Map(),
+            spawnRotateEventConnection: new Map(),
+            spawnResizeEventJoint: new Map(),
+            spawnResizeEventConnection: new Map(),
+            spawnMoveXEventJoint: new Map(),
+            spawnMoveXEventConnection: new Map(),
+            spawnMoveYEventJoint: new Map(),
+            spawnMoveYEventConnection: new Map(),
+            transparentEventJoint: new Map(),
+            transparentEventConnection: new Map(),
+            noteHEventJoint: new Map(),
+            noteHEventConnection: new Map(),
 
-        tapNote: new Map(),
-        dragNote: new Map(),
-        flickNote: new Map(),
-        holdNote: new Map()
+            note: new Map(),
+            connector: new Map(),
+        },
+        slides: {
+            note: new Map(),
+            connector: new Map(),
+            info: new Map()
+        },
+        eventRanges: {},
+        stages: []
     }
 
-    createStoreBpms(grid, chart)
-    createStoreTimeScales(grid, chart)
+    createStoreBpms(store.grid, chart)
+    createStoreTimeScales(store.grid, chart)
 
-    const rotateEventJoint = createStoreRotateEvents(grid, chart)
-    const resizeEventJoint = createStoreResizeEvents(grid, chart)
-    const transparentEventJoint = createStoreTransparentEvents(grid, chart)
-    const moveXEventJoint = createStoreMoveXEvents(grid, chart)
-    const moveYEventJoint = createStoreMoveYEvents(grid, chart)
+    const judgeRotateEventJoint = createStoreJudgeRotateEvents(store.grid, chart)
+    const judgeResizeEventJoint = createStoreJudgeResizeEvents(store.grid, chart)
+    const judgeMoveXEventJoint = createStoreJudgeMoveXEvents(store.grid, chart)
+    const judgeMoveYEventJoint = createStoreJudgeMoveYEvents(store.grid, chart)
+    const spawnRotateEventJoint = createStoreSpawnRotateEvents(store.grid, chart)
+    const spawnResizeEventJoint = createStoreSpawnResizeEvents(store.grid, chart)
+    const spawnMoveXEventJoint = createStoreSpawnMoveXEvents(store.grid, chart)
+    const spawnMoveYEventJoint = createStoreSpawnMoveYEvents(store.grid, chart)
+    const transparentEventJoint = createStoreTransparentEvents(store.grid, chart)
+    const noteHEventJoint = createStoreNoteHEvents(store.grid, chart)
 
-    createStoreTapNotes(grid, chart)
-    createStoreDragNotes(grid, chart)
-    createStoreFlickNotes(grid, chart)
-    createStoreHoldNotes(grid, chart)
+    createStoreSlides(store, chart)
 
     return {
-        grid,
+        ...store,
         eventRanges: {
-            rotateEventJoint,
-            resizeEventJoint,
+            judgeRotateEventJoint,
+            judgeResizeEventJoint,
+            judgeMoveXEventJoint,
+            judgeMoveYEventJoint,
+            spawnRotateEventJoint,
+            spawnResizeEventJoint,
+            spawnMoveXEventJoint,
+            spawnMoveYEventJoint,
             transparentEventJoint,
-            moveXEventJoint,
-            moveYEventJoint
+            noteHEventJoint,
         },
-        stages: chart.rectStages || [{ id: 0 }]
+        stages: chart.stages || [{ id: 0 }]
     }
 }

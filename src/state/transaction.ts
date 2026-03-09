@@ -1,7 +1,10 @@
 import type { State } from '.'
 import { view } from '../editor/view'
+import type { Entity } from './entities'
+import type { SlideId } from './entities/slides'
 import { calculateBpms, type BpmIntegral } from './integrals/bpms'
 import { calculateTimeScales, type TimeScaleIntegral } from './integrals/timeScales'
+import { rebuildSlide } from './mutations/slides'
 
 export type Transaction = ReturnType<typeof createTransaction>
 
@@ -11,6 +14,8 @@ export const createTransaction = (state: State) => {
         ...state.store.eventRanges
     }
     const stages = [...state.store.stages]
+    const slides = createMapObjectTransaction(state.store.slides)
+    const dirtySlideIds = new Set<SlideId>()
     // const holdNoteRanges = createMapObjectTransaction(state.store.holdNoteRanges)
 
     let bpms: BpmIntegral[] | undefined
@@ -19,8 +24,12 @@ export const createTransaction = (state: State) => {
     return {
         store: {
             grid: grid.accessor,
+            slides: slides.accessor,
             eventRanges,
             stages,
+            markDirty(slideId: SlideId) {
+                dirtySlideIds.add(slideId)
+            },
             // holdNoteRanges: holdNoteRanges.accessor,
         },
 
@@ -31,10 +40,14 @@ export const createTransaction = (state: State) => {
             return (timeScales ??= [...state.timeScales])
         },
 
-        commit: (): State => {
+        commit(selectedEntities: Entity[]): State {
             if (bpms) bpms = calculateBpms(bpms)
             if (bpms || timeScales)
                 timeScales = calculateTimeScales(bpms ?? state.bpms, timeScales ?? [...state.timeScales.filter(({ stage }) => stage === view.stage)])
+
+            for (const slideId of dirtySlideIds) {
+                rebuildSlide(this.store, slideId, selectedEntities)
+            }
 
             return {
                 ...state,
@@ -45,6 +58,10 @@ export const createTransaction = (state: State) => {
                         ...grid.value,
                     },
                     eventRanges,
+                    slides: {
+                        ...state.store.slides,
+                        ...slides.value,
+                    },
                     stages
                     // holdNoteRanges: {
                     //     ...state.store.holdNoteRanges,
@@ -54,6 +71,8 @@ export const createTransaction = (state: State) => {
 
                 bpms: bpms ?? state.bpms,
                 timeScales: timeScales ?? state.timeScales,
+
+                selectedEntities
             }
         },
     }

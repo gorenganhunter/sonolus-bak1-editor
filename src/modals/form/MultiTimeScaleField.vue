@@ -9,5 +9,6 @@ const modelValue = defineModel<number | undefined>({ required: true })
     <MultiNumberField
         v-model="modelValue"
         :label="i18n.modals.form.timeScale.label"
+        step="any"
     />
 </template>

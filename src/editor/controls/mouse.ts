@@ -5,7 +5,7 @@ import { zoomYIn } from '../commands/zoom/zoomYIn'
 import { zoomYOut } from '../commands/zoom/zoomYOut'
 import { stopPlayer } from '../player'
 import { switchToolTo, tool, toolName, type ToolName } from '../tools'
-import { scrollViewBy, setViewHover, updateViewPointer, view } from '../view'
+import { scrollViewXBy, scrollViewYBy, setViewHover, updateViewPointer, view } from '../view'
 import { gesture } from './gestures/gesture'
 import { drag } from './gestures/recognizers/drag'
 import { tap } from './gestures/recognizers/tap'
@@ -28,7 +28,7 @@ const mousedown = (event: MouseEvent) => {
     const p = toP(event)
     updateViewPointer(p)
 
-    view.scrolling = undefined
+    view.scrollingY = undefined
     stopPlayer(false)
 
     if (!mouseGesture.pointerCount && event.buttons & 2 && !secondarySwitchBack) {
@@ -112,16 +112,42 @@ const wheel = (event: WheelEvent) => {
             }
         }
     } else {
-        switch (event.deltaMode) {
-            case WheelEvent.DOM_DELTA_PIXEL:
-                scrollViewBy(-event.deltaY, settings.mouseSmoothScrolling)
-                break
-            case WheelEvent.DOM_DELTA_LINE:
-                scrollViewBy(-(event.deltaY * 20), settings.mouseSmoothScrolling)
-                break
-            case WheelEvent.DOM_DELTA_PAGE:
-                scrollViewBy(-event.deltaY * view.h, settings.mouseSmoothScrolling)
-                break
+        if (event.shiftKey) {
+            switch (event.deltaMode) {
+                case WheelEvent.DOM_DELTA_PIXEL:
+                    if (!settings.lockScrollX)
+                        scrollViewXBy(event.deltaY, settings.mouseSmoothScrolling)
+                    scrollViewYBy(-event.deltaX, settings.mouseSmoothScrolling)
+                    break
+                case WheelEvent.DOM_DELTA_LINE:
+                    if (!settings.lockScrollX)
+                        scrollViewXBy(event.deltaY * 20, settings.mouseSmoothScrolling)
+                    scrollViewYBy(-(event.deltaX * 20), settings.mouseSmoothScrolling)
+                    break
+                case WheelEvent.DOM_DELTA_PAGE:
+                    if (!settings.lockScrollX)
+                        scrollViewXBy(-event.deltaY * view.w, settings.mouseSmoothScrolling)
+                    scrollViewYBy(-event.deltaX * view.h, settings.mouseSmoothScrolling)
+                    break
+            }
+        } else {
+            switch (event.deltaMode) {
+                case WheelEvent.DOM_DELTA_PIXEL:
+                    if (!settings.lockScrollX)
+                        scrollViewXBy(event.deltaX, settings.mouseSmoothScrolling)
+                    scrollViewYBy(-event.deltaY, settings.mouseSmoothScrolling)
+                    break
+                case WheelEvent.DOM_DELTA_LINE:
+                    if (!settings.lockScrollX)
+                        scrollViewXBy(event.deltaX * 20, settings.mouseSmoothScrolling)
+                    scrollViewYBy(-(event.deltaY * 20), settings.mouseSmoothScrolling)
+                    break
+                case WheelEvent.DOM_DELTA_PAGE:
+                    if (!settings.lockScrollX)
+                        scrollViewXBy(event.deltaX * view.w, settings.mouseSmoothScrolling)
+                    scrollViewYBy(-event.deltaY * view.h, settings.mouseSmoothScrolling)
+                    break
+            }
         }
     }
 

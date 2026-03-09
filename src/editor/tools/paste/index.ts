@@ -2,10 +2,9 @@ import { ref } from 'vue'
 import type { Tool } from '..'
 import type {
     EventObject,
-    BaseNoteObject,
+    NoteObject,
     ValueObject,
-    StageValueObject,
-    HoldNoteObject,
+    StageValueObject
 } from '../../../chart'
 import { parseChart } from '../../../chart/parse'
 import { parseClipboardData } from '../../../clipboardData/parse'
@@ -13,31 +12,36 @@ import { pushState, state } from '../../../history'
 import { i18n } from '../../../i18n'
 import type { Entity, EntityOfType } from '../../../state/entities'
 import type { EventJointEntityType } from '../../../state/entities/events/joints'
-import { laneToMoveXEventValue, toMoveXEventJointEntity } from '../../../state/entities/events/joints/moveX'
-import { laneToMoveYEventValue, toMoveYEventJointEntity } from '../../../state/entities/events/joints/moveY'
-import { laneToResizeEventValue, toResizeEventJointEntity } from '../../../state/entities/events/joints/resize'
+import { laneToJudgeMoveXEventValue, toJudgeMoveXEventJointEntity } from '../../../state/entities/events/joints/judgeMoveX'
+import { laneToJudgeMoveYEventValue, toJudgeMoveYEventJointEntity } from '../../../state/entities/events/joints/judgeMoveY'
+import { laneToJudgeResizeEventValue, toJudgeResizeEventJointEntity } from '../../../state/entities/events/joints/judgeResize'
 import {
-    toRotateEventJointEntity,
-    type RotateEventJointEntity,
-} from '../../../state/entities/events/joints/rotate'
+    toJudgeRotateEventJointEntity,
+    type JudgeRotateEventJointEntity,
+} from '../../../state/entities/events/joints/judgeRotate'
+import { laneToSpawnMoveXEventValue, toSpawnMoveXEventJointEntity } from '../../../state/entities/events/joints/spawnMoveX'
+import { laneToSpawnMoveYEventValue, toSpawnMoveYEventJointEntity } from '../../../state/entities/events/joints/spawnMoveY'
+import { laneToSpawnResizeEventValue, toSpawnResizeEventJointEntity } from '../../../state/entities/events/joints/spawnResize'
+import {
+    toSpawnRotateEventJointEntity,
+    type SpawnRotateEventJointEntity,
+} from '../../../state/entities/events/joints/spawnRotate'
 import { laneToTransparentEventValue, toTransparentEventJointEntity } from '../../../state/entities/events/joints/transparent'
-import { toDragNoteEntity, type DragNoteEntity } from '../../../state/entities/notes/dragNote'
-import { toFlickNoteEntity, type FlickNoteEntity } from '../../../state/entities/notes/flickNote'
-import { toHoldNoteEntity, type HoldNoteEntity } from '../../../state/entities/notes/holdNote'
-import { toTapNoteEntity, type TapNoteEntity } from '../../../state/entities/notes/tapNote'
+import { laneToNoteHEventValue, toNoteHEventJointEntity } from '../../../state/entities/events/joints/noteH'
 import type { ValueEntity, ValueEntityType } from '../../../state/entities/values'
 import { toBpmEntity } from '../../../state/entities/values/bpm'
 import { toTimeScaleEntity, type TimeScaleEntity } from '../../../state/entities/values/timeScale'
 import type { AddMutation, RemoveMutation } from '../../../state/mutations'
-import { addMoveXEventJoint, removeMoveXEventJoint } from '../../../state/mutations/events/moveX'
-import { addMoveYEventJoint, removeMoveYEventJoint } from '../../../state/mutations/events/moveY'
-import { addResizeEventJoint, removeResizeEventJoint } from '../../../state/mutations/events/resize'
-import { addRotateEventJoint, removeRotateEventJoint } from '../../../state/mutations/events/rotate'
+import { addJudgeMoveXEventJoint, removeJudgeMoveXEventJoint } from '../../../state/mutations/events/judgeMoveX'
+import { addJudgeMoveYEventJoint, removeJudgeMoveYEventJoint } from '../../../state/mutations/events/judgeMoveY'
+import { addJudgeResizeEventJoint, removeJudgeResizeEventJoint } from '../../../state/mutations/events/judgeResize'
+import { addJudgeRotateEventJoint, removeJudgeRotateEventJoint } from '../../../state/mutations/events/judgeRotate'
+import { addSpawnMoveXEventJoint, removeSpawnMoveXEventJoint } from '../../../state/mutations/events/spawnMoveX'
+import { addSpawnMoveYEventJoint, removeSpawnMoveYEventJoint } from '../../../state/mutations/events/spawnMoveY'
+import { addSpawnResizeEventJoint, removeSpawnResizeEventJoint } from '../../../state/mutations/events/spawnResize'
+import { addSpawnRotateEventJoint, removeSpawnRotateEventJoint } from '../../../state/mutations/events/spawnRotate'
 import { addTransparentEventJoint, removeTransparentEventJoint } from '../../../state/mutations/events/transparent'
-import { addDragNote, removeDragNote } from '../../../state/mutations/notes/dragNote'
-import { addFlickNote, removeFlickNote } from '../../../state/mutations/notes/flickNote'
-import { addHoldNote, removeHoldNote } from '../../../state/mutations/notes/holdNote'
-import { addTapNote, removeTapNote } from '../../../state/mutations/notes/tapNote'
+import { addNoteHEventJoint, removeNoteHEventJoint } from '../../../state/mutations/events/noteH'
 import { addBpm, removeBpm } from '../../../state/mutations/values/bpm'
 import { addTimeScale, removeTimeScale } from '../../../state/mutations/values/timeScale'
 import { getInStoreGrid } from '../../../state/store/grid'
@@ -101,6 +105,9 @@ import { view, xToLane, yToValidBeat, yToBeatOffset } from '../../view'
 // import { notify } from '../../notification'
 // import { view, xToLane, yToBeatOffset } from '../../view'
 import PasteSidebar from './PasteSidebar.vue'
+import { toNoteEntity, type NoteEntity } from '../../../state/entities/slides/note'
+import { createSlideId } from '../../../state/entities/slides'
+import { addNote, removeNote, replaceNote } from '../../../state/mutations/slides/note'
 //
 export type ClipboardEntry = {
     name: string
@@ -189,7 +196,7 @@ export const paste: Tool = {
         pushState(
             interpolate(() => i18n.value.tools.paste.pasted, `${selectedEntities.length}`),
             {
-                ...transaction.commit(),
+                ...transaction.commit(selectedEntities),
                 selectedEntities,
             },
         )
@@ -248,16 +255,22 @@ const getData = (text: string) => {
                 ...chart.bpms.map(toBpmEntity),
                 ...chart.timeScales.map(toTimeScaleEntity),
 
-                ...chart.rotateEvents.map(toRotateEventJointEntity),
-                ...chart.resizeEvents.map(toResizeEventJointEntity),
+                ...chart.judgeRotateEvents.map(toJudgeRotateEventJointEntity),
+                ...chart.judgeResizeEvents.map(toJudgeResizeEventJointEntity),
+                ...chart.judgeMoveXEvents.map(toJudgeMoveXEventJointEntity),
+                ...chart.judgeMoveYEvents.map(toJudgeMoveYEventJointEntity),
+                ...chart.spawnRotateEvents.map(toSpawnRotateEventJointEntity),
+                ...chart.spawnResizeEvents.map(toSpawnResizeEventJointEntity),
+                ...chart.spawnMoveXEvents.map(toSpawnMoveXEventJointEntity),
+                ...chart.spawnMoveYEvents.map(toSpawnMoveYEventJointEntity),
                 ...chart.transparentEvents.map(toTransparentEventJointEntity),
-                ...chart.moveXEvents.map(toMoveXEventJointEntity),
-                ...chart.moveYEvents.map(toMoveYEventJointEntity),
+                ...chart.noteHEvents.map(toNoteHEventJointEntity),
 
-                ...chart.tapNotes.map(toTapNoteEntity),
-                ...chart.holdNotes.map(toHoldNoteEntity),
-                ...chart.dragNotes.map(toDragNoteEntity),
-                ...chart.flickNotes.map(toFlickNoteEntity),
+                ...chart.slides.flatMap((slide) => {
+                    const slideId = createSlideId()
+
+                    return slide.map((note) => toNoteEntity(slideId, note))
+                }),
             ],
         }
     } catch {
@@ -281,7 +294,7 @@ const toMovedValueObject = (entity: ValueEntity, beat: number): ValueObject => (
 const toMovedStageValueObject = (entity: TimeScaleEntity, beat: number): StageValueObject => ({
     beat,
     value: entity.value,
-    stage: entity.stage
+    stage: view.stage
 })
 
 const toMovedEventObject = <T extends EventJointEntityType>(
@@ -303,14 +316,14 @@ const toMovedEventObject = <T extends EventJointEntityType>(
 
 const toMovedRotateEventObject = (
     entities: Entity[],
-    entity: RotateEventJointEntity,
+    entity: JudgeRotateEventJointEntity | SpawnRotateEventJointEntity,
     startLane: number,
     lane: number,
     beat: number,
 ): EventObject => {
     const division = entities.some(
         ({ type }) =>
-            type === 'tapNote',
+            type === 'note',
     )
         ? 1
         : 2
@@ -323,32 +336,45 @@ const toMovedRotateEventObject = (
     }
 }
 
-type NoteEntity = TapNoteEntity | DragNoteEntity | FlickNoteEntity
-
 const toMovedNoteObject = (
+    entities: Entity[],
     entity: NoteEntity,
     startLane: number,
     lane: number,
     beat: number,
-): BaseNoteObject => ({
-    beat,
-    lane: mod(mod(entity.lane + align(lane, view.lane) - align(startLane, view.lane), 1) + view.side, 4),
-    size: entity.size,
-    stage: view.stage
-})
+    focus?: Entity,
+): NoteObject => {
+    // if (focus.type === 'note' && entities.every((entity) => entity.type === 'note')) {
+    //     //console.log(startLane, focus.lane, focus.size, view.laneDiv)
+    //     if (startLane <= focus.lane - focus.size / 2 + 1 / view.laneDiv / 4) {
+    //         const a = entity.lane + entity.size / 2 - 1 / view.laneDiv
+    //         const b = entity.lane - entity.size / 2 + (laneToValidLane(lane) - laneToValidLane(startLane))
+    //
+    //         return {
+    //             ...entity,
+    //             lane: (a + b + 1 / view.laneDiv) / 2,
+    //             size: Math.abs(a - b) + 1 / view.laneDiv,
+    //         }
+    //     } else if (startLane >= focus.lane + focus.size / 2 - 1 / view.laneDiv / 4) {
+    //         const a = entity.lane - entity.size / 2
+    //         const b =
+    //             entity.lane + entity.size / 2 - 1 / view.laneDiv + (laneToValidLane(lane) - laneToValidLane(startLane))
+    //
+    //         return {
+    //             ...entity,
+    //             lane: (a + b + 1 / view.laneDiv) / 2,
+    //             size: Math.abs(a - b) + 1 / view.laneDiv,
+    //         }
+    //     }
+    // }
 
-const toMovedHoldNoteObject = (
-    entity: HoldNoteEntity,
-    startLane: number,
-    lane: number,
-    beat: number,
-): HoldNoteObject => ({
-    beat,
-    lane: mod(mod(entity.lane + align(lane, view.lane) - align(startLane, view.lane), 1) + view.side, 4),
-    size: entity.size,
-    stage: view.stage,
-    duration: entity.duration
-})
+    return {
+        ...entity,
+        beat,
+        lane: entity.lane + align(lane, view.laneDiv) - align(startLane, view.laneDiv),
+        stage: view.stage
+    }
+}
 
 type Create<T extends Entity> = (
     entities: Entity[],
@@ -383,38 +409,53 @@ const creates: {
     bpm: createValueEntity(toBpmEntity),
     timeScale: createStageValueEntity(toTimeScaleEntity),
 
-    rotateEventJoint: (entities, entity, startLane, lane, beat) =>
-        toRotateEventJointEntity(toMovedRotateEventObject(entities, entity, startLane, lane, beat)),
-    resizeEventJoint: createEventJointEntity(
-        'resizeEventJoint',
-        laneToResizeEventValue,
-        toResizeEventJointEntity,
+    judgeRotateEventJoint: (entities, entity, startLane, lane, beat) =>
+        toJudgeRotateEventJointEntity(toMovedRotateEventObject(entities, entity, startLane, lane, beat)),
+    judgeResizeEventJoint: createEventJointEntity(
+        'judgeResizeEventJoint',
+        laneToJudgeResizeEventValue,
+        toJudgeResizeEventJointEntity,
+    ),
+    judgeMoveXEventJoint: createEventJointEntity(
+        'judgeMoveXEventJoint',
+        laneToJudgeMoveXEventValue,
+        toJudgeMoveXEventJointEntity,
+    ),
+    judgeMoveYEventJoint: createEventJointEntity(
+        'judgeMoveYEventJoint',
+        laneToJudgeMoveYEventValue,
+        toJudgeMoveYEventJointEntity,
+    ),
+    spawnRotateEventJoint: (entities, entity, startLane, lane, beat) =>
+        toSpawnRotateEventJointEntity(toMovedRotateEventObject(entities, entity, startLane, lane, beat)),
+    spawnResizeEventJoint: createEventJointEntity(
+        'spawnResizeEventJoint',
+        laneToSpawnResizeEventValue,
+        toSpawnResizeEventJointEntity,
+    ),
+    spawnMoveXEventJoint: createEventJointEntity(
+        'spawnMoveXEventJoint',
+        laneToSpawnMoveXEventValue,
+        toSpawnMoveXEventJointEntity,
+    ),
+    spawnMoveYEventJoint: createEventJointEntity(
+        'spawnMoveYEventJoint',
+        laneToSpawnMoveYEventValue,
+        toSpawnMoveYEventJointEntity,
     ),
     transparentEventJoint: createEventJointEntity(
         'transparentEventJoint',
         laneToTransparentEventValue,
         toTransparentEventJointEntity,
     ),
-    moveXEventJoint: createEventJointEntity(
-        'moveXEventJoint',
-        laneToMoveXEventValue,
-        toMoveXEventJointEntity,
-    ),
-    moveYEventJoint: createEventJointEntity(
-        'moveYEventJoint',
-        laneToMoveYEventValue,
-        toMoveYEventJointEntity,
+    noteHEventJoint: createEventJointEntity(
+        'noteHEventJoint',
+        laneToNoteHEventValue,
+        toNoteHEventJointEntity,
     ),
 
-    tapNote: (entities, entity, startLane, lane, beat) =>
-        toTapNoteEntity(toMovedNoteObject(entity, startLane, lane, beat)),
-    dragNote: (entities, entity, startLane, lane, beat) =>
-        toDragNoteEntity(toMovedNoteObject(entity, startLane, lane, beat)),
-    flickNote: (entities, entity, startLane, lane, beat) =>
-        toFlickNoteEntity(toMovedNoteObject(entity, startLane, lane, beat)),
-    holdNote: (entities, entity, startLane, lane, beat) =>
-        toHoldNoteEntity(toMovedHoldNoteObject(entity, startLane, lane, beat)),
-
+    note: (entities, entity, startLane, lane, beat) =>
+        toNoteEntity(entity.slideId, toMovedNoteObject(entities, entity, startLane, lane, beat)),
 }
 
 type Paste<T extends Entity> = (
@@ -486,20 +527,18 @@ const moveEventJointEntity =
             return add(transaction, object)
         }
 
-type NoteEntityType = "tapNote" | "dragNote" | "flickNote"
-
-const moveNoteObject = <T extends NoteEntityType>(type: T, addEntity: any, removeEntity: any): Paste<EntityOfType<T>> => (transaction, entities, entity, startLane, lane, beat) => {
-    const object = toMovedNoteObject(entity, startLane, lane, beat)
-
-    removeEntity(transaction, entity)
-
-    const overlap = getInStoreGrid(transaction.store.grid, type, object.beat)?.find(
-        (entity) => entity.beat === object.beat && entity.lane === object.lane && entity.stage === object.stage,
-    )
-    if (overlap) removeEntity(transaction, overlap)
-
-    return addEntity(transaction, object)
-}
+// const moveNoteObject = (addEntity: any, removeEntity: any): Paste<NoteEntity> => (transaction, entities, entity, startLane, lane, beat) => {
+//     const object = toMovedNoteObject(entity, startLane, lane, beat)
+//
+//     removeEntity(transaction, entity)
+//
+//     const overlap = getInStoreGrid(transaction.store.grid, "note", object.beat)?.find(
+//         (entity) => entity.beat === object.beat && entity.lane === object.lane && entity.stage === object.stage,
+//     )
+//     if (overlap) removeEntity(transaction, overlap)
+//
+//     return addEntity(transaction, object)
+// }
 
 const pastes: {
     [T in Entity as T['type']]?: Paste<T>
@@ -507,23 +546,65 @@ const pastes: {
     bpm: moveValueEntity('bpm', addBpm, removeBpm),
     timeScale: moveStageValueEntity('timeScale', addTimeScale, removeTimeScale),
 
-    rotateEventJoint: (transaction, entities, entity, startLane, lane, beat) => {
+    judgeRotateEventJoint: (transaction, entities, entity, startLane, lane, beat) => {
         const object = toMovedRotateEventObject(entities, entity, startLane, lane, beat)
 
         const overlap = getInStoreGrid(
             transaction.store.grid,
-            'rotateEventJoint',
+            'judgeRotateEventJoint',
             object.beat,
         )?.find((entity) => entity.beat === object.beat && entity.stage === object.stage)
-        if (overlap) removeRotateEventJoint(transaction, overlap)
+        if (overlap) removeJudgeRotateEventJoint(transaction, overlap)
 
-        return addRotateEventJoint(transaction, object)
+        return addJudgeRotateEventJoint(transaction, object)
     },
-    resizeEventJoint: moveEventJointEntity(
-        'resizeEventJoint',
-        laneToResizeEventValue,
-        addResizeEventJoint,
-        removeResizeEventJoint,
+    judgeResizeEventJoint: moveEventJointEntity(
+        'judgeResizeEventJoint',
+        laneToJudgeResizeEventValue,
+        addJudgeResizeEventJoint,
+        removeJudgeResizeEventJoint,
+    ),
+    judgeMoveXEventJoint: moveEventJointEntity(
+        'judgeMoveXEventJoint',
+        laneToJudgeMoveXEventValue,
+        addJudgeMoveXEventJoint,
+        removeJudgeMoveXEventJoint,
+    ),
+    judgeMoveYEventJoint: moveEventJointEntity(
+        'judgeMoveYEventJoint',
+        laneToJudgeMoveYEventValue,
+        addJudgeMoveYEventJoint,
+        removeJudgeMoveYEventJoint,
+    ),
+    spawnRotateEventJoint: (transaction, entities, entity, startLane, lane, beat) => {
+        const object = toMovedRotateEventObject(entities, entity, startLane, lane, beat)
+
+        const overlap = getInStoreGrid(
+            transaction.store.grid,
+            'spawnRotateEventJoint',
+            object.beat,
+        )?.find((entity) => entity.beat === object.beat && entity.stage === object.stage)
+        if (overlap) removeSpawnRotateEventJoint(transaction, overlap)
+
+        return addSpawnRotateEventJoint(transaction, object)
+    },
+    spawnResizeEventJoint: moveEventJointEntity(
+        'spawnResizeEventJoint',
+        laneToSpawnResizeEventValue,
+        addSpawnResizeEventJoint,
+        removeSpawnResizeEventJoint,
+    ),
+    spawnMoveXEventJoint: moveEventJointEntity(
+        'spawnMoveXEventJoint',
+        laneToSpawnMoveXEventValue,
+        addSpawnMoveXEventJoint,
+        removeSpawnMoveXEventJoint,
+    ),
+    spawnMoveYEventJoint: moveEventJointEntity(
+        'spawnMoveYEventJoint',
+        laneToSpawnMoveYEventValue,
+        addSpawnMoveYEventJoint,
+        removeSpawnMoveYEventJoint,
     ),
     transparentEventJoint: moveEventJointEntity(
         'transparentEventJoint',
@@ -531,33 +612,16 @@ const pastes: {
         addTransparentEventJoint,
         removeTransparentEventJoint,
     ),
-    moveXEventJoint: moveEventJointEntity(
-        'moveXEventJoint',
-        laneToMoveXEventValue,
-        addMoveXEventJoint,
-        removeMoveXEventJoint,
-    ),
-    moveYEventJoint: moveEventJointEntity(
-        'moveYEventJoint',
-        laneToMoveYEventValue,
-        addMoveYEventJoint,
-        removeMoveYEventJoint,
+    noteHEventJoint: moveEventJointEntity(
+        'noteHEventJoint',
+        laneToNoteHEventValue,
+        addNoteHEventJoint,
+        removeNoteHEventJoint,
     ),
 
-    holdNote: (transaction, entities, entity, startLane, lane, beat) => {
-        const object = toMovedHoldNoteObject(entity, startLane, lane, beat)
+    note: (transaction, entities, entity, startLane, lane, beat) => {
+        const object = toMovedNoteObject(entities, entity, startLane, lane, beat)
 
-        removeHoldNote(transaction, entity)
-
-        const overlap = getInStoreGrid(transaction.store.grid, 'holdNote', object.beat)?.find(
-            (entity) => entity.beat === object.beat && entity.lane === object.lane && entity.stage === object.stage,
-        )
-        if (overlap) removeHoldNote(transaction, overlap)
-
-        return addHoldNote(transaction, object)
+        return addNote(transaction, entity.slideId, object)
     },
-
-    tapNote: moveNoteObject("tapNote", addTapNote, removeTapNote),
-    dragNote: moveNoteObject("dragNote", addDragNote, removeDragNote),
-    flickNote: moveNoteObject("flickNote", addFlickNote, removeFlickNote),
 }

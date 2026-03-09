@@ -19,8 +19,8 @@ export class Quad {
     return new Quad(new Vec(this.p1).mul(value), new Vec(this.p2).mul(value), new Vec(this.p3).mul(value), new Vec(this.p4).mul(value))
   }
 
-  translate(x: number, y: number): Quad {
-    return new Quad(new Vec(this.p1).translate(x, y), new Vec(this.p2).translate(x, y), new Vec(this.p3).translate(x, y), new Vec(this.p4).translate(x, y))
+  add(x: number, y: number): Quad {
+    return new Quad(new Vec(this.p1).add(x, y), new Vec(this.p2).add(x, y), new Vec(this.p3).add(x, y), new Vec(this.p4).add(x, y))
   }
 
   rotate(angle: number): Quad {

@@ -1,15 +1,15 @@
 import { EngineArchetypeDataName, type LevelDataEntity } from "@sonolus/core";
-import type { RectStageObject } from "../../chart";
+import type { Stage } from "../../chart";
 import type { TimeScaleIntegral } from "../../state/integrals/timeScales";
 import type { TimeScaleEntity } from "../../state/entities/values/timeScale";
 
-export const serializeLevelDataRectStages = (rectStages: RectStageObject[], timeScales: TimeScaleEntity[], getName: () => string) => {
+export const serializeLevelDataStages = (stages: Stage[], timeScales: TimeScaleEntity[], getName: () => string) => {
     const arr: LevelDataEntity[] = []
-    rectStages.forEach((rectStage) => {
+    stages.forEach((stg) => {
         const stage: LevelDataEntity = {
-            archetype: 'RectStage',
+            archetype: 'BAK1Stage',
             data: [],
-            name: "stage" + rectStage.id
+            name: "stage" + stg.id
         }
         const tsg: LevelDataEntity[] = []
         let lastName: string = getName()
@@ -19,7 +19,7 @@ export const serializeLevelDataRectStages = (rectStages: RectStageObject[], time
             ref: lastName
         })
 
-        timeScales.filter(ts => ts.stage === rectStage.id).sort((a, b) => a.beat - b.beat).forEach((ts, i, a) => {
+        timeScales.filter(ts => ts.stage === stg.id).sort((a, b) => a.beat - b.beat).forEach((ts, i, a) => {
             const entity: LevelDataEntity = {
                 archetype: "StageTimeScaleChange",
                 data: [

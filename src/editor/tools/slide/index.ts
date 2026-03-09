@@ -1,0 +1,442 @@
+import { computed, ref } from 'vue'
+import type { Tool } from '..'
+import type { NoteObject } from '../../../chart'
+import { pushState, replaceState, state } from '../../../history'
+import { selectedEntities } from '../../../history/selectedEntities'
+import { store } from '../../../history/store'
+import { i18n } from '../../../i18n'
+import { showModal } from '../../../modals'
+import { settings, type DefaultNoteSlideProperties } from '../../../settings'
+import type { Entity } from '../../../state/entities'
+import { createSlideId, type SlideId } from '../../../state/entities/slides'
+import { toNoteEntity, type NoteEntity } from '../../../state/entities/slides/note'
+import { addNote, replaceNote } from '../../../state/mutations/slides/note'
+import { createTransaction, type Transaction } from '../../../state/transaction'
+import { interpolate } from '../../../utils/interpolate'
+import { bisect } from '../../../utils/ordered'
+import { notify } from '../../notification'
+import { isSidebarVisible } from '../../sidebars'
+import { quickEdit } from '../../utils/quickEdit'
+import {
+    focusViewAtBeat,
+    laneToValidLane,
+    setViewHover,
+    snapYToBeat,
+    view,
+    xToLane,
+    xToValidLane,
+    yToValidBeat,
+} from '../../view'
+import { hitEntitiesAtPoint, modifyEntities } from '../utils'
+import SlidePropertiesModal from './SlidePropertiesModal.vue'
+import SlideSidebar from './SlideSidebar.vue'
+
+export const defaultSlidePropertiesPresetIndex = ref(0)
+
+export const setDefaultSlidePropertiesPreset = (properties: DefaultNoteSlideProperties) => {
+    settings.defaultSlidePropertiesPresets = settings.defaultSlidePropertiesPresets.map(
+        (preset, i) => (i === defaultSlidePropertiesPresetIndex.value ? properties : preset),
+    )
+}
+
+export const defaultSlideProperties = computed(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    () => settings.defaultSlidePropertiesPresets[defaultSlidePropertiesPresetIndex.value]!,
+)
+
+let active:
+    | {
+        type: 'add'
+        lane: number
+    }
+    | {
+        type: 'edit'
+        entity: NoteEntity
+        lane: number
+    }
+    | {
+        type: 'move'
+        entity: NoteEntity
+        lane: number
+    }
+    | undefined
+
+export const slide: Tool = {
+    sidebar: SlideSidebar,
+
+    hover(x, y, modifiers) {
+        const [entity, beat, lane] = tryFind(x, y)
+        if (entity) {
+            view.entities = {
+                hovered: modifyEntities([entity], modifiers),
+                creating: [],
+            }
+        } else {
+            let id = getSelectedSlideId()
+            // if (id) {
+            //     const sl = store.value.slides.info.get(id)
+            //     if (sl) {
+            //         if (sl.length === 1 && sl[0]!.note.flickDirection !== "none") id = undefined
+            //     }
+            // }
+            view.entities = {
+                hovered: [],
+                creating: [
+                    toNoteEntity(id ?? createSlideId(), {
+                        stage: view.stage,
+                        beat,
+                        lane: lane,
+                        ...getPropertiesFromSelection(beat),
+                    }),
+                ],
+            }
+        }
+    },
+
+    tap(x, y, modifiers) {
+        const [entity, beat, lane] = tryFind(x, y)
+        if (entity) {
+            const entities = modifyEntities([entity], modifiers)
+
+            if (modifiers.ctrl) {
+                const selectedNoteEntities: Entity[] = selectedEntities.value.filter(
+                    (entity) => entity.type === 'note',
+                )
+
+                const targets = entities.every((entity) => selectedNoteEntities.includes(entity))
+                    ? selectedNoteEntities.filter((entity) => !entities.includes(entity))
+                    : [...new Set([...selectedNoteEntities, ...entities])]
+
+                replaceState({
+                    ...state.value,
+                    selectedEntities: targets,
+                })
+                view.entities = {
+                    hovered: [],
+                    creating: [],
+                }
+                focusViewAtBeat(entity.beat)
+
+                notify(interpolate(() => i18n.value.tools.slide.selected, `${targets.length}`))
+            } else {
+                if (entities.every((entity) => selectedEntities.value.includes(entity))) {
+                    focusViewAtBeat(entity.beat)
+
+                    if (isSidebarVisible.value) {
+                        quickEdit(defaultSlideProperties.value)
+                    } else {
+                        void showModal(SlidePropertiesModal, {})
+                    }
+                } else {
+                    replaceState({
+                        ...state.value,
+                        selectedEntities: entities,
+                    })
+                    view.entities = {
+                        hovered: [],
+                        creating: [],
+                    }
+                    focusViewAtBeat(entity.beat)
+
+                    notify(interpolate(() => i18n.value.tools.slide.selected, `${entities.length}`))
+                }
+            }
+        } else {
+            let id = getSelectedSlideId()
+            // if (id) {
+            //     const sl = store.value.slides.info.get(id)
+            //     if (sl) {
+            //         if (sl.length === 1 && sl[0]!.note.flickDirection !== "none") id = undefined
+            //     }
+            // }
+            add(id ?? createSlideId(), {
+                stage: view.stage,
+                beat,
+                lane: lane,
+                ...getPropertiesFromSelection(beat),
+            })
+            focusViewAtBeat(beat)
+        }
+    },
+
+    dragStart(x, y) {
+        const [entity, beat, lane] = tryFind(x, y)
+        if (entity) {
+            replaceState({
+                ...state.value,
+                selectedEntities: [entity],
+            })
+            view.entities = {
+                hovered: [],
+                creating: [],
+            }
+            focusViewAtBeat(entity.beat)
+
+            const lane = xToValidLane(x)
+            if (lane === entity.lane) {
+                notify(interpolate(() => i18n.value.tools.slide.moving, '1'))
+
+                active = {
+                    type: 'move',
+                    entity,
+                    lane: xToValidLane(x),
+                }
+            } else {
+                notify(interpolate(() => i18n.value.tools.slide.editing, '1'))
+
+                active = {
+                    type: 'edit',
+                    entity,
+                    lane: entity.lane
+                }
+            }
+        } else {
+            focusViewAtBeat(beat)
+
+            notify(interpolate(() => i18n.value.tools.slide.adding, '1'))
+
+            active = {
+                type: 'add',
+                lane,
+            }
+        }
+
+        return true
+    },
+
+    dragUpdate(x, y) {
+        if (!active) return
+
+        setViewHover(x, y)
+
+        const lane = xToValidLane(x)
+        //console.log(active)
+
+        switch (active.type) {
+            case 'add': {
+                const beat = yToValidBeat(y)
+
+                let id = getSelectedSlideId()
+                // if (id) {
+                //     const sl = store.value.slides.info.get(id)
+                //     if (sl) {
+                //         if (sl.length === 1 && sl[0]!.note.flickDirection !== "none") id = undefined
+                //     }
+                // }
+
+                view.entities = {
+                    hovered: [],
+                    creating: [
+                        toNoteEntity(id ?? createSlideId(), {
+                            stage: view.stage,
+                            beat,
+                            ...getPropertiesFromSelection(beat),
+                            lane: lane,
+                        }),
+                    ],
+                }
+                focusViewAtBeat(beat)
+                break
+            }
+            case 'edit': {
+                view.entities = {
+                    hovered: [],
+                    creating: [
+                        toNoteEntity(
+                            active.entity.slideId,
+                            {
+                                ...active.entity,
+                                lane: lane,
+                            },
+                            active.entity,
+                        ),
+                    ],
+                }
+                break
+            }
+            case 'move': {
+                const beat = snapYToBeat(y, active.entity.beat)
+                //console.log(y, active.entity.beat, beat)
+                view.entities = {
+                    hovered: [],
+                    creating: [
+                        toNoteEntity(
+                            active.entity.slideId,
+                            {
+                                ...active.entity,
+                                beat,
+                                lane: laneToValidLane(active.entity.lane + lane - active.lane),
+                            },
+                            active.entity,
+                        ),
+                    ],
+                }
+                focusViewAtBeat(beat)
+                break
+            }
+        }
+    },
+
+    dragEnd(x, y) {
+        if (!active) return
+
+        const lane = xToValidLane(x)
+
+        switch (active.type) {
+            case 'add': {
+                const beat = yToValidBeat(y)
+
+                let id = getSelectedSlideId()
+                // if (id) {
+                //     const sl = store.value.slides.info.get(id)
+                //     if (sl) {
+                //         if (sl.length === 1 && sl[0]!.note.flickDirection !== "none") id = undefined
+                //     }
+                // }
+
+                add(id ?? createSlideId(), {
+                    stage: view.stage,
+                    beat,
+                    ...getPropertiesFromSelection(beat),
+                    lane: lane,
+                })
+                focusViewAtBeat(beat)
+                break
+            }
+            case 'edit': {
+                edit(active.entity, {
+                    ...active.entity,
+                    lane,
+                })
+                break
+            }
+            case 'move': {
+                const beat = snapYToBeat(y, active.entity.beat)
+
+                move(active.entity, {
+                    ...active.entity,
+                    beat,
+                    lane: laneToValidLane(active.entity.lane + lane - active.lane),
+                })
+                focusViewAtBeat(beat)
+                break
+            }
+        }
+
+        active = undefined
+    },
+}
+
+const getNoteFromSelection = () => {
+    if (selectedEntities.value.length !== 1) return
+
+    const [entity] = selectedEntities.value
+    if (entity?.type !== 'note') return
+
+    return entity
+}
+
+const getNearestNoteInSlide = (slideId: SlideId, beat: number) => {
+    const notes = store.value.slides.note.get(slideId)
+    if (!notes) throw new Error('Unexpected notes not found')
+
+    const index = bisect(notes, 'beat', beat)
+    return notes[index - 1] ?? notes[index]
+}
+
+const getPropertiesFromSelection = (beat: number) => {
+    const note = getNoteFromSelection()
+    const nearest = note && getNearestNoteInSlide(note.slideId, beat)
+
+    return {
+        noteType: defaultSlideProperties.value.noteType ?? note?.noteType ?? 'default',
+        // isAttached: defaultSlideProperties.value.isAttached ?? note?.isAttached ?? false,
+        size: defaultSlideProperties.value.size ?? note?.size ?? (1 / view.laneDiv),
+        // isCritical: defaultSlideProperties.value.isCritical ?? note?.isCritical ?? false,
+        // flickDirection:
+        //     defaultSlideProperties.value.flickDirection ?? note?.flickDirection ?? 'none',
+        // shortenEarlyWindow:
+        //     defaultSlideProperties.value.shortenEarlyWindow ?? note?.shortenEarlyWindow ?? 'none',
+        isFake: defaultSlideProperties.value.isFake ?? note?.isFake ?? false,
+        // sfx: defaultSlideProperties.value.sfx ?? note?.sfx ?? 'default',
+        // isConnectorSeparator: defaultSlideProperties.value.isConnectorSeparator ?? false,
+        // connectorType:
+        //     defaultSlideProperties.value.connectorType ?? nearest?.connectorType ?? 'active',
+        // connectorEase: defaultSlideProperties.value.connectorEase ?? 'linear',
+        // connectorActiveIsCritical:
+        //     defaultSlideProperties.value.connectorActiveIsCritical ??
+        //     defaultSlideProperties.value.isCritical ??
+        //     nearest?.connectorActiveIsCritical ??
+        //     false,
+        // connectorActiveIsFake:
+        //     defaultSlideProperties.value.connectorActiveIsFake ??
+        //     defaultSlideProperties.value.isFake ??
+        //     nearest?.connectorActiveIsFake ??
+        //     false,
+        // connectorGuideColor:
+        //     defaultSlideProperties.value.connectorGuideColor ??
+        //     nearest?.connectorGuideColor ??
+        //     'green',
+        // connectorGuideAlpha:
+        //     defaultSlideProperties.value.connectorGuideAlpha ?? nearest?.connectorGuideAlpha ?? 1,
+        // connectorLayer:
+        //     defaultSlideProperties.value.connectorLayer ?? nearest?.connectorLayer ?? 'top',
+    }
+}
+
+const tryFind = (x: number, y: number): [NoteEntity] | [undefined, number, number] => {
+    const [hit] = hitEntitiesAtPoint('note', x, y)
+        .filter((entity) => view.stage === undefined || entity.stage === view.stage)
+        .sort((a, b) => +selectedEntities.value.includes(b) - +selectedEntities.value.includes(a))
+
+    return hit ? [hit] : [undefined, yToValidBeat(y), xToValidLane(x)]
+}
+
+const getSelectedSlideId = () => {
+    if (!selectedEntities.value.every((entity) => entity.type === 'note')) return
+
+    const [entity] = selectedEntities.value
+    if (!entity) return
+
+    if (!selectedEntities.value.every(({ slideId }) => slideId === entity.slideId)) return
+
+    return entity.slideId
+}
+
+const update = (message: () => string, action: (transaction: Transaction) => Entity[]) => {
+    const transaction = createTransaction(state.value)
+
+    const selectedEntities = action(transaction)
+
+    pushState(
+        interpolate(message, `${selectedEntities.length}`),
+        transaction.commit(selectedEntities),
+    )
+    view.entities = {
+        hovered: [],
+        creating: [],
+    }
+
+    notify(interpolate(message, `${selectedEntities.length}`))
+}
+
+const add = (slideId: SlideId, object: NoteObject) => {
+    update(
+        () => i18n.value.tools.slide.added,
+        (transaction) => addNote(transaction, slideId, object),
+    )
+}
+
+const edit = (entity: NoteEntity, object: NoteObject) => {
+    update(
+        () => i18n.value.tools.slide.edited,
+        (transaction) => replaceNote(transaction, entity, object),
+    )
+}
+
+const move = (entity: NoteEntity, object: NoteObject) => {
+    update(
+        () => i18n.value.tools.slide.moved,
+        (transaction) => replaceNote(transaction, entity, object),
+    )
+}

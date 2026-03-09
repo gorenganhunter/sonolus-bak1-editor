@@ -1,6 +1,6 @@
 import type { Command } from '..'
 import { i18n } from '../../../i18n'
-import { scrollViewBy, view } from '../../view'
+import { scrollViewYBy, view } from '../../view'
 import ScrollPageUpIcon from './ScrollPageUpIcon.vue'
 
 export const scrollPageUp: Command = {
@@ -10,6 +10,6 @@ export const scrollPageUp: Command = {
     },
 
     execute() {
-        scrollViewBy(view.h, true)
+        scrollViewYBy(view.h, true)
     },
 }

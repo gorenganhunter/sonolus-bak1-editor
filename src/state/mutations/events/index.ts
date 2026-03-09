@@ -16,7 +16,7 @@ export const addEventJoint = <T extends EventJointEntityType, U extends EventCon
     const joint = toJointEntity(object)
 
     const connection = getInStoreGrid(store.grid, connectionType, joint.beat)?.find(
-        (entity) => entity.min.beat < joint.beat && entity.max.beat > joint.beat && entity.stage === view.stage,
+        (entity) => entity.min.beat < joint.beat && entity.max.beat > joint.beat && entity.stage === object.stage,
     )
     if (connection) {
         removeFromStoreGrid(store.grid, connection, connection.min.beat, connection.max.beat)
@@ -34,7 +34,7 @@ export const addEventJoint = <T extends EventJointEntityType, U extends EventCon
         )
     } else {
         let evs: any[] = []
-        store.grid[joint.type].forEach(b => [...b].forEach(a => { if (a.stage === view.stage) evs.push(a) }))
+        store.grid[joint.type].forEach(b => [...b].forEach(a => { if (a.stage === object.stage) evs.push(a) }))
         evs = evs.sort((a, b) => a.beat - b.beat)
         const range = evs.length ? { min: evs[0], max: evs[evs.length - 1] } : null
         if (range) {
@@ -45,10 +45,10 @@ export const addEventJoint = <T extends EventJointEntityType, U extends EventCon
                     joint.beat,
                     range.min.beat,
                 )
-                store.eventRanges[joint.type] = {
+                store.eventRanges[joint.type]?.set(object.stage, {
                     min: joint,
                     max: range.max,
-                } as never
+                })
             } else {
                 addToStoreGrid(
                     store.grid,
@@ -56,16 +56,16 @@ export const addEventJoint = <T extends EventJointEntityType, U extends EventCon
                     range.max.beat,
                     joint.beat,
                 )
-                store.eventRanges[joint.type] = {
+                store.eventRanges[joint.type]?.set(object.stage, {
                     min: range.min,
                     max: joint,
-                } as never
+                })
             }
         } else {
-            store.eventRanges[joint.type] = {
+            store.eventRanges[joint.type]?.set(object.stage, {
                 min: joint,
                 max: joint,
-            } as never
+            })
         }
     }
 
@@ -87,29 +87,29 @@ export const removeEventJoint = <
     const next = entities?.find((entity) => entity.min === joint)
 
     let evs: any[] = []
-    store.grid[joint.type].forEach(b => [...b].forEach(a => { if (a.stage === view.stage) evs.push(a) }))
+    store.grid[joint.type].forEach(b => [...b].forEach(a => { if (a.stage === joint.stage) evs.push(a) }))
     evs = evs.sort((a, b) => a.beat - b.beat)
     const range = evs.length ? { min: evs[0], max: evs[evs.length - 1] } : null
     if (!range) throw new Error('Unexpected event range not found')
 
-    if (!prev && !next) store.eventRanges[joint.type] = undefined
+    if (!prev && !next) store.eventRanges[joint.type]?.delete(joint.stage)
 
     if (prev) {
         removeFromStoreGrid(store.grid, prev, prev.min.beat, prev.max.beat)
         if (range.max === joint)
-            store.eventRanges[joint.type] = {
+            store.eventRanges[joint.type]?.set(joint.stage, {
                 min: range.min,
                 max: prev.min,
-            } as never
+            })
     }
 
     if (next) {
         removeFromStoreGrid(store.grid, next, next.min.beat, next.max.beat)
         if (range.min === joint)
-            store.eventRanges[joint.type] = {
+            store.eventRanges[joint.type]?.set(joint.stage, {
                 min: next.max,
                 max: range.max,
-            } as never
+            })
     }
 
     if (prev && next)

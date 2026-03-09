@@ -201,7 +201,7 @@ export const createEventTool = <T extends EventJointEntityType>(
             //
             //         async tap(x, y) {
             //             const [result, entity, beat, value] = tryFind(x, y)
-            //             // console.log(result)
+            //             // //console.log(result)
             //             if (result) {
             //                 replaceState({
             //                     ...state.value,

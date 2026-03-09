@@ -6,12 +6,12 @@ import { toTimeScaleIntegral } from '../../integrals/timeScales'
 import { addToStoreGrid, removeFromStoreGrid } from '../../store/grid'
 
 export const addTimeScale: AddMutation<StageValueObject> = ({ store, timeScales }, object) => {
-    console.log(object)
+    //console.log(object)
     addToOrdered(timeScales, 'beat', toTimeScaleIntegral(object))
-    console.log("ord", timeScales)
+    //console.log("ord", timeScales)
     const entity = toTimeScaleEntity(object)
     addToStoreGrid(store.grid, entity, entity.beat)
-    console.log("addT", store.grid.timeScale)
+    //console.log("addT", store.grid.timeScale)
     return [entity]
 }
 

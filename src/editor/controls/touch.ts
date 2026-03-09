@@ -24,7 +24,7 @@ const touchstart = (event: TouchEvent) => {
     const ps = toPs(event)
     updateViewPointer(ps[0])
 
-    view.scrolling = undefined
+    view.scrollingY = undefined
     stopPlayer(false)
 
     touchGesture.start(ps)
